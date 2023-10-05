@@ -1,44 +1,40 @@
-Parlay Leg Opimizer using Neural Networks (PLONN)
+# Parlay Leg Optimizer using Neural Networks (PLONN)
+## Introduction
+PLONN is a machine learning model designed to optimize sports betting parlays for maximum Return on Investment (ROI). By analyzing historical and in-season data, PLONN ranks potential parlay combinations based on their likelihood of winning and their potential payout.
 
-Goals:
+# Goals:
+## Goal A: Parlay Optimization
+Implement a neural network that takes a series of sports bets and produces a ranked list of different parlays for maximum ROI.
 
-GoalA) The goal of this project is to implement a neural network which will be able to take a series of Sport bets and produce
-a ranked list of different paralays for maxium ROI. (i.e.)
+### Example:
+
+Given the bets:
 
 Bruins (-135) vs Avalanche (+ 200)
 Ducks (-120) vs Leafs (+100)
 Lighting (+136) vs Oilers (-162)
+PLONN might produce the optimized parlays:
 
-we should expect an optimizated parlays of:
+[Bruins, Ducks, Lighting] (+ 461)
+[Bruins, Ducks, Oilers] (+ 240)
+[Avalanche, Ducks, Oilers] (+156)
+Where the first parlay has the best balance of win probability and ROI, the second has a higher win probability but lower ROI, and the third has an equal win probability to the second but an even lower ROI.
 
-1. [Bruins, Ducks, Lighting] (+ 461)
-2. [Bruins, Ducks, Oilers] (+ 240)
-3. [Avalanch, Ducks, Oilers] (+156)
+## Goal B: Learning
+Understand the intricacies of neural networks, their applications, advantages, and limitations. This project serves as a hands-on learning experience in the realm of ML/AI.
 
-Where 1 has the best chance of winning and ROI, although 2 has the best chance of winning however lacks the ROI, and 3 has an equal chance of winning as 2, however an even less ROI.
+## Goal C: Deployment
+After rigorous testing and achieving satisfactory accuracy, the plan is to launch a Discord bot offering this service on a subscription basis.
 
-Goal B) Learn about neural networks, how they work, when they are the best solution, and why.
-This should be considered a learning experience to get a better understanding of ML/AI.
+## Plan:
+Data Collection: Target bets based on in-season and past-season data. Some teams may exhibit trends based on historical matchups, coaching strategies, or player rivalries.
 
-Goal C) After several weeks of testing and approved accuracy, will lauch a dicord bot for a monthly subscription
+## Accuracy:
+| Date  | TeamA                | TeamB                   | Total Goals | O/U | Predicted O/U |
+|-------|----------------------|-------------------------|-------------|-----|---------------|
+| 4-Oct | Detroit Red Wings    | Pittsburgh Penguins     | 3           | 6.5 | 0             |
+| 4-Oct | New York Rangers     | New Jersey Devils       | 7           | 6.5 | 1             |
+| 4-Oct | Calgary Flames       | Edmonton Oilers         | 9           | 6.5 | 1             |
+| 4-Oct | Seattle Kraken       | Vancouver Canucks       | 3           | 6.5 | 1             |
 
-Plan:
 
-1. Target our bets based off of in-season and past-season data. Some teams may have trends of winning/lossing based off the coaching and player-to-player that have had a historical battle between each other. For example, 
-
-Boston Bruins have won the past 10 games over the Montreal Canadians
-Boston Bruins are 7-2 vs. Las Vegas Golden Nights
-
-
-Data:
-
-1. Historical Data over past 3 seasons/ team
-    a. Find trends of winning/lossing vs a specific team
-
-2. In-season data (Roster Strength, Goalie Performance, WL streaks, GF, GA, i.e., )
-
-Development:
-
-Using Python, PyTorch, to develop an implementation of a Neural Network, and fit the data to the NN. 
-
-DB(?),
