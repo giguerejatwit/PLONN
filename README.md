@@ -45,4 +45,4 @@ Data Collection: Target bets based on in-season and past-season data. Some teams
 
 Predicted 3/4 games 75% accurate.
 
-/Data/accuracy.xlsx will be update along the course of the 2023-2024 season for more up-to-date accuracy
+```/Data/accuracy.xlsx``` will be updated along the course of the 2023-2024 season for more up-to-date accuracy
