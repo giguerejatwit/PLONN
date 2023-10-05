@@ -10,14 +10,20 @@ Implement a neural network that takes a series of sports bets and produces a ran
 
 Given the bets:
 
-Bruins (-135) vs Avalanche (+ 200)
-Ducks (-120) vs Leafs (+100)
-Lighting (+136) vs Oilers (-162)
-PLONN might produce the optimized parlays:
+Bruins (-135) vs. Avalanche (+ 200)
 
-[Bruins, Ducks, Lighting] (+ 461)
-[Bruins, Ducks, Oilers] (+ 240)
-[Avalanche, Ducks, Oilers] (+156)
+Ducks (-120) vs. Leafs (+100)
+
+Lighting (+136) vs. Oilers (-162)
+
+### PLONN's predicted optimized parlays:
+
+[Bruins, Ducks, Lighting] (+ 461),
+
+[Bruins, Ducks, Oilers] (+ 240),
+
+[Avalanche, Ducks, Oilers] (+156),
+
 Where the first parlay has the best balance of win probability and ROI, the second has a higher win probability but lower ROI, and the third has an equal win probability to the second but an even lower ROI.
 
 ## Goal B: Learning
@@ -37,4 +43,6 @@ Data Collection: Target bets based on in-season and past-season data. Some teams
 | 4-Oct | Calgary Flames       | Edmonton Oilers         | 9           | 6.5 | 1             |
 | 4-Oct | Seattle Kraken       | Vancouver Canucks       | 3           | 6.5 | 1             |
 
+Predicted 3/4 games 75% accurate.
 
+/Data/accuracy.xlsx will be update along the course of the 2023-2024 season for more up-to-date accuracy
