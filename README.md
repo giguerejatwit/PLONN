@@ -36,12 +36,26 @@ After rigorous testing and achieving satisfactory accuracy, the plan is to launc
 Data Collection: Target bets based on in-season and past-season data. Some teams may exhibit trends based on historical matchups, coaching strategies, or player rivalries.
 
 ## Accuracy:
-| Date  | TeamA                | TeamB                   | Total Goals | O/U | Predicted O/U |
-|-------|----------------------|-------------------------|-------------|-----|---------------|
-| 4-Oct | Detroit Red Wings    | Pittsburgh Penguins     | 3           | 6.5 | 0             |
-| 4-Oct | New York Rangers     | New Jersey Devils       | 7           | 6.5 | 1             |
-| 4-Oct | Calgary Flames       | Edmonton Oilers         | 9           | 6.5 | 1             |
-| 4-Oct | Seattle Kraken       | Vancouver Canucks       | 3           | 6.5 | 1             |
+| Date  | TeamA                   | TeamB                   | Total Goals | O/U | Dataset A Pred.(in-season) | Predicted # of Goals A | Dataset B Pred. (historical) | Predicted # of Goals B | Notes           |
+|-------|-------------------------|-------------------------|-------------|-----|---------------------------|------------------------|------------------------------|------------------------|-----------------|
+| 4-Oct | Detroit Red Wings       | Pittsburgh Penguins     | 3           | 6.5 | 0                         |                        |                              |                        |                 |
+| 4-Oct | New York Rangers        | New Jersey Devils       | 7           | 6.5 | 1                         |                        |                              |                        |                 |
+| 4-Oct | Calgary Flames          | Edmonton Oilers         | 9           | 6.5 | 1                         |                        |                              |                        |                 |
+| 4-Oct | Seattle Kraken          | Vancouver Canucks       | 3           | 6.5 | 1                         |                        |                              |                        |                 |
+|       |                         |                         |             |     | Acc %                      | 75%                    | 0                            |                        |                 |
+| 5-Oct | Washington Capitals     | Columbus Blue Jackets   | 6           | 6.5 | 0                         | 5.7                    | 1                            | 6.6239                 |                 |
+| 5-Oct | Columbus Blue Jackets   | Toronto Maple Leafs     | 7           | 6.5 | 0                         | 5.99                   | 0                            | 5.9103                 | OT for 7th Goal |
+| 5-Oct | Florida Panthers        | Tampa Bay Lightning     | 9           | 6.5 | 0                         | 6.9                    | 0                            | 6.26                   |                 |
+| 5-Oct | Boston Bruins           | New York Rangers        | 4           | 6.5 | 0                         | 6.47                   | 1                            | 6.6                    |                 |
+| 5-Oct | New York Islanders      | Philadelphia Flyers     | 7           | 6.5 | 0                         | 5.63                   | 0                            |                        |                 |
+| 5-Oct | Carolina Hurricanes     | Nashville Predators     | 6           | 6.5 | 0                         | 5.9                    | 0                            | 5.18                   |                 |
+| 5-Oct | Dallas Stars            | St. Louis Blues         | 4           | 6.5 | 1                         | 6.6                    | 0                            | 6.35                   |                 |
+| 5-Oct | Winnipeg Jets           | Ottawa Senators         | 3           | 6.5 | 0                         | 6.16                   | 0                            | 5.4                    |                 |
+| 5-Oct | Minnesota Wild          | Chicago Blackhawks      | 3           | 6.5 | 0                         | 5.37                   | 0                            | 4.83                   |                 |
+| 5-Oct | San Jose Sharks         | Los Angeles Kings       | 7           | 6.5 | 0                         | 6.18                   | 0                            | 4.7686                 | OT for 7th Goal |
+| 5-Oct | Arizona Coyotes         | Anaheim Ducks           | 0           | 6.5 | 0                         | 5.25                   | 0                            | 5.7548                 |                 |
+| 5-Oct | Colorado Avalanche      | Vegas Golden Knights    | 1           | 6.5 | 1                         | 6.6                    | 0                            | 6.0907                 |                 |
+|       |                         | Acc % excl. OT                        | 84%            |     | Acc % incl. OT                      | 66.6%      
 
 Predicted 3/4 games 75% accurate.
 
