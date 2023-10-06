@@ -57,6 +57,6 @@ Data Collection: Target bets based on in-season and past-season data. Some teams
 | 5-Oct | Colorado Avalanche      | Vegas Golden Knights    | 1           | 6.5 | 1                         | 6.6                    | 0                            | 6.0907                 |                 |
 |       |                         | Acc % excl. OT                        | 84%            |     | Acc % incl. OT                      | 66.6%      
 
-Predicted 3/4 games 75% accurate.
+Predicted 11/16 games accurately, 2/16 games were predicted accurately however when into over time for their 7th goal. 
 
 ```/Data/accuracy.xlsx``` will be updated along the course of the 2023-2024 season for more up-to-date accuracy
