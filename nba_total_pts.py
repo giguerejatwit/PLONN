@@ -38,7 +38,7 @@ args = parser.parse_args()
 
 feature_columns = []
 TEAM_MAP = None
-if args.model == 'adv' or '30dw':
+if args.model == 'adv' or args.model == '30dw':
     TEAM_MAP = {
         "Atlanta Hawks": "ATL",
         "Boston Celtics": "BOS",
@@ -180,7 +180,7 @@ def get_train_data() -> pd.DataFrame:
 
 def clean_data(data=None) -> None:
     if not data:
-        data = pd.read_csv('Data/gamelogs2022_2024.csv', header=1)
+        data = pd.read_csv('data/gamelogs2022_2024.csv', header=1)
 
     data = data.loc[:, ~data.columns.str.contains('Unnamed')]
     data = data.rename(columns={'Tm': 'PTS', data.columns[7]: 'PTS.1'})
@@ -286,9 +286,9 @@ def train(X_train, y_train, input_size):
     early_stopping = callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
     history = model.fit(X_train, y_train, epochs=200, batch_size=8, validation_split=0.2, shuffle=True, callbacks=[lr_scheduler, early_stopping])
     if args.model == 'adv' or '30dw':
-        model.save('adv_model.keras')
+        model.save('models/adv_model.keras')
     else:
-        model.save('raw_model.keras')
+        model.save('models/raw_model.keras')
     print("Model saved as 'PLONN1-0.keras'")
     
     return history, model
@@ -349,7 +349,7 @@ def get_team_per_game_stats(team_abbr):
     if args.model == 'adv':
         
         try:
-            data = pd.read_excel('Data/tpg.xlsx', sheet_name='Worksheet', header=0)
+            data = pd.read_excel('data/tpg.xlsx', sheet_name='Worksheet', header=0)
             data = data[data['Team'] == team_abbr]
 
             # Extract only the required columns
@@ -368,7 +368,7 @@ def get_team_per_game_stats(team_abbr):
             pass
     
     elif args.model == '30dw':
-        data = pd.read_csv('Data/window/nbaAvgWindow.csv', header=0)
+        data = pd.read_csv('data/window/nbaAvgWindow.csv', header=0)
         data = data[data['Team_Name'] == team_abbr]
 
         # Extract only the required columns
@@ -519,7 +519,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = None, None, None, None
 
     if args.model == 'adv' or args.model == '30dw':
-        data = pd.read_excel('Data/offsets/offset.xlsx',sheet_name='Worksheet', header=0)
+        data = pd.read_excel('data/offsets/offset.xlsx',sheet_name='Worksheet', header=0)
         data = data.dropna(axis=0)
         X_train, X_test, y_train, y_test = clean_adv(data)
         
@@ -559,8 +559,8 @@ if __name__ == "__main__":
     away = get_away_vector(todays_games)
 
     
-    raw_model = tf.keras.models.load_model('nba_model.keras')
-    adv_model = tf.keras.models.load_model('adv_model.keras')
+    raw_model = tf.keras.models.load_model('models/nba_model.keras')
+    adv_model = tf.keras.models.load_model('models/adv_model.keras')
     
     
     # loaded_model = model
