@@ -11,7 +11,7 @@ Feel free to join the free discord
 
 ## Models
 
-- After about 30 day of raw predictions we decided to take a look at the distribtion between the Total Actual scores vs. the Total Predicted scores. Using the distribution we can see an increase of 5% accuracy after 30 day. After the 30 day period we will need to refesh the distribution data to prevent irrelevance.
+- After about 30 days of raw predictions we decided to take a look at the distribtion between the Total Actual scores vs. the Total Predicted scores. Using the distribution leads to a 5% increase in accuracy after 30 days. After the 30-day window we will need to refesh the distribution data to prevent irrelevance.
 
 ![Boston Celtics Distribution](data/images/boston_dist.png)
 
