@@ -1,5 +1,5 @@
 absl-py==2.1.0
-altgraph @ file:///AppleInternal/Library/BuildRoots/626bfa9c-8221-11ef-b9bf-daac7d5d70b1/Library/Caches/com.apple.xbs/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
+# altgraph @ file:///AppleInternal/Library/BuildRoots/626bfa9c-8221-11ef-b9bf-daac7d5d70b1/Library/Caches/com.apple.xbs/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
 appnope==0.1.4
 argcomplete==1.12.3
 asttokens==2.4.1
@@ -20,7 +20,7 @@ exceptiongroup==1.2.2
 executing==2.1.0
 flatbuffers==24.3.25
 fonttools==4.54.1
-future @ file:///AppleInternal/Library/BuildRoots/626bfa9c-8221-11ef-b9bf-daac7d5d70b1/Library/Caches/com.apple.xbs/Sources/python3/future-0.18.2-py3-none-any.whl
+# future @ file:///AppleInternal/Library/BuildRoots/626bfa9c-8221-11ef-b9bf-daac7d5d70b1/Library/Caches/com.apple.xbs/Sources/python3/future-0.18.2-py3-none-any.whl
 gast==0.6.0
 google-pasta==0.2.0
 grpcio==1.67.1
@@ -40,7 +40,7 @@ keras==3.6.0
 kiwisolver==1.4.7
 libclang==18.1.1
 lxml==5.3.0
-macholib @ file:///AppleInternal/Library/BuildRoots/626bfa9c-8221-11ef-b9bf-daac7d5d70b1/Library/Caches/com.apple.xbs/Sources/python3/macholib-1.15.2-py2.py3-none-any.whl
+# macholib @ file:///AppleInternal/Library/BuildRoots/626bfa9c-8221-11ef-b9bf-daac7d5d70b1/Library/Caches/com.apple.xbs/Sources/python3/macholib-1.15.2-py2.py3-none-any.whl
 Markdown==3.7
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2

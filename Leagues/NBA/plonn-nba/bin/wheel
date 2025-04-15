@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/jakegiguere/Boston University/Fall24/CS767/Assignment2 /plonn-nba/bin/python3" "$0" "$@"
+'''exec' "/Users/jakegiguere/Boston University/Fall24/CS767/Assignment2/plonn-nba/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
