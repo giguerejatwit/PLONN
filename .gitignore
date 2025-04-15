@@ -1,0 +1,26 @@
+# Ignore virtual environments
+PLONN/
+venv/
+ENV/
+env/
+*.egg-info/
+__pycache__/
+*.pyc
+# Ignore data dumps and large libraries
+Data/
+lib/
+*/lib/
+*.dylib
+*.ckpt
+*.pt
+*.h5
+*.zip
+*.csv
+*.pkl
+*.npz
+# Ignore macOS system files
+.DS_Store
+*.so
+*.dist-info/
+
+
