@@ -477,7 +477,7 @@ def get_home_vector(today_games):
     # Convert to a DataFrame for easy viewing
     home_feature_df = pd.DataFrame(feature_vectors)
     # print(home_feature_df.columns)
-    
+
     # Filter the DataFrame to include only the columns your model expects
     home_feature_df = home_feature_df[feature_columns]
 
@@ -506,12 +506,12 @@ def data_to_googlesheets(data, sheet_name='Raw') -> None:
     """
     Add data into the NBA google spread sheet
     """
-
+    creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets",
               "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
     creds = Credentials.from_service_account_file(
-        "credentials.json", scopes=scopes)
+        creds_path, scopes=scopes)
     client = gspread.authorize(creds)
 
     # Raw Sheet ID
