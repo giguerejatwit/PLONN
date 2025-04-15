@@ -22,5 +22,4 @@ lib/
 .DS_Store
 *.so
 *.dist-info/
-
-
+Leagues/NBA/credentials.json
