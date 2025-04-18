@@ -1,0 +1,18 @@
+2025-04-18 02:16:45,613 - INFO -           Date              Player Team Opponent  Predicted_Ks
+0   2025-04-18   Eduardo Rodríguez  ARI      MIA          5.31
+1   2025-04-18     Trevor Williams  WSN      PIT           NaN
+2   2025-04-18       Andrew Heaney  PIT      WSN          6.05
+3   2025-04-18        Brady Singer  CIN      SEA          6.27
+4   2025-04-18            JP Sears  ATH      CHW          4.73
+5   2025-04-18        Davis Martin  CHW      ATH          3.25
+6   2025-04-18        Jordan Hicks  SFG      PHI          4.37
+7   2025-04-18  Cristopher Sánchez  PHI      SFG           NaN
+8   2025-04-18        Tanner Bibee  CLE      BAL          4.23
+9   2025-04-18     Tomoyuki Sugano  BAL      CLE          3.11
+10  2025-04-18    Michael Lorenzen  KCR      DET          4.75
+11  2025-04-18         Reese Olson  DET      KCR          3.96
+12  2025-04-18         Will Warren  NYY      TBR          3.31
+13  2025-04-18         Taj Bradley  TBR      NYY          5.10
+14  2025-04-18     Griffin Canning  NYM      STL          4.41
+15  2025-04-18    Jack Kochanowicz  LAA      TEX          4.05
+16  2025-04-18        Kumar Rocker  TEX      LAA          3.64
