@@ -13,7 +13,7 @@ Feel free to join the free discord
 
 - After about 30 days of raw predictions we decided to take a look at the distribtion between the Total Actual scores vs. the Total Predicted scores. Using the distribution leads to a 5% increase in accuracy after 30 days. After the 30-day window we will need to refesh the distribution data to prevent irrelevance.
 
-![Boston Celtics Distribution](Leagues/NBA/data/images/boston_dist.png)
+![Boston Celtics Distribution](data/images/boston_dist.png)
 
 
 
@@ -26,7 +26,7 @@ Feel free to join the free discord
 - **The Adv/30dw models have 15 Features**: ['PTS', 'FG%', 'FGA', '3P%', '3PA', 'ORB', 'TRB', 'AST', 'TOV', 'STL', 'PF', 'ORtg', 'DRtg', 'FTA', 'FT%']
 
 The scatter plot shows how close the advance model is predicting previous games (train data). At the end of training we can expect mae to be > 0.5 due to important features such as offensive and defensive rating.
-![Training Scatter Plot](Leagues/NBA/data/images/train_scatterplot.png)
+![Training Scatter Plot](data/images/train_scatterplot.png)
 
 ## 🛠 Requirements
 Ensure you have the following Python libraries installed:
