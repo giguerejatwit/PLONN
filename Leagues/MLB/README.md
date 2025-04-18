@@ -55,7 +55,7 @@ This system is designed to predict daily MLB starting pitcher strikeouts using a
 - Encodes opponent batting spans
 - Generates the combined `gamelog_final.csv`
 
-### `scrape_games_bs4.py`
+### `get_games.py`
 - Pulls today's scheduled matchups and probable pitchers using BeautifulSoup
 - Scrapes directly from Baseball Reference's preview page
 
@@ -81,7 +81,7 @@ Leagues/
 
 ## 📋 Logging
 Daily predictions, model outputs, and DK comparisons will be logged using Python's `logging` module.
-- Logs will be rotated daily (e.g., `mlb_predictions_2025-04-18.log`)
+- Logs will be updated daily (e.g., `mlb_predictions_2025-04-18.log`)
 - Includes player name, prediction value, model used, DK line, and result (W/L)
 - Useful for historical auditing and long-term model tracking
 
