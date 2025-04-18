@@ -331,7 +331,7 @@ def get_today_games() -> pd.DataFrame:
     # Get today's date in the format used on the website
     today = datetime.now().strftime('%a, %b %-d, %Y')
     print(today)
-    today = "Sun, Apr 13, 2025"  # Manual date format
+    # today = "Sun, Apr 13, 2025"  # Manual date format
     tmrw = "Sun, Apr 13, 2025"  # Manual date format
     # Initialize a list to hold today's games
     games_today = []
@@ -570,7 +570,6 @@ if __name__ == "__main__":
         print(f'Root Mean Squared Error: {rmse:.2f}')
 
         if args.graph:
-
             plt.figure(figsize=(10, 6))
             plt.scatter(range(len(y_test)), y_test, label='Actual', alpha=0.7)
             plt.scatter(range(len(y_test)), y_pred,
@@ -583,6 +582,7 @@ if __name__ == "__main__":
             plt.show()
 
     todays_games: pd.DataFrame = get_today_games()
+
     if todays_games.empty:
         print("No games today :( ")
         sys.exit(0)
