@@ -1,8 +1,9 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
 # ==== Load Data ====
@@ -52,11 +53,18 @@ model = Sequential([
     Dense(1)  # regression output
 ])
 
-model.compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])
+
+
+model.compile(optimizer='adam', loss=MeanSquaredError(), metrics=['mae'])
+
 
 # ==== Train ====
 model.fit(X_train, y_train, epochs=50, batch_size=32, validation_split=0.2, verbose=1)
+# Save the trained model
+model.save("Leagues/MLB/models/lstm_strikeout_model.h5")
+print("Model saved to models/lstm_strikeout_model.h5")
 
 # ==== Evaluate ====
 loss, mae = model.evaluate(X_test, y_test)
 print(f"\nTest MAE: {mae:.2f} strikeouts")
+

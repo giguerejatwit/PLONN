@@ -4,44 +4,49 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.optimizers import Adam
+import joblib
 
-# Load final dataset
-df = pd.read_csv("Leagues/MLB/data/gamelog_final.csv")
+# === Load & Filter Data ===
+data = pd.read_csv("Leagues/MLB/data/gamelog_final.csv")
+feature_cols = ['K_prev', 'K_avg_3', 'IP_avg_3'] + [f'enc_{i}' for i in range(8)]
+data = data.dropna(subset=feature_cols + ['SO'])
 
-# Drop rows with NaNs in key features
-df = df.dropna(subset=['K_prev', 'K_avg_3', 'IP_avg_3'] + [f'enc_{i}' for i in range(8)])
+X = data[feature_cols].values
+y = data['SO'].values.reshape(-1, 1)
 
-# Features and target
-features = ['K_prev', 'K_avg_3', 'IP_avg_3'] + [f'enc_{i}' for i in range(8)]
-X = df[features]
-y = df['SO']  # strikeouts
+# === Scale Inputs and Target ===
+x_scaler = StandardScaler()
+y_scaler = StandardScaler()
 
-# Normalize features
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+X_scaled = x_scaler.fit_transform(X)
+y_scaled = y_scaler.fit_transform(y)
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+# Save scalers for inference
+joblib.dump(x_scaler, "Leagues/MLB/models/mlp_x_scaler.pkl")
+joblib.dump(y_scaler, "Leagues/MLB/models/mlp_y_scaler.pkl")
 
-# MLP Model
+# === Split ===
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.2, random_state=42)
+
+# === Build MLP Model ===
 model = Sequential([
     Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
-    Dropout(0.2),
+    Dropout(0.3),
     Dense(32, activation='relu'),
-    Dropout(0.2),
-    Dense(16, activation='relu'),
-    
-    Dense(8, activation='relu'),
-
     Dense(1)  # regression output
 ])
 
-model.compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])
+model.compile(optimizer=Adam(learning_rate=0.001), loss=MeanSquaredError(), metrics=['mae'])
 
-# Train
-history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
+# === Train ===
+model.fit(X_train, y_train, epochs=50, batch_size=32, validation_split=0.2, verbose=1)
 
-# Evaluate
+# === Evaluate ===
 loss, mae = model.evaluate(X_test, y_test)
-print(f"\nTest MAE: {mae:.2f} strikeouts")
+print(f"\nTest MAE (scaled): {mae:.4f}")
+
+# === Save Model ===
+model.save("Leagues/MLB/models/mlp_strikeout_model_scaled.keras")
+print("Saved model and scalers.")
