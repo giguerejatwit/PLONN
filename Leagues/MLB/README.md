@@ -31,29 +31,29 @@ This system is designed to predict daily MLB starting pitcher strikeouts using a
 
 ## 🛠 Key Components
 
-### `train_lstm.py`
+### `lstm_strikeouts.py`
 - Trains the LSTM model using sequential (temporal) pitcher appearance data
 
-### `train_mlp_scaled.py`
+### `mlp_strikeouts.py`
 - Trains the MLP model on most recent pitcher appearances
 - Scales both input features and target strikeouts (using `StandardScaler`)
 - Saves fitted scalers (`mlp_x_scaler.pkl`, `mlp_y_scaler.pkl`)
 
-### `predict_today.py`
+### `predict_lstm.py`
 - Predicts using LSTM or MLP models
 - Pads inputs to 3-game format for LSTM
 - Fuzzy name matching handles inconsistencies between sources
 
-### `predict_mlp_scaled.py`
+### `predict_mlp.py`
 - Loads the MLP model + scalers
 - Scales input, runs prediction, and inverse-transforms output
-- Output is saved to `today_predictions_mlp_scaled.csv`
+- Output is saved to `logs/mlp_<date>.logs`
 
 ### `preprocess.py`
 - Cleans dates and columns
 - Adds rolling pitching features: `K_avg_3`, `IP_avg_3`, etc.
 - Encodes opponent batting spans
-- Generates the combined `gamelog_final.csv`
+- Generates the combined `logs/lstm_<date>.logs`
 
 ### `get_games.py`
 - Pulls today's scheduled matchups and probable pitchers using BeautifulSoup

@@ -39,7 +39,7 @@ This system predicts daily MLB starting pitcher strikeouts using both LSTM and M
 ### 📈 Supporting Tools:
 - `preprocess.py`: Adds rolling metrics + opponent encoding
 - `lstm_strikeouts.py` / `mlp_strikeouts.py`
-- `predict_today.py` / `predict_mlp_scaled.py`
+- `predict_lstm.py` / `predict_mlp_scaled.py`
 - `get_games.py`: Gets daily matchups from Baseball Reference
 
 ### 🔍 Betting Evaluation:
