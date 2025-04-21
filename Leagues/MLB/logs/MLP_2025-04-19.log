@@ -1,0 +1,30 @@
+2025-04-19 14:19:28,688 - INFO -           Date                   Player Team Opponent  Predicted_Ks
+0   2025-04-19            Cal Quantrill  MIA      PHI          4.73
+1   2025-04-19           Taijuan Walker  PHI      MIA          4.76
+2   2025-04-19                Seth Lugo  KCR      DET          4.87
+3   2025-04-19               Casey Mize  DET      KCR          4.59
+4   2025-04-19               Zac Gallen  ARI      CHC          4.25
+5   2025-04-19                Ben Brown  CHC      ARI          4.46
+6   2025-04-19            Logan Gilbert  SEA      TOR          5.26
+7   2025-04-19             José Berríos  TOR      SEA          4.73
+8   2025-04-19            Hunter Greene  CIN      BAL          5.09
+9   2025-04-19       Matthew Liberatore  STL      NYM          4.76
+10  2025-04-19              Kodai Senga  NYM      STL          4.40
+11  2025-04-19               Ben Lively  CLE      PIT          5.00
+12  2025-04-19              Paul Skenes  PIT      CLE          5.58
+13  2025-04-19              Roki Sasaki  LAD      TEX           NaN
+14  2025-04-19           Nathan Eovaldi  TEX      LAD          4.40
+15  2025-04-19              Shane Smith  CHW      BOS           NaN
+16  2025-04-19          Garrett Crochet  BOS      CHW          5.96
+17  2025-04-19           MacKenzie Gore  WSN      COL          5.95
+18  2025-04-19          Chase Dollander  COL      WSN          5.02
+19  2025-04-19          Carlos Carrasco  NYY      TBR           NaN
+20  2025-04-19                Shane Baz  TBR      NYY           NaN
+21  2025-04-19             Michael King  SDP      HOU          6.18
+22  2025-04-19          Hayden Wesneski  HOU      SDP           NaN
+23  2025-04-19            Luis Severino  ATH      MIL           NaN
+24  2025-04-19             Chad Patrick  MIL      ATH          4.16
+25  2025-04-19  Simeon Woods Richardson  MIN      ATL           NaN
+26  2025-04-19               Chris Sale  ATL      MIN          4.43
+27  2025-04-19             Landen Roupp  SFG      LAA          4.79
+28  2025-04-19           Kyle Hendricks  LAA      SFG          3.88

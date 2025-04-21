@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 
-def scrape_today_pitchers():
+def scrape_today_pitchers() -> pd.DataFrame:
     url = "https://www.baseball-reference.com/previews/"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -40,11 +40,13 @@ def scrape_today_pitchers():
         except Exception as e:
             print("Error parsing table:", e)
             continue
-
-    return pd.DataFrame(games)
+    games = pd.DataFrame(games)
+    games.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
+    return games
 
 
 if __name__ == "__main__":
+    
     df_today_pitchers = scrape_today_pitchers()
     df_today_pitchers.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
     print(df_today_pitchers)
