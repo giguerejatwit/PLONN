@@ -59,7 +59,7 @@ for _, row in today_pitchers.iterrows():
 
     predictions.append({
         'Date': today.date(),
-        'Player': name,
+        'Pitcher': name,
         'Team': team,
         'Opponent': opponent,
         'Predicted_Ks': round(y_pred, 2)
@@ -72,5 +72,5 @@ pred_df = pd.DataFrame(predictions)
 # Example log entries
 logger.info(pred_df)
 
-# pred_df.to_csv("Leagues/MLB/data/today_predictions_mlp_scaled.csv", index=False)
+pred_df.to_csv("Leagues/MLB/data/today_predictions_mlp_scaled.csv", index=False)
 print(pred_df)
