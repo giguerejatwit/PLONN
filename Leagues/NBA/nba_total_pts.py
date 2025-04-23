@@ -184,7 +184,7 @@ def get_train_data() -> pd.DataFrame:
 
 def clean_data(data=None) -> None:
     if not data:
-        data = pd.read_csv('data/gamelogs2022_2024.csv', header=1)
+        data = pd.read_csv('Leagues/NBA/data/gamelogs2022_2024.csv', header=1)
 
     data = data.loc[:, ~data.columns.str.contains('Unnamed')]
     data = data.rename(columns={'Tm': 'PTS', data.columns[7]: 'PTS.1'})
@@ -204,7 +204,7 @@ def clean_data(data=None) -> None:
                        'STL', 'STL.1',
                        'PF', 'PF.1']
 
-    data.to_csv('data/cleaned_gamelogs.csv', index=False)
+    data.to_csv('Leagues/NBA/data/cleaned_gamelogs.csv', index=False)
 
     data = data.dropna(axis=0)
     print(f'Null Data:', data.isna().any().sum())
@@ -297,10 +297,10 @@ def train(X_train, y_train, input_size):
     history = model.fit(X_train, y_train, epochs=200, batch_size=8,
                         validation_split=0.2, shuffle=True, callbacks=[lr_scheduler, early_stopping])
     if args.model == 'adv' or args.model == '30dw':
-        model.save('models/adv_model.keras')
+        model.save('Leagues/NBA/models/adv_model.keras')
         print("Model saved as 'adv_model.keras'")
     else:
-        model.save('models/raw_model.keras')
+        model.save('Leagues/NBA/models/raw_model.keras')
         print("Model saved as 'nba_model.keras'")
 
     return history, model
@@ -332,7 +332,7 @@ def get_today_games() -> pd.DataFrame:
     today = datetime.now().strftime('%a, %b %-d, %Y')
     print(today)
     # today = "Sun, Apr 13, 2025"  # Manual date format
-    tmrw = "Sun, Apr 13, 2025"  # Manual date format
+    tmrw = "Wed, Apr 23, 2025"  # Manual date format
     # Initialize a list to hold today's games
     games_today = []
 
@@ -368,7 +368,7 @@ def get_team_per_game_stats(team_abbr):
     if args.model == 'adv':
 
         try:
-            data = pd.read_excel('data/tpgApr.xlsx',
+            data = pd.read_excel('Leagues/NBA/data/tpgApr.xlsx',
                                  sheet_name='Worksheet', header=0)
             data = data[data['Team'] == team_abbr]
 
@@ -389,7 +389,7 @@ def get_team_per_game_stats(team_abbr):
             pass
 
     elif args.model == '30dw':
-        data = pd.read_csv('data/window/30dwFeb.csv', header=0)
+        data = pd.read_csv('Leagues/NBA/data/window/30dwFeb.csv', header=0)
         data = data[data['Team'] == team_abbr]
 
         # Ensure 'PTS' is numeric
@@ -549,7 +549,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = None, None, None, None
 
     if args.model == 'adv' or args.model == '30dw':
-        data = pd.read_excel('data/offsets/offset.xlsx',
+        data = pd.read_excel('Leagues/NBA/data/offsets/offset.xlsx',
                              sheet_name='Worksheet', header=0)
         data = data.dropna(axis=0)
         X_train, X_test, y_train, y_test = clean_adv(data)
@@ -578,7 +578,7 @@ if __name__ == "__main__":
             plt.ylabel('Points')
             plt.title('Actual vs Predicted Scores')
             plt.legend()
-            plt.savefig('Data/images/scatterplot.png')
+            plt.savefig('Leagues/NBA/Data/images/scatterplot.png')
             plt.show()
 
     todays_games: pd.DataFrame = get_today_games()
@@ -592,8 +592,8 @@ if __name__ == "__main__":
         time.sleep(160)
     away = get_away_vector(todays_games)
 
-    raw_model = tf.keras.models.load_model('models/raw_model.keras')
-    adv_model = tf.keras.models.load_model('models/adv_model.keras')
+    raw_model = tf.keras.models.load_model('Leagues/NBA/models/raw_model.keras')
+    adv_model = tf.keras.models.load_model('Leagues/NBA/models/adv_model.keras')
 
     # loaded_model = model
     # Example: Make predictions using the loaded model
