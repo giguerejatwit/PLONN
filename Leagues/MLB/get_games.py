@@ -18,11 +18,17 @@ def scrape_today_pitchers() -> pd.DataFrame:
             continue
 
         try:
-            team1_abbr = rows[0].find("strong").text.strip()
-            team1_pitcher = rows[0].find("a").text.strip()
+            team1_strong = rows[0].find("strong")
+            team1_link = rows[0].find("a")
 
-            team2_abbr = rows[1].find("strong").text.strip()
-            team2_pitcher = rows[1].find("a").text.strip()
+            team2_strong = rows[1].find("strong")
+            team2_link = rows[1].find("a")
+
+            team1_abbr = team1_strong.text.strip() if team1_strong else rows[0].text.split()[0]
+            team1_pitcher = team1_link.text.strip() if team1_link else "TBD"
+
+            team2_abbr = team2_strong.text.strip() if team2_strong else rows[1].text.split()[0]
+            team2_pitcher = team2_link.text.strip() if team2_link else "TBD"
 
             games.append({
                 "Date": datetime.now().date(),
@@ -37,16 +43,22 @@ def scrape_today_pitchers() -> pd.DataFrame:
                 "Opponent": team1_abbr,
                 "Player": team2_pitcher
             })
+
         except Exception as e:
-            print("Error parsing table:", e)
+            print(f"Error parsing table: {e}")
+            print("Row 1:", rows[0].text.strip())
+            print("Row 2:", rows[1].text.strip())
+            print("-" * 50)
             continue
+
+
     games = pd.DataFrame(games)
     games.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
     return games
 
 
 if __name__ == "__main__":
-    
+    # pass
     df_today_pitchers = scrape_today_pitchers()
     df_today_pitchers.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
     print(df_today_pitchers)
