@@ -1,0 +1,27 @@
+2025-05-04 10:52:14,593 - INFO -           Date            Pitcher Team Opponent  Predicted_Ks
+0   2025-05-04        Erick Fedde  STL      NYM           NaN
+1   2025-05-04   Michael Lorenzen  KCR      BAL           NaN
+2   2025-05-04      Chris Paddack  MIN      BOS          4.38
+3   2025-05-04    Garrett Crochet  BOS      MIN           NaN
+4   2025-05-04        Taj Bradley  TBR      NYY           NaN
+5   2025-05-04        Will Warren  NYY      TBR          4.63
+6   2025-05-04      Andrew Heaney  PIT      SDP           NaN
+7   2025-05-04       Tanner Bibee  CLE      TOR           NaN
+8   2025-05-04     Bowden Francis  TOR      CLE           NaN
+9   2025-05-04           JP Sears  ATH      MIA           NaN
+10  2025-05-04     Edward Cabrera  MIA      ATH          6.54
+11  2025-05-04  Eduardo Rodríguez  ARI      PHI          6.82
+12  2025-05-04       Bryse Wilson  CHW      HOU           NaN
+13  2025-05-04      Shota Imanaga  CHC      MIL           NaN
+14  2025-05-04     Freddy Peralta  MIL      CHC           NaN
+15  2025-05-04       Jacob deGrom  TEX      SEA           NaN
+16  2025-05-04     Germán Márquez  COL      SFG           NaN
+17  2025-05-04         Logan Webb  SFG      COL          7.65
+18  2025-05-04        Reese Olson  DET      LAA           NaN
+19  2025-05-04   Jack Kochanowicz  LAA      DET           NaN
+20  2025-05-04     MacKenzie Gore  WSN      CIN           NaN
+21  2025-05-04      Nick Martinez  CIN      WSN          4.36
+22  2025-05-04       Tylor Megill  NYM      STL           NaN
+23  2025-05-04     Andre Pallante  STL      NYM           NaN
+24  2025-05-04         Dustin May  LAD      ATL           NaN
+25  2025-05-04        Bryce Elder  ATL      LAD          3.86

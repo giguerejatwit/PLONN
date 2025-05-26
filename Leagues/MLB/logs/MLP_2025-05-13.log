@@ -1,0 +1,27 @@
+2025-05-13 10:01:19,582 - INFO -           Date                  Pitcher Team Opponent  Predicted_Ks
+0   2025-05-13           Quinn Priester  MIL      CLE          3.95
+1   2025-05-13              Logan Allen  CLE      MIL          4.53
+2   2025-05-13  Simeon Woods Richardson  MIN      BAL          5.23
+3   2025-05-13              Cade Povich  BAL      MIN          3.93
+4   2025-05-13          Jonathan Cannon  CHW      CIN          4.41
+5   2025-05-13            Andrew Abbott  CIN      CHW           NaN
+6   2025-05-13             Brayan Bello  BOS      DET          4.57
+7   2025-05-13               Sonny Gray  STL      PHI          4.23
+8   2025-05-13            Jesús Luzardo  PHI      STL          5.67
+9   2025-05-13                Shane Baz  TBR      TOR           NaN
+10  2025-05-13             José Berríos  TOR      TBR          5.79
+11  2025-05-13             Mitch Keller  PIT      NYM          4.43
+12  2025-05-13              Kodai Senga  NYM      PIT           NaN
+13  2025-05-13    Spencer Schwellenbach  ATL      WSN          4.45
+14  2025-05-13          Valente Bellozo  MIA      CHC          4.58
+15  2025-05-13                Ben Brown  CHC      MIA          4.84
+16  2025-05-13            Kyle Freeland  COL      TEX          5.42
+17  2025-05-13              Jack Leiter  TEX      COL          3.70
+18  2025-05-13               Kris Bubic  KCR      HOU          3.85
+19  2025-05-13           Framber Valdez  HOU      KCR          4.34
+20  2025-05-13             José Soriano  LAA      SDP          5.54
+21  2025-05-13              Dylan Cease  SDP      LAA          3.32
+22  2025-05-13                Max Fried  NYY      SEA          5.14
+23  2025-05-13                Bryan Woo  SEA      NYY          5.54
+24  2025-05-13           Brandon Pfaadt  ARI      SFG           NaN
+25  2025-05-13               Robbie Ray  SFG      ARI          6.75

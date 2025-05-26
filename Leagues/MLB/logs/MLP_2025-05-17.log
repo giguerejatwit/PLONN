@@ -1,0 +1,25 @@
+2025-05-17 10:55:29,832 - INFO -           Date            Pitcher Team Opponent  Predicted_Ks
+0   2025-05-17    Griffin Canning  NYM      NYY          6.12
+1   2025-05-17     Clarke Schmidt  NYY      NYM           NaN
+2   2025-05-17         Sean Burke  CHW      CHC          2.78
+3   2025-05-17       Matthew Boyd  CHC      CHW          5.47
+4   2025-05-17         Jake Irvin  WSN      BAL          4.68
+5   2025-05-17        Kyle Gibson  BAL      WSN          4.16
+6   2025-05-17     Drew Rasmussen  TBR      MIA           NaN
+7   2025-05-17    Sandy Alcantara  MIA      TBR          4.55
+8   2025-05-17  Carmen Mlodzinski  PIT      PHI          4.80
+9   2025-05-17       Zack Wheeler  PHI      PIT          6.36
+10  2025-05-17        Brent Suter  CIN      CLE           NaN
+11  2025-05-17       Ronel Blanco  HOU      TEX          7.17
+12  2025-05-17        Tyler Mahle  TEX      HOU          3.79
+13  2025-05-17       Grant Holmes  ATL      BOS          4.20
+14  2025-05-17      Lucas Giolito  BOS      ATL          4.79
+15  2025-05-17        Pablo López  MIN      MIL          5.01
+16  2025-05-17       Tobias Myers  MIL      MIN          3.25
+17  2025-05-17     Germán Márquez  COL      ARI          4.59
+18  2025-05-17         Zac Gallen  ARI      COL          4.76
+19  2025-05-17    Emerson Hancock  SEA      SDP          5.64
+20  2025-05-17       Nick Pivetta  SDP      SEA          5.21
+21  2025-05-17      Luis Severino  ATH      SFG          5.24
+22  2025-05-17       Landen Roupp  SFG      ATH           NaN
+23  2025-05-17     Tyler Anderson  LAA      LAD          5.62

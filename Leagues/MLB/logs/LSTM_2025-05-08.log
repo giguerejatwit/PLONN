@@ -1,0 +1,17 @@
+2025-05-08 11:28:27,085 - INFO -           Date                Pitcher Team Opponent  Predicted_Ks
+0   2025-05-08            Dean Kremer  BAL      MIN          4.24
+1   2025-05-08            Bailey Ober  MIN      BAL           NaN
+2   2025-05-08            Jack Leiter  TEX      BOS          3.77
+3   2025-05-08           Brayan Bello  BOS      TEX          3.92
+4   2025-05-08           Davis Martin  CHW      KCR          3.44
+5   2025-05-08             Kris Bubic  KCR      CHW          5.00
+6   2025-05-08             Casey Mize  DET      COL          4.05
+7   2025-05-08          Kyle Freeland  COL      DET          3.76
+8   2025-05-08          Jesús Luzardo  PHI      TBR          5.62
+9   2025-05-08            Ryan Pepiot  TBR      PHI          5.06
+10  2025-05-08            Nick Lodolo  CIN      ATL          4.86
+11  2025-05-08  Spencer Schwellenbach  ATL      CIN           NaN
+12  2025-05-08          Chris Bassitt  TOR      LAA          6.37
+13  2025-05-08           José Soriano  LAA      TOR           NaN
+14  2025-05-08     Yoshinobu Yamamoto  LAD      ARI           NaN
+15  2025-05-08         Brandon Pfaadt  ARI      LAD           NaN

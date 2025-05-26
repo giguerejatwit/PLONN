@@ -1,0 +1,20 @@
+2025-05-05 11:19:03,791 - INFO -           Date            Pitcher Team Opponent  Predicted_Ks
+0   2025-05-05      Ben Casparius  LAD      MIA           NaN
+1   2025-05-05    Sandy Alcantara  MIA      LAD           NaN
+2   2025-05-05         Luis Ortiz  CLE      WSN           NaN
+3   2025-05-05         Jake Irvin  WSN      CLE          4.53
+4   2025-05-05       Nick Pivetta  SDP      NYY           NaN
+5   2025-05-05       Carlos Rodón  NYY      SDP          8.12
+6   2025-05-05       Brady Singer  CIN      ATL           NaN
+7   2025-05-05   AJ Smith-Shawver  ATL      CIN          4.56
+8   2025-05-05       Landen Roupp  SFG      CHC          6.24
+9   2025-05-05       Matthew Boyd  CHC      SFG          4.39
+10  2025-05-05        Shane Smith  CHW      KCR          3.58
+11  2025-05-05        Cole Ragans  KCR      CHW           NaN
+12  2025-05-05       Ronel Blanco  HOU      MIL           NaN
+13  2025-05-05       Tobias Myers  MIL      HOU          3.26
+14  2025-05-05  Carmen Mlodzinski  PIT      STL           NaN
+15  2025-05-05      Miles Mikolas  STL      PIT           NaN
+16  2025-05-05    Griffin Canning  NYM      ARI          6.95
+17  2025-05-05       Bryce Miller  SEA      ATH           NaN
+18  2025-05-05      Luis Severino  ATH      SEA           NaN

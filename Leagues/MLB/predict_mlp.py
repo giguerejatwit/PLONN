@@ -17,8 +17,8 @@ x_scaler = joblib.load("Leagues/MLB/models/mlp_x_scaler.pkl")
 y_scaler = joblib.load("Leagues/MLB/models/mlp_y_scaler.pkl")
 
 # === MLP Feature Columns ===
-mlp_feature_cols = ['K_prev', 'K_avg_3', 'IP_avg_3'] + \
-    [f'enc_{i}' for i in range(8)]
+mlp_feature_cols = ['K_prev', 'K_avg_3', 'IP_avg_3', 'BF', 'WHIP_avg_3', 'H_per9', 'BB_per9'] + ['enc_4', 'enc_5', 'enc_6','enc_0']
+    
 
 # === Ensure datetime ===
 gamelog['Date'] = pd.to_datetime(gamelog['Date'])

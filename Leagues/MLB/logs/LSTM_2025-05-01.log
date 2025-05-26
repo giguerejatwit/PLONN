@@ -1,0 +1,23 @@
+2025-05-01 07:47:58,298 - INFO -           Date                  Pitcher Team Opponent  Predicted_Ks
+0   2025-05-01                Colin Rea  CHC      PIT           NaN
+1   2025-05-01              Paul Skenes  PIT      CHC           NaN
+2   2025-05-01       Matthew Liberatore  STL      CIN          6.09
+3   2025-05-01            Andrew Abbott  CIN      STL          6.53
+4   2025-05-01  Simeon Woods Richardson  MIN      CLE          4.50
+5   2025-05-01               Ben Lively  CLE      MIN          3.90
+6   2025-05-01               Zac Gallen  ARI      NYM          5.18
+7   2025-05-01              Kodai Senga  NYM      ARI           NaN
+8   2025-05-01                Seth Lugo  KCR      TBR          4.89
+9   2025-05-01                Shane Baz  TBR      KCR          6.45
+10  2025-05-01             Chad Patrick  MIL      CHW          5.06
+11  2025-05-01               Sean Burke  CHW      MIL          3.95
+12  2025-05-01          Jeffrey Springs  ATH      TEX           NaN
+13  2025-05-01              Tyler Mahle  TEX      ATH          5.06
+14  2025-05-01                Brad Lord  WSN      PHI           NaN
+15  2025-05-01           Taijuan Walker  PHI      WSN           NaN
+16  2025-05-01             Tanner Houck  BOS      TOR           NaN
+17  2025-05-01             José Berríos  TOR      BOS           NaN
+18  2025-05-01               Casey Mize  DET      LAA          4.77
+19  2025-05-01            Yusei Kikuchi  LAA      DET           NaN
+20  2025-05-01            Kyle Freeland  COL      SFG           NaN
+21  2025-05-01         Justin Verlander  SFG      COL          4.27

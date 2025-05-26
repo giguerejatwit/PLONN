@@ -1,0 +1,21 @@
+2025-05-12 09:38:52,986 - INFO -           Date             Pitcher Team Opponent  Predicted_Ks
+0   2025-05-12      Freddy Peralta  MIL      CLE          3.49
+1   2025-05-12          Ben Lively  CLE      MIL           NaN
+2   2025-05-12        Tanner Houck  BOS      DET          4.35
+3   2025-05-12        Jackson Jobe  DET      BOS          3.62
+4   2025-05-12  Matthew Liberatore  STL      PHI           NaN
+5   2025-05-12  Cristopher Sánchez  PHI      STL          4.09
+6   2025-05-12         Paul Skenes  PIT      NYM           NaN
+7   2025-05-12      David Peterson  NYM      PIT           NaN
+8   2025-05-12          Jake Irvin  WSN      ATL          5.77
+9   2025-05-12        Grant Holmes  ATL      WSN          5.18
+10  2025-05-12       Cal Quantrill  MIA      CHC           NaN
+11  2025-05-12           Colin Rea  CHC      MIA           NaN
+12  2025-05-12     Chase Dollander  COL      TEX           NaN
+13  2025-05-12         Tyler Mahle  TEX      COL          3.80
+14  2025-05-12       Michael Wacha  KCR      HOU          4.42
+15  2025-05-12          Ryan Gusto  HOU      KCR           NaN
+16  2025-05-12       Yusei Kikuchi  LAA      SDP           NaN
+17  2025-05-12        Michael King  SDP      LAA          6.05
+18  2025-05-12       Merrill Kelly  ARI      SFG          4.81
+19  2025-05-12    Justin Verlander  SFG      ARI          4.91

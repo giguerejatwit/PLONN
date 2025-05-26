@@ -48,7 +48,7 @@ def data_to_googlesheets(data, sheet_name='MLP') -> None:
     
 
 if __name__ == "__main__":
-    scrape_today_pitchers()
+    # scrape_today_pitchers()
     
     
     data_to_googlesheets(lstm_pred_df, sheet_name='LSTM')

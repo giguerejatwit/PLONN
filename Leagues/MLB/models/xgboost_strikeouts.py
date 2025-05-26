@@ -4,10 +4,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 
 # === Load Data ===
-df = pd.read_csv("Leagues/MLB/data/2024/gamelog_final.csv")
+df = pd.read_csv("Leagues/MLB/data/gamelog_final.csv")
 
 # Drop NaNs in key features
-feature_cols = ['K_prev', 'K_avg_3', 'IP_avg_3'] + [f'enc_{i}' for i in range(8)]
+feature_cols = ['K_prev', 'K_avg_3', 'IP_avg_3', 'BF', 'WHIP_avg_3', 'H_per9', 'BB_per9'] + ['enc_4', 'enc_5', 'enc_6','enc_0'] #[f'enc_{i}' for i in range(8)]
 df = df.dropna(subset=feature_cols + ['SO'])
 
 # === Features & Target ===

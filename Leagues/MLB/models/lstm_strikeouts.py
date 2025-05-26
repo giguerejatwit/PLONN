@@ -16,7 +16,7 @@ df = df.dropna(subset=['K_prev', 'K_avg_3', 'IP_avg_3'] + [f'enc_{i}' for i in r
 df['Date'] = pd.to_datetime(df['Date'])
 
 # ==== Feature Columns ====
-feature_cols = ['K_prev', 'K_avg_3', 'BB', 'BF', 'IP_avg_3'] + [f'enc_{i}' for i in range(8)]
+feature_cols = ['K_prev', 'K_avg_3', 'IP_avg_3', 'ERA_avg_3', 'WHIP_avg_3', 'days_rest', 'BB', 'BF'] + [f'enc_{i}' for i in range(8)] 
 
 # ==== LSTM Dataset Builder ====
 def build_lstm_dataset(df, feature_cols, sequence_length=3):

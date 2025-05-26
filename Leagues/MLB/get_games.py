@@ -12,37 +12,37 @@ def scrape_today_pitchers() -> pd.DataFrame:
     games = []
 
     # Each preview table lists both teams and their pitchers
-    for table in soup.find_all("table"):
-        rows = table.find_all("tr")
-        if len(rows) != 2:
-            continue
-
+    for table in soup.select("div#content table"):
         try:
-            team1_strong = rows[0].find("strong")
-            team1_link = rows[0].find("a")
+            rows = table.find_all("tr")
+            if len(rows) < 2:
+                continue
 
-            team2_strong = rows[1].find("strong")
-            team2_link = rows[1].find("a")
+            team1_td = rows[0].find_all("td")[1]
+            team2_td = rows[1].find_all("td")[1]
 
-            team1_abbr = team1_strong.text.strip() if team1_strong else rows[0].text.split()[0]
-            team1_pitcher = team1_link.text.strip() if team1_link else "TBD"
+            team1_pitcher = team1_td.find("a").text.strip() if team1_td.find("a") else "TBD"
+            team2_pitcher = team2_td.find("a").text.strip() if team2_td.find("a") else "TBD"
 
-            team2_abbr = team2_strong.text.strip() if team2_strong else rows[1].text.split()[0]
-            team2_pitcher = team2_link.text.strip() if team2_link else "TBD"
+            team1_abbr = rows[0].find("strong").text.strip() if rows[0].find("strong") else rows[0].text.strip().split()[0]
+            team2_abbr = rows[1].find("strong").text.strip() if rows[1].find("strong") else rows[1].text.strip().split()[0]
 
-            games.append({
-                "Date": datetime.now().date(),
-                "Team": team1_abbr,
-                "Opponent": team2_abbr,
-                "Player": team1_pitcher
-            })
+            # Only save if pitcher looks like a real name
+            if " " in team1_pitcher and team1_pitcher.lower() not in [team1_abbr.lower(), team2_abbr.lower()]:
+                games.append({
+                    "Date": datetime.now().date(),
+                    "Team": team1_abbr,
+                    "Opponent": team2_abbr,
+                    "Player": team1_pitcher
+                })
 
-            games.append({
-                "Date": datetime.now().date(),
-                "Team": team2_abbr,
-                "Opponent": team1_abbr,
-                "Player": team2_pitcher
-            })
+            if " " in team2_pitcher and team2_pitcher.lower() not in [team1_abbr.lower(), team2_abbr.lower()]:
+                games.append({
+                    "Date": datetime.now().date(),
+                    "Team": team2_abbr,
+                    "Opponent": team1_abbr,
+                    "Player": team2_pitcher
+                })
 
         except Exception as e:
             print(f"Error parsing table: {e}")
@@ -53,7 +53,7 @@ def scrape_today_pitchers() -> pd.DataFrame:
 
 
     games = pd.DataFrame(games)
-    games.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
+    # games.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
     return games
 
 

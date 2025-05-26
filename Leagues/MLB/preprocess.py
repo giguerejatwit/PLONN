@@ -61,7 +61,7 @@ def map_opponent_encoding(gamelog, encoded_opponents):
 
 def add_pitcher_rolling_features(df):
     df = df.copy()
-
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df['IP'] = pd.to_numeric(df['IP'], errors='coerce')  # just in case
     df['SO'] = pd.to_numeric(df['SO'], errors='coerce')
 
@@ -72,6 +72,22 @@ def add_pitcher_rolling_features(df):
     df['K_prev'] = df.groupby('Player')['SO'].shift(1)
     df['K_avg_3'] = df.groupby('Player')['SO'].shift(1).rolling(3).mean().reset_index(level=0, drop=True)
     df['IP_avg_3'] = df.groupby('Player')['IP'].shift(1).rolling(3).mean().reset_index(level=0, drop=True)
+    # per‐game metrics
+    df['ERA_game']  = 9 * df['ER'] / df['IP']
+    df['WHIP_game'] = (df['H'] + df['BB']) / df['IP']
+
+    # rolling versions
+    df['ERA_avg_3']  = df.groupby('Player')['ERA_game'].shift(1).rolling(3).mean().reset_index(0,drop=True)
+    df['WHIP_avg_3'] = df.groupby('Player')['WHIP_game'].shift(1).rolling(3).mean().reset_index(0,drop=True)
+    # days since last appearance
+    df['BB_per9'] = 9 * df['BB'] / df['IP']
+    df['H_per9']  = 9 * df['H']  / df['IP']
+
+    
+    df['days_rest'] = (
+        df['Date'] 
+        - df.groupby('Player')['Date'].shift(1)
+    ).dt.days.fillna(7).astype(int)
 
     return df
 
