@@ -3,6 +3,7 @@ plonn-env/
 venv/
 ENV/
 env/
+.env
 *.egg-info/
 __pycache__/
 *.pyc
