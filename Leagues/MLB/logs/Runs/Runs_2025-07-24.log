@@ -1,0 +1,6 @@
+2025-07-24 11:33:06,558 - INFO -         Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team  DK_Line          Last_Updated
+1 2025-07-24  BAL vs CLE    BAL  5.534355    CLE  1.759707    7.294063  (CLE, BAL)       CLE       BAL      9.0  2025-07-24T15:32:19Z
+4 2025-07-24  SDP vs STL    SDP  2.060590    STL  4.972898    7.033489  (SDP, STL)       STL       SDP      8.0  2025-07-24T15:32:19Z
+2 2025-07-24  DET vs TOR    TOR  4.002572    DET  3.029113    7.031685  (DET, TOR)       DET       TOR      9.0  2025-07-24T15:32:19Z
+3 2025-07-24  LAA vs SEA    SEA  4.416423    LAA  2.236089    6.652512  (LAA, SEA)       LAA       SEA      9.5  2025-07-24T15:32:19Z
+0 2025-07-24  ATH vs HOU    ATH  1.970402    HOU  3.513459    5.483861  (HOU, ATH)       HOU       ATH      9.0  2025-07-24T15:32:19Z

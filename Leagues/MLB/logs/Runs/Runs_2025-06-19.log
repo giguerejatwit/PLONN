@@ -1,0 +1,37 @@
+2025-06-19 09:37:00,686 - INFO -          Date     Matchup Team_1  ...  away_team DK_Line          Last_Updated
+4  2025-06-19  CHW vs STL    STL  ...        STL     9.0  2025-06-19T13:36:24Z
+5  2025-06-19  CHW vs STL    STL  ...        STL     8.0  2025-06-19T13:36:24Z
+13 2025-06-19  LAD vs SDP    SDP  ...        SDP     9.0  2025-06-19T13:36:24Z
+14 2025-06-19  MIA vs PHI    PHI  ...        PHI     7.5  2025-06-19T13:36:24Z
+11 2025-06-19  KCR vs TEX    TEX  ...        KCR     8.5  2025-06-19T13:36:24Z
+3  2025-06-19  BAL vs TBR    TBR  ...        BAL     8.5  2025-06-19T13:36:24Z
+8  2025-06-19  COL vs WSN    COL  ...        COL     9.5  2025-06-19T13:36:24Z
+0  2025-06-19  ARI vs TOR    TOR  ...        ARI     8.5  2025-06-19T13:36:24Z
+2  2025-06-19  ATL vs NYM    ATL  ...        NYM     8.5  2025-06-19T13:36:24Z
+9  2025-06-19  DET vs PIT    PIT  ...        PIT     7.0  2025-06-19T13:36:24Z
+10 2025-06-19  DET vs PIT    PIT  ...        PIT     7.0  2025-06-19T13:36:24Z
+12 2025-06-19  LAA vs NYY    NYY  ...        LAA     9.5  2025-06-19T13:36:24Z
+1  2025-06-19  ATH vs HOU    ATH  ...        HOU    10.0  2025-06-19T13:36:24Z
+6  2025-06-19  CIN vs MIN    MIN  ...        MIN     9.0  2025-06-19T13:36:24Z
+7  2025-06-19  CLE vs SFG    CLE  ...        CLE     7.5  2025-06-19T13:36:24Z
+
+[15 rows x 12 columns]
+2025-06-19 12:19:09,099 - INFO -          Date     Matchup Team_1  ...  away_team DK_Line          Last_Updated
+5  2025-06-19  CHW vs STL    STL  ...        STL     9.0  2025-06-19T16:18:39Z
+6  2025-06-19  CHW vs STL    STL  ...        STL     9.0  2025-06-19T16:18:39Z
+14 2025-06-19  LAD vs SDP    SDP  ...        SDP     9.0  2025-06-19T16:18:39Z
+15 2025-06-19  MIA vs PHI    PHI  ...        PHI     7.5  2025-06-19T16:18:39Z
+3  2025-06-19  BAL vs TBR    TBR  ...        BAL     8.5  2025-06-19T16:18:39Z
+9  2025-06-19  COL vs WSN    COL  ...        COL     9.5  2025-06-19T16:18:39Z
+4  2025-06-19  CHC vs MIL    CHC  ...        MIL     8.5  2025-06-19T16:18:39Z
+12 2025-06-19  KCR vs TEX    TEX  ...        KCR     8.0  2025-06-19T16:18:39Z
+0  2025-06-19  ARI vs TOR    ARI  ...        ARI     8.5  2025-06-19T16:18:39Z
+1  2025-06-19  ATH vs HOU    ATH  ...        HOU    10.0  2025-06-19T16:18:39Z
+13 2025-06-19  LAA vs NYY    NYY  ...        LAA    10.0  2025-06-19T16:18:39Z
+8  2025-06-19  CLE vs SFG    CLE  ...        CLE     7.5  2025-06-19T16:18:39Z
+7  2025-06-19  CIN vs MIN    MIN  ...        MIN     9.5  2025-06-19T16:18:39Z
+2  2025-06-19  ATL vs NYM    ATL  ...        NYM     9.0  2025-06-19T16:18:39Z
+10 2025-06-19  DET vs PIT    PIT  ...        PIT     7.0  2025-06-19T16:18:39Z
+11 2025-06-19  DET vs PIT    PIT  ...        PIT     7.0  2025-06-19T16:18:39Z
+
+[16 rows x 12 columns]

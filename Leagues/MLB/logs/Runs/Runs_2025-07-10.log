@@ -1,0 +1,12 @@
+2025-07-10 11:42:06,735 - INFO -          Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team  DK_Line          Last_Updated
+10 2025-07-10  STL vs WSN    WSN  3.147768    STL  5.456509    8.604277  (WSN, STL)       STL       WSN      9.0  2025-07-10T15:42:00Z
+7  2025-07-10  CIN vs MIA    CIN  1.888265    MIA  6.624893    8.513158  (CIN, MIA)       CIN       MIA      9.0  2025-07-10T15:42:00Z
+9  2025-07-10  NYY vs SEA    NYY  4.074762    SEA  4.220040    8.294802  (NYY, SEA)       NYY       SEA      9.5  2025-07-10T15:42:00Z
+5  2025-07-10  CHC vs MIN    MIN  3.951764    CHC  3.645324    7.597088  (MIN, CHC)       MIN       CHC      9.5  2025-07-10T15:42:00Z
+2  2025-07-10  BAL vs NYM    NYM  2.176518    BAL  5.393762    7.570280  (NYM, BAL)       BAL       NYM      9.5  2025-07-10T15:41:18Z
+3  2025-07-10  BAL vs NYM    NYM  2.176518    BAL  5.393762    7.570280  (NYM, BAL)       BAL       NYM     10.5  2025-07-10T15:42:00Z
+8  2025-07-10  LAA vs TEX    TEX  4.973697    LAA  2.200515    7.174212  (TEX, LAA)       LAA       TEX     10.0  2025-07-10T15:42:00Z
+6  2025-07-10  CHW vs CLE    CHW  4.304932    CLE  2.482353    6.787285  (CHW, CLE)       CHW       CLE      8.5  2025-07-10T15:42:00Z
+0  2025-07-10  ARI vs SDP    SDP  2.591128    ARI  3.972463    6.563591  (ARI, SDP)       SDP       ARI      8.5  2025-07-10T15:42:00Z
+1  2025-07-10  ATH vs ATL    ATH  2.925921    ATL  3.006595    5.932516  (ATL, ATH)       ATH       ATL     10.5  2025-07-10T15:42:00Z
+4  2025-07-10  BOS vs TBR    TBR  2.257143    BOS  1.830658    4.087801  (TBR, BOS)       BOS       TBR      9.0  2025-07-10T15:42:00Z

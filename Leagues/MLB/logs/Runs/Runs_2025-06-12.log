@@ -1,0 +1,9 @@
+2025-06-12 11:33:50,647 - INFO -         Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team  DK_Line          Last_Updated
+5 2025-06-12  MIL vs STL    STL  5.314228    MIL  4.716411   10.030638  (STL, MIL)       MIL       STL      7.5  2025-06-12T15:33:31Z
+0 2025-06-12  BAL vs DET    DET  3.215050    BAL  5.798797    9.013846  (DET, BAL)       BAL       DET      8.0  2025-06-12T15:33:31Z
+6 2025-06-12  MIN vs TEX    TEX  4.700772    MIN  2.802058    7.502831  (MIN, TEX)       MIN       TEX      8.5  2025-06-12T15:33:31Z
+3 2025-06-12  COL vs SFG    SFG  3.998651    COL  3.440777    7.439428  (COL, SFG)       COL       SFG     11.5  2025-06-12T15:33:31Z
+1 2025-06-12  CHC vs PIT    PIT  2.950662    CHC  3.908974    6.859636  (CHC, PIT)       CHC       PIT      7.5  2025-06-12T15:33:31Z
+2 2025-06-12  CHW vs HOU    CHW  4.023563    HOU  2.385576    6.409140  (HOU, CHW)       HOU       CHW      7.5  2025-06-12T15:33:31Z
+4 2025-06-12  KCR vs NYY    NYY  4.013232    KCR  1.910240    5.923472  (KCR, NYY)       KCR       NYY      9.0  2025-06-12T15:33:31Z
+7 2025-06-12  NYM vs WSN    WSN  3.523612    NYM  2.017235    5.540847  (NYM, WSN)       NYM       WSN      8.5  2025-06-12T15:33:31Z

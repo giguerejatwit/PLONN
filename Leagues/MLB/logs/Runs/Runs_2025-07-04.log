@@ -1,0 +1,34 @@
+2025-07-04 10:38:03,995 - INFO -          Date     Matchup Team_1    Runs_1  ... home_team  away_team  DK_Line          Last_Updated
+8  2025-07-04  HOU vs LAD    HOU  3.546983  ...       LAD        HOU      9.5  2025-07-04T14:37:22Z
+10 2025-07-04  MIA vs MIL    MIA  8.103998  ...       MIA        MIL      8.0  2025-07-04T14:37:22Z
+4  2025-07-04  CHC vs STL    STL  5.600483  ...       CHC        STL      9.5  2025-07-04T14:37:22Z
+2  2025-07-04  ATL vs BAL    BAL  5.285435  ...       ATL        BAL      9.0  2025-07-04T14:37:22Z
+14 2025-07-04  SDP vs TEX    SDP  2.332145  ...       SDP        TEX      8.5  2025-07-04T14:37:22Z
+9  2025-07-04  LAA vs TOR    TOR  4.705892  ...       TOR        LAA      9.5  2025-07-04T14:37:22Z
+3  2025-07-04  BOS vs WSN    BOS  4.069569  ...       WSN        BOS      8.0  2025-07-04T14:37:22Z
+0  2025-07-04  ARI vs KCR    ARI  3.631498  ...       ARI        KCR      8.0  2025-07-04T14:37:22Z
+5  2025-07-04  CHW vs COL    CHW  3.541572  ...       COL        CHW     11.0  2025-07-04T14:37:22Z
+1  2025-07-04  ATH vs SFG    ATH  3.161129  ...       ATH        SFG     10.0  2025-07-04T14:37:22Z
+12 2025-07-04  NYM vs NYY    NYY  3.371357  ...       NYM        NYY      9.5  2025-07-04T14:37:22Z
+13 2025-07-04  PIT vs SEA    SEA  3.923243  ...       SEA        PIT      7.0  2025-07-04T14:37:22Z
+7  2025-07-04  CLE vs DET    DET  3.269967  ...       CLE        DET      8.0  2025-07-04T14:37:22Z
+11 2025-07-04  MIN vs TBR    TBR  2.401758  ...       MIN        TBR      9.5  2025-07-04T14:37:22Z
+6  2025-07-04  CIN vs PHI    CIN  1.238040  ...       PHI        CIN      8.0  2025-07-04T14:37:22Z
+
+[15 rows x 12 columns]
+2025-07-04 11:05:33,362 - INFO -          Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team  DK_Line          Last_Updated
+8  2025-07-04  HOU vs LAD    HOU  3.836382    LAD  8.396581   12.232963  (LAD, HOU)       LAD       HOU      9.5  2025-07-04T15:05:28Z
+10 2025-07-04  MIA vs MIL    MIA  7.805075    MIL  4.073064   11.878139  (MIL, MIA)       MIA       MIL      8.0  2025-07-04T15:05:28Z
+4  2025-07-04  CHC vs STL    STL  5.867406    CHC  4.368754   10.236160  (STL, CHC)       CHC       STL      9.5  2025-07-04T15:04:46Z
+2  2025-07-04  ATL vs BAL    BAL  6.177424    ATL  3.232057    9.409481  (ATL, BAL)       ATL       BAL      9.0  2025-07-04T15:05:28Z
+14 2025-07-04  SDP vs TEX    SDP  2.755916    TEX  5.509147    8.265063  (SDP, TEX)       SDP       TEX      8.5  2025-07-04T15:05:28Z
+13 2025-07-04  PIT vs SEA    SEA  4.273005    PIT  3.778070    8.051076  (PIT, SEA)       SEA       PIT      7.0  2025-07-04T15:05:28Z
+5  2025-07-04  CHW vs COL    CHW  4.532519    COL  3.014074    7.546594  (CHW, COL)       COL       CHW     11.0  2025-07-04T15:05:28Z
+12 2025-07-04  NYM vs NYY    NYY  4.168965    NYM  3.086098    7.255063  (NYM, NYY)       NYM       NYY      9.5  2025-07-04T15:04:46Z
+3  2025-07-04  BOS vs WSN    BOS  3.030048    WSN  3.963106    6.993154  (WSN, BOS)       WSN       BOS      8.0  2025-07-04T15:04:46Z
+0  2025-07-04  ARI vs KCR    ARI  4.386498    KCR  2.592264    6.978762  (ARI, KCR)       ARI       KCR      8.0  2025-07-04T15:05:28Z
+1  2025-07-04  ATH vs SFG    ATH  2.741408    SFG  3.976395    6.717802  (ATH, SFG)       ATH       SFG     10.0  2025-07-04T15:05:28Z
+9  2025-07-04  LAA vs TOR    TOR  3.951819    LAA  2.425333    6.377152  (LAA, TOR)       TOR       LAA      9.5  2025-07-04T15:05:28Z
+11 2025-07-04  MIN vs TBR    TBR  2.519334    MIN  3.652327    6.171661  (MIN, TBR)       MIN       TBR     10.0  2025-07-04T15:05:28Z
+7  2025-07-04  CLE vs DET    DET  3.639895    CLE  2.521816    6.161712  (CLE, DET)       CLE       DET      8.0  2025-07-04T15:05:28Z
+6  2025-07-04  CIN vs PHI    CIN  1.168278    PHI  2.805126    3.973403  (CIN, PHI)       PHI       CIN      8.0  2025-07-04T15:04:46Z

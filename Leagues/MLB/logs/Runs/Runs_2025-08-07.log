@@ -1,0 +1,5 @@
+2025-08-07 11:18:04,468 - INFO -         Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team  DK_Line          Last_Updated
+1 2025-08-07  ATL vs MIA    MIA  8.192001    ATL  3.002565   11.194567  (MIA, ATL)       ATL       MIA      8.0  2025-08-07T15:16:45Z
+2 2025-08-07  CHW vs SEA    CHW  5.397027    SEA  3.730061    9.127088  (SEA, CHW)       SEA       CHW      7.5  2025-08-07T15:16:45Z
+0 2025-08-07  ATH vs WSN    ATH  2.859812    WSN  3.617945    6.477757  (ATH, WSN)       WSN       ATH      9.0  2025-08-07T15:16:45Z
+3 2025-08-07  CIN vs PIT    CIN  1.267428    PIT  3.277507    4.544935  (CIN, PIT)       PIT       CIN      7.0  2025-08-07T15:16:45Z

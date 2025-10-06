@@ -1,0 +1,12 @@
+2025-09-11 14:51:41,797 - INFO -          Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team  DK_Line          Last_Updated
+9  2025-09-11  MIA vs WSN    MIA  6.892148    WSN  3.453811   10.345959  (WSN, MIA)       MIA       WSN      8.0  2025-09-11T18:50:16Z
+0  2025-09-11  BAL vs PIT    PIT  4.022682    BAL  5.696718    9.719400  (PIT, BAL)       BAL       PIT      7.5  2025-09-11T18:50:16Z
+1  2025-09-11  CHW vs TBR    TBR  3.528129    CHW  5.516766    9.044895  (CHW, TBR)       CHW       TBR      7.5  2025-09-11T18:50:16Z
+5  2025-09-11  DET vs NYY    NYY  5.248117    DET  3.673758    8.921875  (NYY, DET)       NYY       DET      8.5  2025-09-11T18:50:16Z
+3  2025-09-11  COL vs SDP    SDP  2.364025    COL  4.171875    6.535900  (COL, SDP)       SDP       COL      8.5  2025-09-11T18:50:16Z
+4  2025-09-11  COL vs SDP    SDP  2.364025    COL  4.171875    6.535900  (COL, SDP)       SDP       COL      8.0  2025-09-11T18:50:16Z
+7  2025-09-11  LAA vs SEA    LAA  2.140782    SEA  4.023673    6.164455  (LAA, SEA)       SEA       LAA      7.5  2025-09-11T18:50:16Z
+8  2025-09-11  LAA vs SEA    LAA  2.140782    SEA  4.023673    6.164455  (LAA, SEA)       SEA       LAA      7.5  2025-09-11T18:50:16Z
+2  2025-09-11  CLE vs KCR    CLE  1.999785    KCR  3.035324    5.035109  (KCR, CLE)       CLE       KCR      7.5  2025-09-11T18:50:16Z
+6  2025-09-11  HOU vs TOR    TOR  2.315632    HOU  2.614123    4.929755  (TOR, HOU)       TOR       HOU      8.5  2025-09-11T18:50:16Z
+10 2025-09-11  NYM vs PHI    NYM  1.827983    PHI  2.490481    4.318464  (PHI, NYM)       PHI       NYM      8.5  2025-09-11T18:50:16Z

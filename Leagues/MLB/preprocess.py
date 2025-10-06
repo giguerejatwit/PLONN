@@ -53,7 +53,7 @@ def map_opponent_encoding(gamelog, encoded_opponents):
             
             matched_encodings.append(latest.filter(like='encoded_').values)
         else:
-            matched_encodings.append([None] * 8)  # Or np.nan if you prefer
+            matched_encodings.append([np.nan] * 8)  # Or np.nan if you prefer
 
     # Convert to DataFrame and merge
     encoding_df = pd.DataFrame(matched_encodings, columns=[f'enc_{i}' for i in range(8)])

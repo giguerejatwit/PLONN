@@ -1,0 +1,10 @@
+2025-08-21 12:55:54,945 - INFO -         Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team DK_Line          Last_Updated
+4 2025-08-21  COL vs LAD    LAD  6.517638    COL  4.083081   10.600719  (COL, LAD)       COL       LAD    11.5  2025-08-21T16:54:39Z
+1 2025-08-21  BAL vs HOU    HOU  3.561305    BAL  6.945220   10.506525  (HOU, BAL)       BAL       HOU     9.0  2025-08-21T16:54:39Z
+3 2025-08-21  CHC vs MIL    MIL  3.838945    CHC  4.639600    8.478545  (MIL, CHC)       CHC       MIL     6.5  2025-08-21T16:54:39Z
+8 2025-08-21  STL vs TBR    TBR  2.675969    STL  5.498659    8.174628  (TBR, STL)       TBR       STL     8.5  2025-08-21T16:54:39Z
+0 2025-08-21  ATH vs MIN    MIN  3.506624    ATH  3.426489    6.933113  (MIN, ATH)       MIN       ATH     9.5  2025-08-21T16:54:39Z
+2 2025-08-21  BOS vs NYY    NYY  4.828096    BOS  1.711738    6.539834  (BOS, NYY)       NYY       BOS     8.5  2025-08-21T16:54:39Z
+5 2025-08-21  KCR vs TEX    TEX  4.290629    KCR  1.989615    6.280245  (KCR, TEX)       KCR       TEX     9.0  2025-08-21T16:54:39Z
+6 2025-08-21  NYM vs WAS    WAS  3.185141    NYM  2.298527    5.483668  (NYM, WAS)                                                  
+7 2025-08-21  SDP vs SFG    SFG  3.009685    SDP  2.204033    5.213718  (SFG, SDP)       SDP       SFG     8.0  2025-08-21T16:54:39Z

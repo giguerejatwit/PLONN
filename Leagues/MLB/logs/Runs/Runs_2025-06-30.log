@@ -1,0 +1,9 @@
+2025-06-30 13:16:13,207 - INFO -         Date     Matchup Team_1    Runs_1 Team_2    Runs_2  Total_Runs Matchup_Key home_team away_team  DK_Line          Last_Updated
+2 2025-06-30  BAL vs TEX    BAL  5.163760    TEX  5.353176   10.516935  (BAL, TEX)       TEX       BAL      8.5  2025-06-30T17:15:54Z
+7 2025-06-30  PIT vs STL    STL  5.615136    PIT  2.322087    7.937222  (STL, PIT)       PIT       STL      9.0  2025-06-30T17:15:54Z
+5 2025-06-30  NYY vs TOR    NYY  4.076641    TOR  2.529183    6.605824  (NYY, TOR)       TOR       NYY      8.5  2025-06-30T17:15:54Z
+0 2025-06-30  ARI vs SFG    SFG  3.123676    ARI  3.382368    6.506043  (SFG, ARI)       ARI       SFG      8.5  2025-06-30T17:15:54Z
+4 2025-06-30  KCR vs SEA    KCR  1.367133    SEA  4.267208    5.634340  (SEA, KCR)       SEA       KCR      7.0  2025-06-30T17:15:54Z
+6 2025-06-30  PHI vs SDP    SDP  1.783201    PHI  2.406942    4.190143  (SDP, PHI)       PHI       SDP      9.0  2025-06-30T17:15:54Z
+1 2025-06-30  ATH vs TBR    ATH  2.293418    TBR  1.744784    4.038202  (ATH, TBR)       TBR       ATH      8.0  2025-06-30T17:15:54Z
+3 2025-06-30  BOS vs CIN    CIN  1.692826    BOS  1.482944    3.175770  (CIN, BOS)       BOS       CIN      7.5  2025-06-30T17:15:54Z

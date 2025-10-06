@@ -1,7 +1,13 @@
+import time
+from datetime import datetime
+
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
-from datetime import datetime
+from Leagues.MLB.utils.logger import setup_logger
+
+
+
 
 
 def scrape_today_pitchers() -> pd.DataFrame:
@@ -56,9 +62,11 @@ def scrape_today_pitchers() -> pd.DataFrame:
     # games.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
     return games
 
-
 if __name__ == "__main__":
-    # pass
     df_today_pitchers = scrape_today_pitchers()
+    
+    # Logging
+    logger = setup_logger(name="mlb_today_pitchers", log_dir="Leagues/MLB/logs/StartingPitchers")
+    logger.info(df_today_pitchers)
     df_today_pitchers.to_csv("Leagues/MLB/data/today_pitchers.csv", index=False)
     print(df_today_pitchers)

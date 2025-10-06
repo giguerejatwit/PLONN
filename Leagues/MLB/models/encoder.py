@@ -4,25 +4,7 @@ import pandas as pd
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 
-"""
-    1. Normalize Key Stats
-        - K-rate = SO/PA
-        - BB-rate = BB/PA
-        - HR-rate = HR/AB
-        - 1B-rate = 1B / AB (1B = H - 2B - 3B - HR)
-    2. Composite metrics
-        - IsoPower = SLG - BA
-        - OBP+SLG = OPS
-        - ContactRate = 1 - (SO / PA)
-        - XBH = 2B + 3B + HR
-    3. Drop redundancies
-        - Check HR & HR.1
-        - OPS and OPS.1
-    4. Per Game Averages
-        -SO_per_game
-        -TB_per_game
-        -R_per_game
-"""
+
 
 
 class Autoencoder(keras.Model):
