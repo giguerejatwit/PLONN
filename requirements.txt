@@ -33,6 +33,7 @@ fsspec==2025.9.0
 gast==0.6.0
 google-pasta==0.2.0
 grpcio==1.67.1
+gunicorn==23.0.0
 h5py==3.12.1
 hf-xet==1.1.10
 huggingface-hub==0.35.3
