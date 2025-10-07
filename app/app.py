@@ -1,5 +1,5 @@
 import os, json, time, secrets
-from flask import Flask, request, make_response, redirect
+from flask import Flask, request, make_response, redirect, render_template, send_from_directory
 from dotenv import load_dotenv
 import stripe
 
@@ -22,7 +22,27 @@ stripe.api_key = STRIPE_SECRET
 TOKENS_FILE = "tokens.json"   # { code: { "stripe_customer_id": "...", "exp": 123456, "promoter_code": "..." } }
 LINKS_FILE  = "links.json"    # { discord_user_id: "stripe_customer_id" }
 
+
 app = Flask(__name__)
+
+# --- Analytics HTML serving ---
+
+
+@app.route("/")
+def index():
+    return send_from_directory("analytics", "index.html")
+
+@app.route("/mlb")
+def mlb():
+    return send_from_directory("analytics", "mlb.html")
+
+@app.route("/nba")
+def nba():
+    return send_from_directory("analytics", "nba.html")
+
+@app.route("/analytics/<path:filename>")
+def analytics_static(filename):
+    return send_from_directory("analytics", filename)
 
 # --- helpers ---
 def _load_json(path):
