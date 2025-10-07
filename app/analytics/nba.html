@@ -27,15 +27,15 @@
     <nav class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <img src="images/MasterTrident-transparent.png" alt="Logo" class="h-10 w-10">
+          <img src="images/MasterTrident-transparent.png" alt="Logo" class="h-10 w-10" onerror="this.style.display='none'">
           <span class="text-xl font-bold">PLONN Analytics</span>
         </div>
 
         <!-- Desktop nav -->
         <div class="hidden md:flex items-center space-x-8">
-          <a href="index.html" class="text-gray-300 hover:text-white">Home</a>
-          <a href="nba.html" class="text-white font-medium">NBA</a>
-          <a href="mlb.html" class="text-gray-300 hover:text-white">MLB</a>
+          <a href="/" class="text-gray-300 hover:text-white">Home</a>
+          <a href="/nba" class="text-white font-medium">NBA</a>
+          <a href="/mlb" class="text-gray-300 hover:text-white">MLB</a>
           <a href="#" class="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">Sign In</a>
         </div>
 
@@ -47,9 +47,9 @@
 
       <!-- Mobile menu -->
       <div id="mobileMenu" class="md:hidden mt-3 hidden">
-        <a href="index.html" class="block py-2 text-white/90 hover:text-white">Home</a>
-        <a href="nba.html" class="block py-2 text-white font-semibold">NBA</a>
-        <a href="mlb.html" class="block py-2 text-white/90 hover:text-white">MLB</a>
+        <a href="/" class="block py-2 text-white/90 hover:text-white">Home</a>
+        <a href="/nba" class="block py-2 text-white font-semibold">NBA</a>
+        <a href="/mlb" class="block py-2 text-white/90 hover:text-white">MLB</a>
         <a href="#" class="block py-2 text-white/90 hover:text-white">Sign In</a>
       </div>
     </nav>
@@ -261,7 +261,7 @@
         <div>
           <h4 class="text-lg font-bold mb-4">NBA</h4>
           <ul class="space-y-2">
-            <li><a href="nba.html" class="text-gray-400 hover:text-white">Team Stats</a></li>
+            <li><a href="/nba" class="text-gray-400 hover:text-white">Team Stats</a></li>
             <li><a href="#game-data-section" class="text-gray-400 hover:text-white">Games</a></li>
             <li><a href="#teamChart" class="text-gray-400 hover:text-white">Comparisons</a></li>
           </ul>
@@ -269,7 +269,7 @@
         <div>
           <h4 class="text-lg font-bold mb-4">MLB</h4>
           <ul class="space-y-2">
-            <li><a href="mlb.html" class="text-gray-400 hover:text-white">Dashboard</a></li>
+            <li><a href="/mlb" class="text-gray-400 hover:text-white">Dashboard</a></li>
           </ul>
         </div>
         <div>
