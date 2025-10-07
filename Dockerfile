@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV PORT=7860
 EXPOSE 7860
 
-CMD ["gunicorn", "app:app", "--workers", "2", "--threads", "4", "--timeout", "60", "--bind", "0.0.0.0:7860"]
+CMD ["gunicorn", "app.app:app", "--workers", "2", "--threads", "4", "--timeout", "90", "--bind", "0.0.0.0:7860"]
