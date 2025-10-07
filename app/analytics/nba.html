@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NBA Analytics | PLONN Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+  <!-- JS (deferred) -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js" defer></script>
+  <style>
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05); }
+    .tab-active { border-bottom: 3px solid #1e3a8a; color: #1e3a8a; font-weight: 600; }
+    .chart-container { position: relative; height: 400px; width: 100%; }
+    .ts-control { border: 1px solid #e5e7eb !important; border-radius: .375rem !important; padding: .5rem !important; }
+    .ts-dropdown { border: 1px solid #e5e7eb !important; border-radius: .375rem !important; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- HEADER / NAV -->
+  <div class="bg-indigo-900 text-white">
+    <nav class="container mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <img src="images/MasterTrident-transparent.png" alt="Logo" class="h-10 w-10">
+          <span class="text-xl font-bold">PLONN Analytics</span>
+        </div>
+
+        <!-- Desktop nav -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="index.html" class="text-gray-300 hover:text-white">Home</a>
+          <a href="nba.html" class="text-white font-medium">NBA</a>
+          <a href="mlb.html" class="text-gray-300 hover:text-white">MLB</a>
+          <a href="#" class="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">Sign In</a>
+        </div>
+
+        <!-- Mobile button -->
+        <button id="menuBtn" class="md:hidden focus:outline-none">
+          <i data-feather="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Mobile menu -->
+      <div id="mobileMenu" class="md:hidden mt-3 hidden">
+        <a href="index.html" class="block py-2 text-white/90 hover:text-white">Home</a>
+        <a href="nba.html" class="block py-2 text-white font-semibold">NBA</a>
+        <a href="mlb.html" class="block py-2 text-white/90 hover:text-white">MLB</a>
+        <a href="#" class="block py-2 text-white/90 hover:text-white">Sign In</a>
+      </div>
+    </nav>
+
+    <header class="container mx-auto px-6 py-16">
+      <div class="flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 mb-8 md:mb-0" data-aos="fade-right">
+          <h1 class="text-4xl md:text-5xl font-bold mb-4">NBA Analytics</h1>
+          <p class="text-xl text-indigo-200 mb-6">
+            Interactive odds, O/U performance, accuracy, and trends.
+          </p>
+          <div class="flex space-x-4">
+            <a href="#game-data-section" class="px-6 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition font-medium">
+              View Games
+            </a>
+            <a href="#teamChart" class="px-6 py-2 bg-white text-indigo-900 rounded-lg hover:bg-gray-100 transition font-medium">
+              Team Comparisons
+            </a>
+          </div>
+        </div>
+        <div class="h- flex items-center justify-center">
+          <i data-feather="bar-chart-2" class="w-16 h-16 text-white"></i>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <!-- MAIN -->
+  <main class="container mx-auto px-6 py-12">
+    <!-- Tabs -->
+    <div class="flex overflow-x-auto mb-8 border-b border-gray-200" id="tabs">
+      <button data-tab="overview" id="tab-overview" class="px-6 py-3 mr-2 font-medium text-gray-600 hover:text-indigo-600 tab-active">Overview</button>
+      <button data-tab="teams" id="tab-teams" class="px-6 py-3 mr-2 font-medium text-gray-600 hover:text-indigo-600">Teams</button>
+      <button data-tab="trends" id="tab-trends" class="px-6 py-3 mr-2 font-medium text-gray-600 hover:text-indigo-600">Trends</button>
+      <button data-tab="predictions" id="tab-predictions" class="px-6 py-3 font-medium text-gray-600 hover:text-indigo-600">Predictions</button>
+    </div>
+
+    <!-- Filters (global for all tabs) -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <h2 class="text-xl font-semibold text-gray-800">Filters</h2>
+        <div class="flex flex-col md:flex-row gap-4 mt-4 md:mt-0">
+          <div class="w-full md:w-56">
+            <label for="team-select" class="block text-sm font-medium text-gray-700 mb-1">Team</label>
+            <select id="team-select" class="w-full"><option value="">All Teams</option></select>
+          </div>
+          <div class="w-full md:w-48">
+            <label for="date-range" class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+            <select id="date-range" class="w-full">
+              <option value="">All</option>
+              <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+              <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option>
+              <option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option>
+            </select>
+          </div>
+          <div class="w-full md:w-48">
+            <label for="result-select" class="block text-sm font-medium text-gray-700 mb-1">Result</label>
+            <select id="result-select" class="w-full">
+              <option value="">All</option>
+              <option value="W">Win</option>
+              <option value="L">Loss</option>
+              <option value="V">Void/Push</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <section data-content="overview">
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div class="stat-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="font-medium text-gray-700 mb-2">Total Games</h3>
+          <p class="text-2xl font-bold text-blue-600" id="total-games">0</p>
+        </div>
+        <div class="stat-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="font-medium text-gray-700 mb-2">Avg Pred Total</h3>
+          <p class="text-2xl font-bold text-green-600" id="avg-pred-total">0.0</p>
+        </div>
+        <div class="stat-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="font-medium text-gray-700 mb-2">Over % (Actual vs DK)</h3>
+          <p class="text-2xl font-bold text-purple-600" id="over-percentage">0%</p>
+        </div>
+        <div class="stat-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="font-medium text-gray-700 mb-2">Accuracy %</h3>
+          <p class="text-2xl font-bold text-orange-600" id="accuracy-pct">-</p>
+        </div>
+        <!-- O/U Streaks summary -->
+        <div class="stat-card bg-white p-6 rounded-lg shadow">
+          <h3 class="font-medium text-gray-700 mb-2">Current O/U Streak</h3>
+          <p class="text-sm text-gray-500 mb-1">For selected team (or overall leader)</p>
+          <div class="text-2xl font-bold" id="ou-streak-headline">—</div>
+          <div class="text-sm text-gray-500" id="ou-streak-sub">No data yet</div>
+        </div>
+      </div>
+
+      <!-- Overview Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Total Points Distribution (Actual)</h2>
+          <div class="chart-container"><canvas id="runsChart"></canvas></div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Over/Under Performance (Actual vs DK)</h2>
+          <div class="chart-container"><canvas id="ouChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAMS TAB -->
+    <section data-content="teams" class="hidden">
+      <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Team Scoring (Avg Total Actual)</h2>
+        <div class="chart-container"><canvas id="teamChart"></canvas></div>
+      </div>
+
+      <!-- Game Table -->
+      <div id="game-data-section" class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-800">Game Data</h2>
+          <div class="text-sm text-gray-500" id="game-count">Showing 0 games</div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teams</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pred Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DK Line</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">O/U</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Actual</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">W/L</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="game-data"></tbody>
+          </table>
+          <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
+            <button id="prev-page" class="px-3 py-1 bg-indigo-600 text-white rounded disabled:opacity-50">Previous</button>
+            <span id="page-info">Page 1</span>
+            <button id="next-page" class="px-3 py-1 bg-indigo-600 text-white rounded disabled:opacity-50">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRENDS TAB -->
+    <section data-content="trends" class="hidden">
+      <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-800">Series Over/Under Trend (top game per day)</h2>
+          <div class="flex gap-3 items-center">
+            <label class="text-sm text-gray-600">Window</label>
+            <select id="series-window" class="w-20">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+              <option value="4" selected>4</option><option value="5">5</option>
+              <option value="6">6</option><option value="7">7</option>
+            </select>
+            <label class="text-sm text-gray-600">Smooth</label><input id="series-smooth" type="checkbox" checked />
+            <label class="text-sm text-gray-600">Apply tanh</label><input id="series-tanh" type="checkbox" />
+            <label class="text-sm text-gray-600">Top game only</label><input id="series-toponly" type="checkbox" checked />
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="seriesChart"></canvas></div>
+        <div class="mt-4">
+          <h3 class="text-sm font-medium text-gray-700 mb-2">Monthly summary (Over %)</h3>
+          <div class="chart-container" style="height:150px;"><canvas id="monthlyBar"></canvas></div>
+        </div>
+      </div>
+
+      <section class="mt-10">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold">Over/Under Streaks (Current)</h2>
+          <div class="flex gap-3 items-center">
+            <label class="text-sm text-gray-600">Type</label>
+            <select id="ou-streak-type" class="border rounded px-2 py-1">
+              <option value="all" selected>All</option>
+              <option value="O">Over streaks</option>
+              <option value="U">Under streaks</option>
+            </select>
+            <label class="text-sm text-gray-600">Min</label>
+            <select id="ou-streak-min" class="border rounded px-2 py-1">
+              <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+          </div>
+        </div>
+        <div id="ou-streaks-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
+    </section>
+
+    <!-- PREDICTIONS TAB -->
+    <section data-content="predictions" class="hidden">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">Predictions</h2>
+        <p class="text-gray-600">Coming soon. (We’re currently basing analytics on DK lines and actuals.)</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-800 text-white py-12 mt-12">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h4 class="text-lg font-bold mb-4">PLONN Analytics</h4>
+          <p class="text-gray-400">Advanced analytics for professional sports leagues.</p>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold mb-4">NBA</h4>
+          <ul class="space-y-2">
+            <li><a href="nba.html" class="text-gray-400 hover:text-white">Team Stats</a></li>
+            <li><a href="#game-data-section" class="text-gray-400 hover:text-white">Games</a></li>
+            <li><a href="#teamChart" class="text-gray-400 hover:text-white">Comparisons</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold mb-4">MLB</h4>
+          <ul class="space-y-2">
+            <li><a href="mlb.html" class="text-gray-400 hover:text-white">Dashboard</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold mb-4">Connect</h4>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="twitter"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="facebook"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="instagram"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+        <p>© 2023 PLONN Analytics. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PAGE SCRIPT -->
+  <script>
+/* CONFIG */
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQ5UHhrfRemqOsPp20mQafTvwfJxLUG2oKV_EJD4FooqGxb9VVR56R-6Ao7Qyc5WBSvrnGTTIS8nN5/pub?gid=70546851&single=true&output=csv";
+
+/* GLOBALS */
+let gameData = [];
+let runsChart, ouChart, teamChart, seriesChart, monthlyBar;
+let lastFiltered = [];  // keeps the most recent filtered list for Series controls
+let currentPage = 1;
+const pageSize = 15;
+
+/* HELPERS */
+function normalizeHeader(h) {
+  return String(h || '')
+    .trim()
+    .replace(/^\uFEFF/, '')
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^\w_]/g, '');
+}
+function parseCSV(text) {
+  if (!text) return { headers: [], rows: [] };
+  const rawLines = text.replace(/\r\n/g, '\n').split('\n').filter(l => l.trim().length > 0);
+  if (rawLines.length === 0) return { headers: [], rows: [] };
+  const splitter = /,(?=(?:[^"]*"[^"]*")*[^"]*$)/;
+  const header = rawLines.shift();
+  const headers = header.split(splitter).map(c => normalizeHeader(c.replace(/^"|"$/g,'')));
+  const rows = rawLines.map(line => {
+    const cells = line.split(splitter).map(c => c.trim().replace(/^"|"$/g,''));
+    const obj = {}; headers.forEach((h, i) => obj[h] = (cells[i] ?? '').trim());
+    return obj;
+  });
+  return { headers, rows };
+}
+const toNum = (v) => {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  if (v == null) return null;
+  const s = String(v).trim(); if (s === '') return null;
+  const cleaned = s.replace(/[^0-9.\-]/g, '');
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+};
+function toDate(s) {
+  if (!s) return null;
+  const d = new Date(s); if (!isNaN(d)) return d;
+  const parts = String(s).trim().split(/[\/\-]/).map(p => p.trim());
+  if (parts.length === 3) {
+    let mm = Number(parts[0]), dd = Number(parts[1]), yy = Number(parts[2]);
+    if (!Number.isFinite(mm) || !Number.isFinite(dd) || !Number.isFinite(yy)) return null;
+    if (yy < 100) yy += 2000;
+    const d2 = new Date(yy, mm - 1, dd);
+    if (!isNaN(d2)) return d2;
+  }
+  return null;
+}
+function getField(row, list) {
+  for (const key of list) if (row[key] !== undefined && row[key] !== '') return row[key];
+  return '';
+}
+function inferWLFromActual(ou, dkLine, totalActual) {
+  if (!ou || !Number.isFinite(dkLine) || !Number.isFinite(totalActual)) return '';
+  const diff = totalActual - dkLine;
+  if (diff === 0) return 'V';
+  if ((ou === 'O' && diff > 0) || (ou === 'U' && diff < 0)) return 'W';
+  return 'L';
+}
+// DK-only baseline (no predicted fallback)
+function getBaselineForGame(g) {
+  return Number.isFinite(g.dkLine) ? g.dkLine : null;
+}
+
+// Compute O/U strictly from DK line vs Total Actual
+function computeOUFromActual(g) {
+  const base = getBaselineForGame(g);
+  if (!Number.isFinite(g.totalActual) || base === null) return ''; // not countable
+  if (g.totalActual > base) return 'O';
+  if (g.totalActual < base) return 'U';
+  return 'V'; // push
+}
+
+// --- DK-only O/U streaks -----------------------------------------------
+function computeTeamOUStreaks(games) {
+  const perTeam = new Map();
+
+  games.forEach(g => {
+    if (!g.dateObj) return;
+    const baseOk = Number.isFinite(g.dkLine);
+    const actOk  = Number.isFinite(g.totalActual);
+    if (!baseOk || !actOk) return;
+
+    const ou = g.totalActual > g.dkLine ? 'O' : (g.totalActual < g.dkLine ? 'U' : 'V');
+    if (ou === 'V') return; // ignore pushes for streaks
+
+    const e = { dateObj: g.dateObj, date: g.date, ou };
+    if (g.home) (perTeam.get(g.home) || perTeam.set(g.home, []).get(g.home)).push(e);
+    if (g.away) (perTeam.get(g.away) || perTeam.set(g.away, []).get(g.away)).push(e);
+  });
+
+  const out = [];
+  for (const [team, arr] of perTeam) {
+    arr.sort((a,b)=>b.dateObj - a.dateObj); // newest first
+    if (!arr.length) continue;
+
+    const type = arr[0].ou; // 'O' or 'U'
+    let len = 0; let last = arr[0].date;
+    for (const r of arr) {
+      if (r.ou !== type) break;
+      len++;
+    }
+    out.push({ team, type, length: len, lastDate: last });
+  }
+
+  // Longest first; Over before Under; then alpha
+  out.sort((a,b)=> b.length - a.length || (a.type === 'O' ? -1 : 1) || a.team.localeCompare(b.team));
+  return out;
+}
+
+function renderOUStreakGrid(streaks) {
+  const grid = document.getElementById('ou-streaks-grid');
+  if (!grid) return;
+
+  const want = (document.getElementById('ou-streak-type')?.value || 'all');
+  const min  = +(document.getElementById('ou-streak-min')?.value || 2);
+
+  const filt = streaks.filter(s => s.length >= min && (want === 'all' || s.type === want));
+  grid.innerHTML = filt.length ? '' : '<div class="text-gray-500">No teams meet the filter.</div>';
+
+  filt.slice(0,12).forEach(s=>{
+    const badge = s.type === 'O' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+    const card = document.createElement('div');
+    card.className = 'bg-white p-4 rounded-lg shadow flex items-center justify-between';
+    card.innerHTML = `
+      <div>
+        <h3 class="font-bold text-gray-900">${s.team}</h3>
+        <p class="text-sm text-gray-600">Last: ${s.lastDate || '-'}</p>
+      </div>
+      <div class="text-right">
+        <div class="text-3xl font-bold">${s.length}<span class="text-base font-semibold ml-1">${s.type}</span></div>
+        <span class="px-2 py-0.5 mt-1 inline-block text-xs rounded ${badge}">
+          ${s.type === 'O' ? 'Over' : 'Under'} streak
+        </span>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function updateOUStreakHeadline(team, streaks) {
+  const head = document.getElementById('ou-streak-headline');
+  const sub  = document.getElementById('ou-streak-sub');
+  if (!head || !sub) return;
+
+  let pick = team ? streaks.find(s => s.team === team) : null;
+  if (!pick) pick = streaks[0];
+
+  if (!pick) {
+    head.textContent = '—';
+    sub.textContent  = 'No O/U streaks found';
+    return;
+  }
+  head.textContent = `${pick.team}: ${pick.length}${pick.type}`;
+  sub.textContent  = `Using DK line vs actual • last game: ${pick.lastDate || '-'}`;
+}
+// -----------------------------------------------------------------------
+
+
+/* CHART INIT */
+function initCharts() {
+  runsChart = new Chart(document.getElementById('runsChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: ['160-199','200-219','220-229','230-239','240+'], datasets:[{ label:'Games', data:[0,0,0,0,0], borderWidth:1 }]},
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true } } }
+  });
+  ouChart = new Chart(document.getElementById('ouChart').getContext('2d'), {
+    type: 'doughnut',
+    data: { labels:['Over %','Under %','Push %'], datasets:[{ data:[0,0,0], backgroundColor:['rgba(16,185,129,0.8)','rgba(239,68,68,0.8)','rgba(156,163,175,0.8)'] }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right' }, tooltip:{ callbacks:{ label:(c)=>`${c.label}: ${c.parsed ?? 0}%` } } } }
+  });
+  teamChart = new Chart(document.getElementById('teamChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:[], datasets:[{ label:'Avg Total Actual', data:[], borderWidth:1 }]},
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:false } } }
+  });
+  seriesChart = new Chart(document.getElementById('seriesChart').getContext('2d'), {
+    type:'line',
+    data:{ labels:[], datasets:[{ label:'Series O/U Score', data:[], fill:true, tension:0.35 }]},
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ min:-1, max:1 } } }
+  });
+  monthlyBar = new Chart(document.getElementById('monthlyBar').getContext('2d'), {
+    type:'bar',
+    data:{ labels:[], datasets:[
+      { label: 'Over % (Actual vs DK)', data: [], backgroundColor: 'rgba(59,130,246,0.6)' },
+      { label: 'Over (Wins) %', data: [], backgroundColor: 'rgba(16,185,129,0.6)' }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } } }
+  });
+}
+
+/* TOP GAME PER DATE (by highest predicted total as proxy) */
+function getTopGamesPerDate(games) {
+  const byDate = {};
+  games.forEach(g => {
+    const key = g.dateObj && !isNaN(g.dateObj) ? g.dateObj.toISOString().slice(0,10) : g.date || '__no_date__';
+    (byDate[key] ||= []).push(g);
+  });
+  const tops = [];
+  Object.keys(byDate).sort().forEach(d => {
+    const list = byDate[d];
+    list.sort((a,b) => (b.predTotal ?? -Infinity) - (a.predTotal ?? -Infinity));
+    if (list.length) tops.push(list[0]);
+  });
+  tops.sort((a,b) => (a.dateObj - b.dateObj));
+  return tops;
+}
+
+/* SERIES SCORE */
+function computeSeriesScore(rows, windowSize=4, smooth=true, tanh=false) {
+  const sorted = rows.slice().sort((a,b) => a.dateObj - b.dateObj);
+  const ouVal = g => g.ou === 'O' ? 1 : (g.ou === 'U' ? -1 : 0);
+  const raw = [];
+  for (let i=0; i<=sorted.length-windowSize; i++){
+    const win = sorted.slice(i, i+windowSize);
+    const vals = win.map(ouVal).filter(v => v !== 0);
+    const score = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+    raw.push({ label: win[Math.floor(windowSize/2)].date, score });
+  }
+  let s = raw.map(r => r.score);
+  if (smooth && s.length >= 3) {
+    const t = [];
+    for (let i=0;i<s.length;i++){
+      const L = Math.max(0,i-1), R = Math.min(s.length-1,i+1);
+      const slice = s.slice(L,R+1);
+      t[i] = slice.reduce((a,b)=>a+b,0)/slice.length;
+    }
+    s = t;
+  }
+  const final = s.map(v => tanh ? Math.tanh(v*2) : v);
+  return raw.map((r,i)=>({ label:r.label, value:final[i] }));
+}
+
+/* UPDATE SERIES (uses lastFiltered) */
+function updateSeriesCharts(filtered) {
+  const win = Math.min(7, Math.max(1, Number(document.getElementById('series-window').value || 4)));
+  const smooth = document.getElementById('series-smooth').checked;
+  const tanh = document.getElementById('series-tanh').checked;
+  const topOnly = document.getElementById('series-toponly').checked;
+
+  let src = (filtered && filtered.length) ? filtered.slice() : gameData.slice();
+
+  // Only include played rows that can produce OU vs DK
+  const playable = src.filter(g => Number.isFinite(g.totalActual) && Number.isFinite(g.dkLine));
+  // Derive O/U from ACTUAL vs DK if missing
+  const withOU = playable.map(g => {
+    let ou = g.ou;
+    if (!ou) {
+      if (g.totalActual > g.dkLine) ou = 'O';
+      else if (g.totalActual < g.dkLine) ou = 'U';
+      else ou = '';
+    }
+    return Object.assign({}, g, { ou });
+  });
+
+  const rows = topOnly ? getTopGamesPerDate(withOU) : withOU.slice().sort((a,b)=>a.dateObj-b.dateObj);
+
+  if (rows.length >= win) {
+    const series = computeSeriesScore(rows, win, smooth, tanh);
+    seriesChart.data.labels = series.map(s => s.label);
+    seriesChart.data.datasets[0].data = series.map(s => s.value);
+    seriesChart.update();
+  } else {
+    seriesChart.data.labels = [];
+    seriesChart.data.datasets[0].data = [];
+    seriesChart.update();
+  }
+
+  // Monthly summary
+  const months = {};
+  withOU.forEach(g => {
+    const d = g.dateObj; if (!d || isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    months[key] ||= { count:0, over:0, overWins:0 };
+    months[key].count++;
+    const isOver = g.totalActual > g.dkLine;
+    if (isOver) months[key].over++;
+    if (isOver && g.wl === 'W') months[key].overWins++;
+  });
+  const keys = Object.keys(months).sort();
+  monthlyBar.data.labels = keys;
+  monthlyBar.data.datasets[0].data = keys.map(k => Math.round((months[k].over / months[k].count) * 1000)/10);
+  monthlyBar.data.datasets[1].data = keys.map(k => Math.round((months[k].overWins / months[k].count) * 1000)/10);
+  monthlyBar.update();
+}
+
+/* MAIN CHART UPDATE */
+function updateCharts(filtered) {
+  // keep copy for Series
+  lastFiltered = Array.isArray(filtered) ? filtered.slice() : gameData.slice();
+
+  const rows = lastFiltered.slice().sort((a,b) => b.dateObj - a.dateObj);
+
+  // KPI: total games
+  document.getElementById('total-games').textContent = rows.length;
+
+  // KPI: avg predicted total
+  const preds = rows.filter(r => Number.isFinite(r.predTotal));
+  const avgPred = preds.length ? preds.reduce((s,r)=>s+r.predTotal,0)/preds.length : 0;
+  document.getElementById('avg-pred-total').textContent = avgPred ? avgPred.toFixed(1) : '0.0';
+
+  // OU actual vs DK
+  const ouRows = rows.filter(r => Number.isFinite(r.totalActual) && Number.isFinite(r.dkLine));
+  let over=0, under=0, push=0;
+  ouRows.forEach(r=>{
+    if (r.totalActual > r.dkLine) over++;
+    else if (r.totalActual < r.dkLine) under++;
+    else push++;
+  });
+  const denom = ouRows.length || 1;
+  const overPct = Math.round((over/denom)*100);
+  const underPct = Math.round((under/denom)*100);
+  const pushPct = Math.round((push/denom)*100);
+  document.getElementById('over-percentage').textContent = `${overPct}%`;
+  ouChart.data.datasets[0].data = [overPct, underPct, pushPct];
+  ouChart.update();
+
+  // KPI: Accuracy % (from "Accuracy %" column if present, else compute W/played)
+  const accVals = rows.map(r => r.accPct).filter(v => Number.isFinite(v));
+  const avgAcc = accVals.length ? (accVals.reduce((s,v)=>s+v,0)/accVals.length) : null;
+  document.getElementById('accuracy-pct').textContent = avgAcc === null ? '-' : `${avgAcc.toFixed(1)}%`;
+
+  // Points distribution (Actual)
+  const bins = [0,0,0,0,0];
+  rows.filter(r => Number.isFinite(r.totalActual)).forEach(r=>{
+    const t = r.totalActual;
+    if (t < 200) bins[0]++; else if (t < 220) bins[1]++; else if (t < 230) bins[2]++;
+    else if (t < 240) bins[3]++; else bins[4]++;
+  });
+  runsChart.data.datasets[0].data = bins; runsChart.update();
+
+  // Team bar (Avg Total Actual per team tag)
+  const teamAgg = {};
+  rows.filter(r => Number.isFinite(r.totalActual)).forEach(r=>{
+    [r.home, r.away].forEach(t=>{
+      if (!t) return;
+      teamAgg[t] ||= { sum:0, n:0 };
+      teamAgg[t].sum += r.totalActual;
+      teamAgg[t].n += 1;
+    });
+  });
+  const labels = Object.keys(teamAgg).sort();
+  teamChart.data.labels = labels;
+  teamChart.data.datasets[0].data = labels.map(k => Number((teamAgg[k].sum / teamAgg[k].n).toFixed(1)));
+  teamChart.update();
+
+  // Table (paginated)
+  const tbody = document.getElementById('game-data');
+  if (tbody) {
+    tbody.innerHTML = '';
+    const start = (currentPage - 1) * pageSize;
+    const pageRows = rows.slice(start, start + pageSize);
+    pageRows.forEach(g=>{
+      const date = g.date || '-';
+      const teams = `${g.home || '-'} vs ${g.away || '-'}`;
+      const pred = Number.isFinite(g.predTotal) ? g.predTotal.toFixed(1) : '-';
+      const dk = Number.isFinite(g.dkLine) ? g.dkLine : '';
+      const ou = g.ou || '';
+      const act = Number.isFinite(g.totalActual) ? g.totalActual : '-';
+      const wl = g.wl || '-';
+      const badge = wl==='W' ? 'bg-green-100 text-green-800' : (wl==='L' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800');
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-50';
+      tr.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${date}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${teams}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pred}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dk}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ou}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${act}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badge}">${wl}</span>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    // paging UI
+    document.getElementById('game-count').textContent = `Showing ${pageRows.length} of ${rows.length} games`;
+    const pageInfoEl = document.getElementById('page-info');
+    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    pageInfoEl.textContent = `Page ${currentPage} of ${totalPages}`;
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage >= totalPages;
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; updateCharts(lastFiltered); } };
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; updateCharts(lastFiltered); } };
+  }
+
+  // keep Series in sync with SAME filtered set
+  updateSeriesCharts(lastFiltered);
+}
+
+/* FILTERS (single Team drives all) */
+function filterData() {
+  const team = document.getElementById('team-select').value;
+  const month = document.getElementById('date-range').value;
+  const result = document.getElementById('result-select').value;
+
+  let filt = gameData.slice();
+  if (team) filt = filt.filter(g => g.home === team || g.away === team);
+  if (month) filt = filt.filter(g => (g.date || '').split('-')[1] === month);
+  if (result) filt = filt.filter(g => (g.wl || '').toUpperCase() === result);
+
+  currentPage = 1; // reset pagination
+  updateCharts(filt);
+
+  // Update the O/U streak headline for the currently selected team
+  try {
+    if (typeof updateOUStreakHeadline === 'function' && Array.isArray(window.ouStreaksAll)) {
+      updateOUStreakHeadline(team, window.ouStreaksAll);
+    }
+  } catch (e) {
+    console.warn('[NBA] OU streak headline update skipped:', e);
+  }
+}
+
+/* TABS */
+function switchTab(name) {
+  // buttons
+  document.querySelectorAll('#tabs button').forEach(btn => {
+    if (btn.dataset.tab === name) btn.classList.add('tab-active');
+    else btn.classList.remove('tab-active');
+  });
+
+  // sections
+  document.querySelectorAll('section[data-content]').forEach(sec => {
+    if (sec.dataset.content === name) sec.classList.remove('hidden');
+    else sec.classList.add('hidden');
+  });
+
+  // resize charts now visible
+  requestAnimationFrame(() => {
+    try {
+      if (name === 'overview') {
+        runsChart?.resize();
+        ouChart?.resize();
+      } else if (name === 'teams') {
+        teamChart?.resize();
+      } else if (name === 'trends') {
+        seriesChart?.resize();
+        monthlyBar?.resize();
+        updateSeriesCharts(lastFiltered);
+      }
+    } catch (e) {
+      console.warn('[NBA] chart resize warning:', e);
+    }
+  });
+}
+
+function wireTabs() {
+  const tabs = document.querySelectorAll('#tabs button[data-tab]');
+  tabs.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+  switchTab('overview'); // initial
+}
+
+/* BOOTSTRAP */
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.AOS) AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
+  if (window.feather) feather.replace();
+  const btn = document.getElementById('menuBtn'), menu = document.getElementById('mobileMenu');
+  if (btn && menu) btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+  initCharts();
+  wireTabs();
+
+  try {
+    const resp = await fetch(CSV_URL, { cache: 'no-store' });
+    if (!resp.ok) { console.error('[NBA] CSV fetch failed', resp.status, resp.statusText); return; }
+    const text = await resp.text();
+    const parsed = parseCSV(text);
+    const rows = parsed.rows || [];
+
+    // Map your headers:
+    gameData = rows.map(r => {
+      const dateRaw = getField(r, ['date']);
+      const dateObj = toDate(dateRaw);
+      const dateISO = dateObj ? dateObj.toISOString().slice(0,10) : (dateRaw || '');
+      const home = r['home'] || '';
+      const away = r['away'] || '';
+      const homePred = toNum(getField(r, ['home_pred','homepred','home_pred.']));
+      const awayPred = toNum(getField(r, ['away_pred','awaypred','away_pred.']));
+      const predTotal = toNum(getField(r, ['pred_total','predtotal','pred_total.']));
+      const dkLine = toNum(getField(r, ['dk_lines','dkline','dk_lines.','dk']));
+      const ouRaw = (getField(r, ['o/u','o_u','ou']) || '').toUpperCase();
+      const totalActual = toNum(getField(r, ['total_actual','totalactual','total_actual.','total actual']));
+      const wlRaw = (getField(r, ['w/l','wl']) || '').toUpperCase().replace(/\s+/g,'');
+      const accPct = toNum(getField(r, ['Accuracy %']));
+
+      // prefer sheet-provided W/L; otherwise infer from actual vs DK
+      let wl = (wlRaw === 'W' || wlRaw === 'L' || wlRaw === 'V') ? wlRaw : '';
+      if (!wl && (ouRaw === 'O' || ouRaw === 'U') && Number.isFinite(dkLine) && Number.isFinite(totalActual)) {
+        wl = inferWLFromActual(ouRaw === 'OVER' ? 'O' : ouRaw, dkLine, totalActual);
+      }
+
+      return {
+        date: dateISO,
+        dateObj,
+        home, away,
+        homePred: Number.isFinite(homePred) ? homePred : null,
+        awayPred: Number.isFinite(awayPred) ? awayPred : null,
+        predTotal: Number.isFinite(predTotal) ? predTotal : (Number.isFinite(homePred) && Number.isFinite(awayPred) ? homePred + awayPred : null),
+        dkLine: Number.isFinite(dkLine) ? dkLine : null,
+        ou: (ouRaw === 'OVER' || ouRaw === 'O') ? 'O' : (ouRaw === 'UNDER' || ouRaw === 'U') ? 'U' : '',
+        totalActual: Number.isFinite(totalActual) ? totalActual : null,
+        wl,
+        accPct: Number.isFinite(accPct) ? accPct : null
+      };
+    }).filter(r => r.dateObj); // keep only rows with valid dates
+
+    // DK-only O/U streaks (league-wide)
+    window.ouStreaksAll = computeTeamOUStreaks(gameData);
+    renderOUStreakGrid(window.ouStreaksAll);
+    updateOUStreakHeadline('', window.ouStreaksAll);
+
+    // Grid controls
+    document.getElementById('ou-streak-type')?.addEventListener('change', () => renderOUStreakGrid(window.ouStreaksAll));
+    document.getElementById('ou-streak-min')?.addEventListener('change',  () => renderOUStreakGrid(window.ouStreaksAll));
+
+    // populate team select
+    const teamEl = document.getElementById('team-select');
+    const teams = new Set();
+    gameData.forEach(g => { if (g.home) teams.add(g.home); if (g.away) teams.add(g.away); });
+    [...teams].sort().forEach(t => {
+      const opt = document.createElement('option'); opt.value = t; opt.textContent = t; teamEl.appendChild(opt);
+    });
+    if (window.TomSelect) new TomSelect('#team-select', { create:false, sortField:'text' });
+
+    // wire filters & series controls
+    document.getElementById('team-select').addEventListener('change', filterData);
+    document.getElementById('date-range').addEventListener('change', filterData);
+    document.getElementById('result-select').addEventListener('change', filterData);
+    ['series-window','series-smooth','series-tanh','series-toponly'].forEach(id=>{
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', ()=>updateSeriesCharts(lastFiltered));
+    });
+
+    // initial render
+    currentPage = 1;
+    updateCharts(gameData.slice().sort((a,b)=>b.dateObj - a.dateObj));
+  } catch (e) {
+    console.error('[NBA] error loading/parsing CSV:', e);
+  }
+});
+  </script>
+</body>
+</html>

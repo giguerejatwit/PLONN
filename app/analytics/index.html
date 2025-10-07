@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PLONN Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Tailwind dark mode via class
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    .sport-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04); }
+  </style>
+</head>
+<body class="min-h-full bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+  <!-- NAV -->
+  <nav class="container mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <!-- Logo: ensure path & filename case are correct -->
+        <img src="./images/MasterTrident-transparent.png"
+             alt="PLONN Analytics Logo"
+             class="h-10 w-10 object-contain"
+             onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden');">
+        <span id="logo-fallback" class="hidden text-xl font-bold">PLONN Analytics</span>
+      </a>
+      <div class="hidden md:flex items-center gap-6">
+        <a href="index.html" class="hover:opacity-80">Home</a>
+        <a href="nba.html" class="hover:opacity-80">NBA</a>
+        <a href="mlb.html" class="hover:opacity-80">MLB</a>
+        <button id="themeToggle" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-700 text-sm">
+          Theme: <span id="themeLabel">Auto</span>
+        </button>
+      </div>
+      <button class="md:hidden" id="menuBtn"><i data-feather="menu" class="w-6 h-6"></i></button>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden mt-3 space-y-2">
+      <a href="index.html" class="block">Home</a>
+      <a href="nba.html" class="block">NBA</a>
+      <a href="mlb.html" class="block">MLB</a>
+      <button id="themeToggleMobile" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-700 text-sm">Toggle Theme</button>
+    </div>
+  </nav>
+
+  <!-- HERO (logo-centric, no gradient) -->
+<!-- HERO (centered logo) -->
+<header class="container mx-auto px-6 py-20 text-center">
+  <!-- Logo front and center -->
+  <div data-aos="zoom-in">
+    <img src="./images/MasterTrident-transparent.png"
+         alt="PLONN Analytics Logo"
+         class="mx-auto h-28 w-28 md:h-36 md:w-36 object-contain mb-6"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden');">
+    <div id="logo-fallback" class="hidden text-3xl font-bold mb-6">PLONN Analytics</div>
+  </div>
+
+  <!-- Heading + tagline -->
+  <h1 class="text-4xl md:text-6xl font-bold mb-4" data-aos="fade-up">
+    Sport Analytics Optimized by AI
+  </h1>
+  <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8" data-aos="fade-up" data-aos-delay="100">
+    Stick to the PLONN
+  </p>
+
+  <!-- CTA buttons -->
+  <div class="flex flex-col md:flex-row justify-center gap-4" data-aos="fade-up" data-aos-delay="200">
+    <a href="nba.html" class="px-8 py-3 bg-indigo-200 dark:bg-fuchsia-600 text-gray-800 rounded-lg hover:bg-gray-100 transition font-medium">
+      Explore NBA
+    </a>
+    <a href="mlb.html" class="px-8 py-3 bg-indigo-200 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-fuschia-900 dark:text-fuchsia-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition font-medium">
+      Explore MLB
+    </a>
+  </div>
+</header>
+
+  <!-- CHOICES -->
+  <main class="container mx-auto px-6 pb-16">
+    <section>
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-10" data-aos="fade-up">Choose Your Sport</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <a href="nba.html" class="sport-card bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition" data-aos="fade-right">
+          <div class="h-48 bg-blue-100 dark:bg-blue-950/40">
+            <img src="http://static.photos/sport/640x360/1" alt="NBA" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center mb-3">
+              <i data-feather="target" class="w-5 h-5 mr-2"></i>
+              <h3 class="text-lg font-semibold">NBA Analytics</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300">Advanced metrics, player tracking, and trends.</p>
+          </div>
+        </a>
+
+        <a href="mlb.html" class="sport-card bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition" data-aos="fade-left">
+          <div class="h-48 bg-red-100 dark:bg-red-950/40">
+            <img src="http://static.photos/sport/640x360/2" alt="MLB" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center mb-3">
+              <i data-feather="bar-chart-2" class="w-5 h-5 mr-2"></i>
+              <h3 class="text-lg font-semibold">MLB Analytics</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300">Pitch tracking, batting stats, and O/U analysis.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300">
+    <div class="container mx-auto px-6 py-8 text-center">© 2025 PLONN Analytics. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // AOS & icons
+    if (window.AOS) AOS.init({ duration: 800, once: true });
+    if (window.feather) feather.replace();
+
+    // Mobile menu
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu')?.classList.toggle('hidden');
+    });
+
+    // Theme toggle (stores preference)
+    const html = document.documentElement;
+    const label = document.getElementById('themeLabel');
+
+    function applyTheme(pref){
+      if (pref === 'dark') { html.classList.add('dark'); label.textContent = 'Dark'; }
+      else if (pref === 'light') { html.classList.remove('dark'); label.textContent = 'Light'; }
+      else { // Auto
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        html.classList.toggle('dark', isDark);
+        label.textContent = 'Auto';
+      }
+    }
+    function cycleTheme(){
+      const cur = localStorage.getItem('plonn-theme') || 'auto';
+      const next = cur === 'auto' ? 'light' : (cur === 'light' ? 'dark' : 'auto');
+      localStorage.setItem('plonn-theme', next);
+      applyTheme(next);
+    }
+    applyTheme(localStorage.getItem('plonn-theme') || 'auto');
+    document.getElementById('themeToggle')?.addEventListener('click', cycleTheme);
+    document.getElementById('themeToggleMobile')?.addEventListener('click', cycleTheme);
+  </script>
+</body>
+</html>
