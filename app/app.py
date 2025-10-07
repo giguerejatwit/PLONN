@@ -23,22 +23,22 @@ TOKENS_FILE = "tokens.json"   # { code: { "stripe_customer_id": "...", "exp": 12
 LINKS_FILE  = "links.json"    # { discord_user_id: "stripe_customer_id" }
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="analytics", template_folder="analytics")
 
 # --- Analytics HTML serving ---
 
 
 @app.route("/")
 def index():
-    return send_from_directory("analytics", "index.html")
+    return render_template("index.html")
 
 @app.route("/mlb")
 def mlb():
-    return send_from_directory("analytics", "mlb.html")
+    return render_template("mlb.html")
 
 @app.route("/nba")
 def nba():
-    return send_from_directory("analytics", "nba.html")
+    return render_template("nba.html")
 
 @app.route("/analytics/<path:filename>")
 def analytics_static(filename):
@@ -148,4 +148,4 @@ def dev_links():
     return ("Not found", 404)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "7860")), debug=True)
