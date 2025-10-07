@@ -11,6 +11,53 @@
   </script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script>
+    (function () {
+      // Only act on Hugging Face hub URLs
+      var path = window.location.pathname || "";
+      var isHub = /^\/spaces\/[^\/]+\/[^\/]+/.test(path);
+
+      if (!isHub) return;
+
+      // Does URL already contain '+' after space name?
+      var hasPlus = /\/\+/.test(path);
+
+      // If on hub without '+', redirect to add '+', preserving the rest of the path, query, and hash.
+      if (!hasPlus) {
+        var prefix = path.replace(/^(\/spaces\/[^\/]+\/[^\/]+).*/, "$1");
+        var rest = path.slice(prefix.length);
+        var target = prefix + "+" + rest + window.location.search + window.location.hash;
+        window.location.replace(target);
+        return;
+      }
+
+      // Build Space base like "/spaces/user/space+"
+      var SPACE_BASE = path.split("/+")[0] + "+";
+
+      // Rewrite internal links that start with "/" to be rooted at SPACE_BASE.
+      function rewriteLinks() {
+        var anchors = document.querySelectorAll('a[href^="/"]');
+        anchors.forEach(function (a) {
+          var href = a.getAttribute("href") || "/";
+          // Skip absolute URLs and already-correct hub URLs
+          if (/^https?:\/\//i.test(href) || href.startsWith("/spaces/")) return;
+
+          // Normalize like "/nba" -> "/spaces/user/space+/nba"
+          var normalized = href.replace(/^\/+/, "");
+          a.setAttribute("href", SPACE_BASE + "/" + normalized);
+          // Ensure top-level navigation breaks out of iframe on click
+          a.setAttribute("target", "_top");
+        });
+      }
+
+      // Run ASAP and on DOM ready
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", rewriteLinks);
+      } else {
+        rewriteLinks();
+      }
+    })();
+  </script>
   <style>
     .sport-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04); }
   </style>
@@ -31,7 +78,7 @@
         <a href="/" class="hover:opacity-80">Home</a>
         <a href="/nba" class="hover:opacity-80">NBA</a>
         <a href="/mlb" class="hover:opacity-80">MLB</a>
-        <a href="/oauth/discord/login" class="px-3 py-1 rounded-md text-white" style="background-color:#5865F2;">Log in with Discord</a>
+        <a href="/oauth/discord/login" target="_top" class="px-3 py-1 rounded-md text-white" style="background-color:#5865F2;">Log in with Discord</a>
         <button id="themeToggle" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-700 text-sm">
           Theme: <span id="themeLabel">Auto</span>
         </button>
@@ -42,7 +89,7 @@
       <a href="/" class="block">Home</a>
       <a href="/nba" class="block">NBA</a>
       <a href="/mlb" class="block">MLB</a>
-      <a href="/oauth/discord/login" class="block px-3 py-2 rounded-md text-white text-center" style="background-color:#5865F2;">Log in with Discord</a>
+      <a href="/oauth/discord/login" target="_top" class="block px-3 py-2 rounded-md text-white text-center" style="background-color:#5865F2;">Log in with Discord</a>
       <button id="themeToggleMobile" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-700 text-sm">Toggle Theme</button>
     </div>
   </nav>
