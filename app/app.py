@@ -188,7 +188,27 @@ def discord_login():
         "response_type": "code",
         "scope": "identify",
     }
-    return redirect("https://discord.com/api/oauth2/authorize?" + urlencode(params))
+    auth_url = "https://discord.com/api/oauth2/authorize?" + urlencode(params)
+    # If running inside the Hugging Face hub iframe, Discord refuses to be embedded.
+    # Send the browser to the top-level window.
+    html = f"""<!doctype html><html><head><meta charset='utf-8'></head>
+<body>
+<script>
+  (function() {{
+    try {{
+      if (window.top && window.top !== window.self) {{
+        window.top.location = {json.dumps(auth_url)};
+      }} else {{
+        window.location = {json.dumps(auth_url)};
+      }}
+    }} catch (e) {{
+      window.location = {json.dumps(auth_url)};
+    }}
+  }})();
+</script>
+<noscript><a href="{auth_url}">Continue to Discord Login</a></noscript>
+</body></html>"""
+    return html
 
 
 @app.route("/oauth/discord/callback")
