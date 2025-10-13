@@ -16,7 +16,8 @@ import datetime
 import pandas as pd
 import os
 from bs4 import BeautifulSoup
-from Leagues.MLB.utils.abbr_map import get_team_name_or_abbr
+from leagues.MLB.utils.abbr_map import get_team_name_or_abbr as mlb_name_or_abbr
+from leagues.NBA.utils.abbr_map import get_team_name_or_abbr as nba_name_or_abbr
 
 API_KEY = os.getenv('ODDS_API_KEY')
 print(f'API_KEY:', API_KEY)
@@ -61,21 +62,35 @@ def get_event_ids(sport=SPORT) -> list:
     if odds_response.status_code != 200:
         print(
             f'Failed to get odds: status_code {odds_response.status_code}, response body {odds_response.text}')
-
+        return [], odds_response
     else:
         odds_json = odds_response.json()
         eventIDs = [event['id'] for event in odds_json]
         print(f'Number of {sport} games today:', len(odds_json))
-
         return eventIDs, odds_response
 
 
-def get_dk_lines(sportbook: str = 'draftkings') -> pd.DataFrame:
+
+
+def get_dk_lines(sportbook: str = 'draftkings', sport: str = SPORT) -> pd.DataFrame:
+    """Fetch DraftKings totals lines for the given sport.
+    Use MLB or NBA team name↔abbr mapping based on the sport key.
+    - sport examples: 'baseball_mlb', 'basketball_nba'
+    """
+    # Choose the proper team-mapping function
+    if sport.startswith('baseball'):
+        name_or_abbr = mlb_name_or_abbr
+    elif sport.startswith('basketball'):
+        name_or_abbr = nba_name_or_abbr
+    else:
+        # Default to returning the original value unchanged
+        name_or_abbr = lambda x: x
+
     lines = []
-    eventIDs, odds_response = get_event_ids(sport=SPORT)
+    eventIDs, odds_response = get_event_ids(sport=sport)
     for id in eventIDs:
         totals_response = requests.get(
-            f'https://api.the-odds-api.com/v4/sports/{SPORT}/events/{id}/odds',
+            f'https://api.the-odds-api.com/v4/sports/{sport}/events/{id}/odds',
             params={
                 'api_key': API_KEY,
                 'regions': REGIONS,
@@ -87,34 +102,44 @@ def get_dk_lines(sportbook: str = 'draftkings') -> pd.DataFrame:
             print(
                 f'Failed to get odds: status_code {totals_response.status_code}, response body {odds_response.text}')
             return
-        
+
         game_info = totals_response.json()
         if not game_info:
             print(f'No game info found for game ID {type(id)}: {id}')
             return
 
         dk_market = None
-        for bookmaker in game_info['bookmakers']:
-            if bookmaker['key'] == sportbook:
-                for market in bookmaker['markets']:
-                    if market['key'] == 'totals':
+        for bookmaker in game_info.get('bookmakers', []):
+            if bookmaker.get('key') == sportbook:
+                for market in bookmaker.get('markets', []):
+                    if market.get('key') == 'totals':
                         dk_market = market
                         break
-        # print(dk_market)
         if dk_market is None:
             print(f'No {sportbook} market found for game ID {id}')
-            return
+            continue
+
+        try:
+            point_val = dk_market['outcomes'][0]['point']
+        except (KeyError, IndexError):
+            point_val = None
 
         game_totals = {
-            'home_team': get_team_name_or_abbr(game_info['home_team']),
-            'away_team': get_team_name_or_abbr(game_info['away_team']),
-            'DK_Line': dk_market['outcomes'][0]['point'],
-            'Last_Updated': dk_market['last_update'],
+            'home_team': name_or_abbr(game_info.get('home_team', '')),
+            'away_team': name_or_abbr(game_info.get('away_team', '')),
+            'DK_Line': point_val,
+            'Last_Updated': dk_market.get('last_update'),
+            'sport': sport,
         }
 
         lines.append(game_totals)
 
     return pd.DataFrame(lines)
+
+
+def get_nba_dk_lines(sportbook: str = 'draftkings') -> pd.DataFrame:
+    """Convenience wrapper for NBA totals lines."""
+    return get_dk_lines(sportbook=sportbook, sport='basketball_nba')
 
     
 def get_historic_odds(api_key,

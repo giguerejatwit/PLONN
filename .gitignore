@@ -19,6 +19,11 @@ lib/
 *.csv
 *.pkl
 *.npz
+*.log
+*.csv
+*.xlsx
+*.pdf
+*.docx
 # Ignore macOS system files
 .DS_Store
 *.so

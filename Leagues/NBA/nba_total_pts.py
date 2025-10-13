@@ -1,27 +1,26 @@
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import Model
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-from keras import callbacks, layers
-from google.oauth2.service_account import Credentials
-import seaborn as sns
-import numpy as np
-import matplotlib.pyplot as plt
-import gspread
 import argparse
-import os
 import sys
 import time
 from datetime import datetime
 from io import StringIO
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import requests
 import tensorflow as tf
 from bs4 import BeautifulSoup
+from ghsheets_logger import data_to_googlesheets
+from keras import callbacks, layers
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+
+from leagues.NBA.get_data import get_team_per_game_stats, get_today_games
+from leagues.NBA.utils.abbr_map import TEAM_MAP, get_team_name_or_abbr
 
 print("TensorFlow version:", tf.__version__)
 
@@ -38,91 +37,7 @@ parser.add_argument('-m', '--model', type=str,
                     help="select model 'adv' | '30dw'")
 args = parser.parse_args()
 
-feature_columns = []
-TEAM_MAP = None
-if args.model == 'adv' or args.model == '30dw':
-    TEAM_MAP = {
-        "Atlanta Hawks": "ATL",
-        "Boston Celtics": "BOS",
-        "Brooklyn Nets": "BRK",
-        "Charlotte Hornets": "CHO",
-        "Chicago Bulls": "CHI",
-        "Cleveland Cavaliers": "CLE",
-        "Dallas Mavericks": "DAL",
-        "Denver Nuggets": "DEN",
-        "Detroit Pistons": "DET",
-        "Golden State Warriors": "GSW",
-        "Houston Rockets": "HOU",
-        "Indiana Pacers": "IND",
-        "Los Angeles Clippers": "LAC",
-        "Los Angeles Lakers": "LAL",
-        "Memphis Grizzlies": "MEM",
-        "Miami Heat": "MIA",
-        "Milwaukee Bucks": "MIL",
-        "Minnesota Timberwolves": "MIN",
-        "New Orleans Pelicans": "NOP",
-        "New York Knicks": "NYK",
-        "Oklahoma City Thunder": "OKC",
-        "Orlando Magic": "ORL",
-        "Philadelphia 76ers": "PHI",
-        "Phoenix Suns": "PHO",
-        "Portland Trail Blazers": "POR",
-        "Sacramento Kings": "SAC",
-        "San Antonio Spurs": "SAS",
-        "Toronto Raptors": "TOR",
-        "Utah Jazz": "UTA",
-        "Washington Wizards": "WAS"
-    }
-    feature_columns = ['PTS.1',
-                       'FG%', 'FG%.1',
-                       'FGA', 'FGA.1',
-                       '3P%', '3P%.1',
-                       '3PA', '3PA.1',
-                       'ORB', 'ORB.1',
-                       'TRB', 'TRB.1',
-                       'AST', 'AST.1',
-                       'TOV', 'TOV.1',
-                       'STL', 'STL.1',
-                       'PF', 'PF.1',
-                       'ORtg', 'ORtg.1',
-                       'DRtg', 'DRtg.1',
-                       'FT%', 'FT%.1',
-                       'FTA', 'FTA.1',
-                       ]
-else:
-    TEAM_MAP = {
-        "Atlanta Hawks": "ATL",
-        "Boston Celtics": "BOS",
-        "Brooklyn Nets": "BRK",
-        "Charlotte Hornets": "CHO",
-        "Chicago Bulls": "CHI",
-        "Cleveland Cavaliers": "CLE",
-        "Dallas Mavericks": "DAL",
-        "Denver Nuggets": "DEN",
-        "Detroit Pistons": "DET",
-        "Golden State Warriors": "GSW",
-        "Houston Rockets": "HOU",
-        "Indiana Pacers": "IND",
-        "Los Angeles Clippers": "LAC",
-        "Los Angeles Lakers": "LAL",
-        "Memphis Grizzlies": "MEM",
-        "Miami Heat": "MIA",
-        "Milwaukee Bucks": "MIL",
-        "Minnesota Timberwolves": "MIN",
-        "New Orleans Pelicans": "NOP",
-        "New York Knicks": "NYK",
-        "Oklahoma City Thunder": "OKC",
-        "Orlando Magic": "ORL",
-        "Philadelphia 76ers": "PHI",
-        "Phoenix Suns": "PHO",
-        "Portland Trail Blazers": "POR",
-        "Sacramento Kings": "SAC",
-        "San Antonio Spurs": "SAS",
-        "Toronto Raptors": "TOR",
-        "Utah Jazz": "UTA",
-        "Washington Wizards": "WAS"
-    }
-    feature_columns = ['PTS.1',
+feature_columns = ['PTS.1',
                        'FG%', 'FG%.1',
                        'FGA', 'FGA.1',
                        '3P%', '3P%.1',
@@ -133,58 +48,22 @@ else:
                        'TOV', 'TOV.1',
                        'STL', 'STL.1',
                        'PF', 'PF.1']
-ABBR_MAP = {abbr: team for team, abbr in TEAM_MAP.items()}
+
+if args.model == 'adv' or args.model == '30dw':
+    feature_columns = feature_columns + [
+                       'ORtg', 'ORtg.1',
+                       'DRtg', 'DRtg.1',
+                       'FT%', 'FT%.1',
+                       'FTA', 'FTA.1',
+                       ]
 
 
-def get_team_name_or_abbr(input_str):
-    """Convert a team name to its abbreviation or vice versa."""
-    input_str = input_str.strip()
 
-    # Check if the input is an abbreviation
-    if input_str.upper() in ABBR_MAP:
-        return ABBR_MAP[input_str.upper()]
-    # Check if the input is a full team name
-    elif input_str in TEAM_MAP:
-        return TEAM_MAP[input_str]
-    else:
-        return "Team not found."
-
-
-def get_train_data() -> pd.DataFrame:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-    }
-    abreviations = list(TEAM_MAP.values())  # list of all abreviations
-    years = range(2023, 2026)
-    teams_data = pd.DataFrame()
-    for year in years:
-        for abrv in abreviations:
-            url = f'https://www.basketball-reference.com/teams/{abrv}/{year}/gamelog/'
-
-            try:
-                r = requests.get(url, headers=headers)
-                r.raise_for_status()
-            except Exception as e:
-                print(f'Could not fetch {abrv}/{year}')
-                r.raise_for_status()
-
-            soup = BeautifulSoup(r.text, 'html.parser')
-            table = soup.find('table', {'id': 'tgl_basic'})
-
-            if table:
-                table = StringIO(str(table))
-                team = pd.read_html(table)[0]
-
-                teams_data = pd.concat([teams_data, team], ignore_index=True)
-
-        time.sleep(180)
-
-    return teams_data
 
 
 def clean_data(data=None) -> None:
     if not data:
-        data = pd.read_csv('Leagues/NBA/data/gamelogs2022_2024.csv', header=1)
+        data = pd.read_csv('leagues/NBA/data/gamelogs2022_2024.csv', header=1)
 
     data = data.loc[:, ~data.columns.str.contains('Unnamed')]
     data = data.rename(columns={'Tm': 'PTS', data.columns[7]: 'PTS.1'})
@@ -204,7 +83,7 @@ def clean_data(data=None) -> None:
                        'STL', 'STL.1',
                        'PF', 'PF.1']
 
-    data.to_csv('Leagues/NBA/data/cleaned_gamelogs.csv', index=False)
+    data.to_csv('leagues/NBA/data/cleaned_gamelogs.csv', index=False)
 
     data = data.dropna(axis=0)
     print(f'Null Data:', data.isna().any().sum())
@@ -297,150 +176,13 @@ def train(X_train, y_train, input_size):
     history = model.fit(X_train, y_train, epochs=200, batch_size=8,
                         validation_split=0.2, shuffle=True, callbacks=[lr_scheduler, early_stopping])
     if args.model == 'adv' or args.model == '30dw':
-        model.save('Leagues/NBA/models/adv_model.keras')
+        model.save('leagues/NBA/models/adv_model.keras')
         print("Model saved as 'adv_model.keras'")
     else:
-        model.save('Leagues/NBA/models/raw_model.keras')
+        model.save('leagues/NBA/models/raw_model.keras')
         print("Model saved as 'nba_model.keras'")
 
     return history, model
-
-
-def get_today_games() -> pd.DataFrame:
-
-    month = datetime.now().strftime('%B').lower()
-    year = datetime.now().strftime('%Y')
-
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_games-{month}.html"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-    except Exception as e:
-        print(e)
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    # Find the schedule table
-    schedule_table = soup.find('table', {'id': 'schedule'})
-    if not schedule_table:
-        print("Schedule table not found.")
-        return pd.DataFrame()
-
-    # Extract rows from the table
-    rows = schedule_table.find_all('tr')
-
-    # Get today's date in the format used on the website
-    today = datetime.now().strftime('%a, %b %-d, %Y')
-    print(today)
-    # today = "Sun, Apr 13, 2025"  # Manual date format
-    tmrw = "Wed, Apr 23, 2025"  # Manual date format
-    # Initialize a list to hold today's games
-    games_today = []
-
-    for row in rows:
-        # Extract the date cell
-        date_cell = row.find('th', {'data-stat': 'date_game'})
-        if date_cell and date_cell.text.strip() == today:
-            # Extract team names
-            away_team = row.find(
-                'td', {'data-stat': 'visitor_team_name'}).text.strip()
-            home_team = row.find(
-                'td', {'data-stat': 'home_team_name'}).text.strip()
-            games_today.append(
-                {'home_team': home_team, 'away_team': away_team})
-
-        if date_cell and date_cell.text.strip() == tmrw:
-            # Extract team names
-            away_team = row.find(
-                'td', {'data-stat': 'visitor_team_name'}).text.strip()
-            home_team = row.find(
-                'td', {'data-stat': 'home_team_name'}).text.strip()
-            games_today.append(
-                {'home_team': home_team, 'away_team': away_team})
-
-    # Convert the list to a DataFrame
-    return pd.DataFrame(games_today)
-
-
-def get_team_per_game_stats(team_abbr):
-    """
-    Scrapes the 'per_game' table for a given team using its abbreviation.
-    """
-    if args.model == 'adv':
-
-        try:
-            data = pd.read_excel('Leagues/NBA/data/tpgApr.xlsx',
-                                 sheet_name='Worksheet', header=0)
-            data = data[data['Team'] == team_abbr]
-
-            # Extract only the required columns
-            feature_columns = ['PTS', 'FG%', 'FGA', '3P%', '3PA', 'ORB', 'TRB',
-                               'AST', 'TOV', 'STL', 'PF', 'ORtg', 'DRtg', 'FTA', 'FT%']
-
-            # If there is no matching data, return zeros
-            if data.empty:
-                return {col: 0 for col in feature_columns}
-
-            # Extract scalar values
-            # Assume the first matching row is correct
-            team_stats = data.iloc[0]
-            return {col: team_stats.get(col, 0) for col in feature_columns}
-        except Exception as e:
-            print('Error in get_team_per_game_stats(): Adv model:', e)
-            pass
-
-    elif args.model == '30dw':
-        data = pd.read_csv('Leagues/NBA/data/window/30dwFeb.csv', header=0)
-        data = data[data['Team'] == team_abbr]
-
-        # Ensure 'PTS' is numeric
-        # data['PTS'] = pd.to_numeric(data['PTS'], errors='coerce')  # Convert non-numeric values to NaN if any
-
-        # Extract only the required columns
-        feature_columns = ['PTS', 'FG%', 'FGA', '3P%', '3PA', 'ORB', 'TRB',
-                           'AST', 'TOV', 'STL', 'PF', 'ORtg', 'DRtg', 'FTA', 'FT%']
-
-        # If there is no matching data, return zeros
-        if data.empty:
-            return {col: 0 for col in feature_columns}
-
-        # Extract scalar values
-        team_stats = data.iloc[0]  # Assume the first matching row is correct
-        return {col: team_stats.get(col, 0) for col in feature_columns}
-    else:
-        url = f"https://www.basketball-reference.com/teams/{team_abbr}/2025.html"
-
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-
-        # Locate the per-game table
-        per_game_table = soup.find('table', {'id': 'per_game_stats'})
-        if not per_game_table:
-            print(f"Per-game table not found for {team_abbr}.")
-            return {}
-        if per_game_table:
-            table = StringIO(str(per_game_table))
-            df = pd.read_html(table)[0]
-
-            # Read the table using pandas
-
-            # Extract the row corresponding to 'Team Totals'
-            team_totals_row = df[df['Player'] == 'Team Totals']
-            if team_totals_row.empty:
-                print(f"No 'Team Totals' row found for {team_abbr}.")
-                return {}
-
-            # Convert the row to a dictionary
-            team_stats = team_totals_row.iloc[0].to_dict()
-
-            # Extract only the required columns
-            feature_columns = ['PTS', 'FG%', 'FGA', '3P%', '3PA', 'ORB', 'TRB',
-                               'AST', 'TOV', 'STL', 'PF']
-
-            # Map to desired format
-            relevant_stats = {col: team_stats.get(
-                col, 0) for col in feature_columns}
-
-            return relevant_stats
 
 
 def create_matchup_feature_vector(home_team, away_team, team_abbreviation_func):
@@ -452,8 +194,8 @@ def create_matchup_feature_vector(home_team, away_team, team_abbreviation_func):
     away_abbr = team_abbreviation_func(away_team)
 
     # Get stats for both teams
-    home_stats = get_team_per_game_stats(home_abbr)
-    away_stats = get_team_per_game_stats(away_abbr)
+    home_stats = get_team_per_game_stats(home_abbr, args=args.model)
+    away_stats = get_team_per_game_stats(away_abbr, args=args.model)
 
     # Rename away team columns with '.1' suffix
     away_stats = {f"{key}.1": value for key, value in away_stats.items()}
@@ -502,40 +244,6 @@ def get_away_vector(today_games):
     return away_feature_df
 
 
-def data_to_googlesheets(data, sheet_name='Raw') -> None:
-    """
-    Add data into the NBA google spread sheet
-    """
-    creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets",
-              "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-
-    creds = Credentials.from_service_account_file(
-        creds_path, scopes=scopes)
-    client = gspread.authorize(creds)
-
-    # Raw Sheet ID
-    sheet_id = '1X23ZAHpCAt1ksR4-vLkj8TjdUwpaxpPh2iuNqp6JXHs'
-    sheet = client.open_by_key(sheet_id)
-    raw_sheet = sheet.worksheet(sheet_name)
-
-    # Count columns based on the first row
-    last_row = len(raw_sheet.get_all_values())
-    raw_sheet.insert_row([""] * len(raw_sheet.row_values(1)), last_row + 1)
-
-    todays_games_formatted = pd.DataFrame({
-        # Add today's date
-        "date": [datetime.today().strftime("%m/%d/%Y")] * len(data),
-        "home": data["home_team"],
-        "away": data["away_team"],
-        "home pred": data["home_predicted_scores"],  # Round scores
-        "away pred": data["away_predicted_scores"],
-        # "pred total": (todays_games["home_predicted_scores"] + todays_games["away_predicted_scores"]),
-    })
-    data_to_upload = todays_games_formatted.values.tolist()
-    raw_sheet.insert_rows(data_to_upload, row=last_row + 2)
-    print(
-        f'✅ Successfully appended `todays_games` predictions to the {sheet_name} sheet!')
 
 
 if __name__ == "__main__":
@@ -549,7 +257,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = None, None, None, None
 
     if args.model == 'adv' or args.model == '30dw':
-        data = pd.read_excel('Leagues/NBA/data/offsets/offset.xlsx',
+        data = pd.read_excel('leagues/NBA/data/offsets/offset.xlsx',
                              sheet_name='Worksheet', header=0)
         data = data.dropna(axis=0)
         X_train, X_test, y_train, y_test = clean_adv(data)
@@ -578,7 +286,7 @@ if __name__ == "__main__":
             plt.ylabel('Points')
             plt.title('Actual vs Predicted Scores')
             plt.legend()
-            plt.savefig('Leagues/NBA/Data/images/scatterplot.png')
+            plt.savefig('leagues/NBA/Data/images/scatterplot.png')
             plt.show()
 
     todays_games: pd.DataFrame = get_today_games()
@@ -592,8 +300,8 @@ if __name__ == "__main__":
         time.sleep(160)
     away = get_away_vector(todays_games)
 
-    raw_model = tf.keras.models.load_model('Leagues/NBA/models/raw_model.keras')
-    adv_model = tf.keras.models.load_model('Leagues/NBA/models/adv_model.keras')
+    raw_model = tf.keras.models.load_model('leagues/NBA/models/raw_model.keras')
+    adv_model = tf.keras.models.load_model('leagues/NBA/models/adv_model.keras')
 
     # loaded_model = model
     # Example: Make predictions using the loaded model
