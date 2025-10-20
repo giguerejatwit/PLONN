@@ -19,8 +19,8 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
-from leagues.NBA.get_data import get_team_per_game_stats, get_today_games
-from leagues.NBA.utils.abbr_map import TEAM_MAP, get_team_name_or_abbr
+from get_data import get_team_per_game_stats, get_today_games
+from utils.abbr_map import TEAM_MAP, get_team_name_or_abbr
 
 print("TensorFlow version:", tf.__version__)
 
@@ -38,27 +38,25 @@ parser.add_argument('-m', '--model', type=str,
 args = parser.parse_args()
 
 feature_columns = ['PTS.1',
-                       'FG%', 'FG%.1',
-                       'FGA', 'FGA.1',
-                       '3P%', '3P%.1',
-                       '3PA', '3PA.1',
-                       'ORB', 'ORB.1',
-                       'TRB', 'TRB.1',
-                       'AST', 'AST.1',
-                       'TOV', 'TOV.1',
-                       'STL', 'STL.1',
-                       'PF', 'PF.1']
+                   'FG%', 'FG%.1',
+                   'FGA', 'FGA.1',
+                   '3P%', '3P%.1',
+                   '3PA', '3PA.1',
+                   'ORB', 'ORB.1',
+                   'TRB', 'TRB.1',
+                   'AST', 'AST.1',
+                   'TOV', 'TOV.1',
+                   'STL', 'STL.1',
+                   'PF', 'PF.1',
+                   ]
 
 if args.model == 'adv' or args.model == '30dw':
     feature_columns = feature_columns + [
-                       'ORtg', 'ORtg.1',
-                       'DRtg', 'DRtg.1',
-                       'FT%', 'FT%.1',
-                       'FTA', 'FTA.1',
-                       ]
-
-
-
+        'ORtg', 'ORtg.1',
+        'DRtg', 'DRtg.1',
+        'FT%', 'FT%.1',
+        'FTA', 'FTA.1',
+    ]
 
 
 def clean_data(data=None) -> None:
@@ -244,13 +242,10 @@ def get_away_vector(today_games):
     return away_feature_df
 
 
-
-
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    print(
-        f"Graph mode: {args.graph}\nTraining mode: {args.train}\nModel: {args.model}")
+    print(f"Graph mode: {args.graph}\nTraining mode: {args.train}\nModel: {args.model}")
     print(f'Scraping data ⛏ ...')
 
     data = None
@@ -259,6 +254,7 @@ if __name__ == "__main__":
     if args.model == 'adv' or args.model == '30dw':
         data = pd.read_excel('leagues/NBA/data/offsets/offset.xlsx',
                              sheet_name='Worksheet', header=0)
+        
         data = data.dropna(axis=0)
         X_train, X_test, y_train, y_test = clean_adv(data)
 
@@ -300,8 +296,10 @@ if __name__ == "__main__":
         time.sleep(160)
     away = get_away_vector(todays_games)
 
-    raw_model = tf.keras.models.load_model('leagues/NBA/models/raw_model.keras')
-    adv_model = tf.keras.models.load_model('leagues/NBA/models/adv_model.keras')
+    raw_model = tf.keras.models.load_model(
+        'leagues/NBA/models/raw_model.keras')
+    adv_model = tf.keras.models.load_model(
+        'leagues/NBA/models/adv_model.keras')
 
     # loaded_model = model
     # Example: Make predictions using the loaded model
@@ -343,5 +341,4 @@ if __name__ == "__main__":
         print("\nPredicted Scores for Today's Matchups:")
         print(todays_games)
 
-        # TODO: Add distribution
         data_to_googlesheets(todays_games, 'Raw')
