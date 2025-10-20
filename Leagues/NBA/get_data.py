@@ -49,76 +49,58 @@ def get_train_data() -> pd.DataFrame:
 
 def get_today_games() -> pd.DataFrame:
     """
-    Scrape today's schedule from Basketball-Reference with polite headers and robust date handling.
-    Returns an empty DataFrame if the schedule page isn't available yet.
+    Load today's NBA games from a local Excel schedule instead of scraping.
+    File: leagues/NBA/Data/schedule/october_schedule.xlsx
+    Sheet: "October Schedule"
+    Returns DataFrame with columns: home_team, away_team
     """
     import os
-    import random
-    import requests
     from datetime import datetime as _dt
-    from bs4 import BeautifulSoup
 
-    # Build polite headers to reduce 403/anti-bot responses
-    ua_pool = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    # Try both lowercase and capitalized 'Data' folders
+    sheet_name = "October Schedule"
+    # Try both lowercase and capitalized 'Data' folders
+    path_candidates = [
+        "leagues/NBA/data/schedule/october_schedule.xlsx",
+        "leagues/NBA/Data/schedule/october_schedule.xlsx",
     ]
-    headers = {
-        "User-Agent": random.choice(ua_pool),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.basketball-reference.com/",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-        "Connection": "keep-alive",
-    }
+    xlsx_path = next((p for p in path_candidates if os.path.exists(p)), path_candidates[0])
 
-    # Respect current calendar date
-    now = _dt.now()
-    month_name = now.strftime('%B').lower()  # e.g. 'october'
-    year = now.year
-
-    # BBR uses league year pages like NBA_2025_games-october.html (calendar year)
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_games-{month_name}.html"
-
-    # Build the "today" string as it appears in the schedule table, e.g. "Mon, Oct 20, 2025"
-    today_label = now.strftime(f'%a, %b {now.day}, %Y')
-
-    sess = requests.Session()
-    sess.headers.update(headers)
-
+    # Determine "today" (local) in Excel string format, e.g. "Tue Oct 21 2025"
+    today = _dt.now().strftime("%a %b %d %Y")
+    today = "Tue Oct 21 2025"
+    # Read the Excel sheet
     try:
-        resp = sess.get(url, timeout=20)
-        # If we got a 403, retry once with a different UA and short backoff
-        if resp.status_code == 403:
-            time.sleep(1.5)
-            sess.headers["User-Agent"] = random.choice(ua_pool)
-            resp = sess.get(url, timeout=20)
-        resp.raise_for_status()
+        df = pd.read_excel(xlsx_path, sheet_name=sheet_name)
     except Exception as e:
-        print(f"[warn] schedule fetch failed for {url}: {e}")
-        return pd.DataFrame()
+        print(f"[error] Could not read schedule: {xlsx_path} sheet '{sheet_name}': {e}")
+        return pd.DataFrame(columns=["home_team", "away_team"])
 
-    soup = BeautifulSoup(resp.text, 'html.parser')
-    schedule_table = soup.find('table', {'id': 'schedule'})
-    if not schedule_table:
-        print("[info] Schedule table not available yet.")
-        return pd.DataFrame()
+    # Normalize / detect key columns
+    norm = {str(c).strip().lower(): c for c in df.columns}
+    # Common header variants
+    date_col = next((norm[k] for k in ("date", "game date", "day")), None)
+    away_col = next((norm[k] for k in ("visitor/neutral", "away", "visitor team", "visitor")), None)
+    home_col = next((norm[k] for k in ("home/neutral", "home", "home team")), None)
 
-    rows = schedule_table.find_all('tr')
-    games_today = []
-    for row in rows:
-        date_cell = row.find('th', {'data-stat': 'date_game'})
-        if not date_cell:
-            continue
-        if date_cell.text.strip() == today_label:
-            away = row.find('td', {'data-stat': 'visitor_team_name'})
-            home = row.find('td', {'data-stat': 'home_team_name'})
-            if away and home:
-                games_today.append({'home_team': home.text.strip(), 'away_team': away.text.strip()})
+    if not date_col or not away_col or not home_col:
+        print(f"[error] Missing expected columns. Found: {list(df.columns)}")
+        return pd.DataFrame(columns=["home_team", "away_team"])
 
-    return pd.DataFrame(games_today)
+    # Parse dates and filter to today, matching Excel's string format
+    df["_date"] = pd.to_datetime(df[date_col], errors="coerce").dt.strftime("%a %b %d %Y")
+    todays = df[df["_date"] == today]
+
+    if todays.empty:
+        # Nothing for today (or sheet doesn't include today yet)
+        return pd.DataFrame(columns=["home_team", "away_team"])
+
+    # Build output
+    out = todays.rename(columns={home_col: "home_team", away_col: "away_team"})[["home_team", "away_team"]].copy()
+    for c in ("home_team", "away_team"):
+        out[c] = out[c].astype(str).str.strip()
+
+    return out.reset_index(drop=True)
 
 def get_team_per_game_stats(team_abbr, args='adv'):
     """
