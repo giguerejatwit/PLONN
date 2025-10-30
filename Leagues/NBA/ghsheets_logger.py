@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
-
+import numpy as np
 def data_to_googlesheets(data, sheet_name='Raw') -> None:
     """
     Add data into the NBA google spread sheet
@@ -32,8 +32,11 @@ def data_to_googlesheets(data, sheet_name='Raw') -> None:
         "away": data["away_team"],
         "home pred": data["home_predicted_scores"],  # Round scores
         "away pred": data["away_predicted_scores"],
-        # "pred total": (todays_games["home_predicted_scores"] + todays_games["away_predicted_scores"]),
-    })
+        'pred total': (data["home_predicted_scores"] + data["away_predicted_scores"]),
+        "dk lines": data["dk lines"],
+    }).sort_values(by='pred total', ascending=False)
+
+    todays_games_formatted = todays_games_formatted.replace([np.nan, np.inf, -np.inf], "").fillna(0)
     data_to_upload = todays_games_formatted.values.tolist()
     raw_sheet.insert_rows(data_to_upload, row=last_row + 2)
     print(

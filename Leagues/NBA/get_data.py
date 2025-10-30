@@ -67,8 +67,14 @@ def get_today_games() -> pd.DataFrame:
     xlsx_path = next((p for p in path_candidates if os.path.exists(p)), path_candidates[0])
 
     # Determine "today" (local) in Excel string format, e.g. "Tue Oct 21 2025"
-    today = _dt.now().strftime("%a %b %d %Y")
-    today = "Tue Oct 21 2025"
+    today_str = _dt.now().strftime("%a %b %d %Y")
+    # For quick testing, include a small whitelist of known dates
+    date_whitelist = {
+        # today_str,
+        "Tue Oct 28 2025",
+        "Wed Oct 29 2025",
+        "Thu Oct 30 2025",
+    }
     # Read the Excel sheet
     try:
         df = pd.read_excel(xlsx_path, sheet_name=sheet_name)
@@ -87,12 +93,14 @@ def get_today_games() -> pd.DataFrame:
         print(f"[error] Missing expected columns. Found: {list(df.columns)}")
         return pd.DataFrame(columns=["home_team", "away_team"])
 
-    # Parse dates and filter to today, matching Excel's string format
+    # Parse dates and filter to allowed dates, matching Excel's string format
     df["_date"] = pd.to_datetime(df[date_col], errors="coerce").dt.strftime("%a %b %d %Y")
-    todays = df[df["_date"] == today]
+    todays = df[df["_date"].isin(date_whitelist)]
+    
 
     if todays.empty:
-        # Nothing for today (or sheet doesn't include today yet)
+        # Nothing for these dates (or sheet doesn't include them yet)
+        print(f"[info] No schedule rows for dates: {sorted(list(date_whitelist))}")
         return pd.DataFrame(columns=["home_team", "away_team"])
 
     # Build output
@@ -109,8 +117,10 @@ def get_team_per_game_stats(team_abbr, args='adv'):
     if args == 'adv':
 
         try:
-            data = pd.read_excel('leagues/NBA/data/tpgApr.xlsx',
-                                 sheet_name='Worksheet', header=0)
+            # data = pd.read_excel('leagues/NBA/data/tpgApr.xlsx',
+            #                      sheet_name='Worksheet', header=0)
+            data = pd.read_excel('leagues/NBA/data/tpgOct26.xlsx',
+                     sheet_name='TPG', header=0)
             data = data[data['Team'] == team_abbr]
 
             # Extract only the required columns

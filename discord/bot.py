@@ -2,6 +2,7 @@ import os, json, time, asyncio, logging
 import discord
 from discord import app_commands
 from dotenv import load_dotenv
+from pathlib import Path
 from aiohttp import web
 
 try:
@@ -9,7 +10,8 @@ try:
 except Exception:
     stripe = None
 
-load_dotenv()
+# Load the .env that sits next to this bot.py (so CWD doesn't matter)
+load_dotenv(dotenv_path=Path(__file__).with_name('.env'))
 
 # -----------------------------
 # Config & constants
@@ -57,7 +59,8 @@ CANCEL_URL = os.getenv("CANCEL_URL", "https://discord.com").strip()
 
 # Known referral codes (normalize case)
 KNOWN_REFERRALS = {
-    "MINGOSJCE": "MINGOSJCE",  # uses REF_LINK_MINGOSJCE if set
+    "MINGOSJCE": "MINGOSJCE",  # original spelling
+    "MINGOJCE": "MINGOJCE",    # common alias spelling
 }
 
 # Coupon lookup for referrals
@@ -70,6 +73,21 @@ def referral_coupon_id_for(code: str | None) -> str | None:
         return None
     key = f"COUPON_{code.strip().upper()}"
     return os.getenv(key, "").strip() or None
+
+# Prefer a Promotion Code if present, else fall back to a Coupon
+# Returns a single discounts dict suitable for Stripe Checkout, e.g. {"promotion_code": "promo_..."}
+# or {"coupon": "coupon_..."}. Returns None if neither is configured.
+def referral_discount_for(code: str | None) -> dict | None:
+    if not code:
+        return None
+    up = code.strip().upper()
+    promo = os.getenv(f"PROMO_{up}", "").strip()
+    if promo:
+        return {"promotion_code": promo}
+    coup = os.getenv(f"COUPON_{up}", "").strip()
+    if coup:
+        return {"coupon": coup}
+    return None
 
 # -----------------------------
 # Logging
@@ -205,7 +223,6 @@ async def send_welcome(guild: discord.Guild, member: discord.Member):
         "• `/help` — show commands\n"
         "• `/subscribe` — get your Stripe payment link for **Gold Member**\n"
         "• `/referral code:<CODE>` — apply a creator code for a discounted link\n"
-        "• `/link code:<one-time>` — link your Discord to your paid subscription\n"
     )
     try:
         await ch.send(desc)
@@ -276,25 +293,33 @@ def _create_checkout_session_for_user(
         raise RuntimeError("Stripe not configured. Set STRIPE_SECRET and PRICE_ID, and install 'stripe'.")
 
     discounts = []
-    coup = referral_coupon_id_for(ref_code)
-    if coup:
-        discounts = [{"coupon": coup}]
+    disc = referral_discount_for(ref_code)
+    if disc:
+        discounts = [disc]
     meta = {"discord_user_id": str(user.id)}
     if guild_id:
         meta["guild_id"] = str(guild_id)
     if ref_code:
         meta["ref_code"] = str(ref_code)
 
-    session = stripe.checkout.Session.create(
+    # Build kwargs to avoid sending both `allow_promotion_codes` and `discounts`
+    create_kwargs = dict(
         mode="subscription",
         line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
         success_url=SUCCESS_URL,
         cancel_url=CANCEL_URL,
         metadata=meta,
         client_reference_id=str(user.id),
-        allow_promotion_codes=True,
-        discounts=discounts or None,
+        subscription_data={"metadata": meta},
     )
+
+    if discounts:
+        create_kwargs["discounts"] = discounts
+    else:
+        # only allow manual entry of promo codes when we did not pre-apply a discount
+        create_kwargs["allow_promotion_codes"] = True
+
+    session = stripe.checkout.Session.create(**create_kwargs)
     return session.url
 
 # Async wrapper to run the blocking Stripe call in a worker thread
@@ -326,7 +351,7 @@ async def stripe_webhook_handler(request: web.Request):
     # Prefer checkout.session.completed to capture new subs; fall back to invoice.paid
     if etype == "checkout.session.completed":
         meta = data.get("metadata", {}) or {}
-        discord_id = meta.get("discord_user_id")
+        discord_id = meta.get("discord_user_id") or data.get("client_reference_id")
         gid = meta.get("guild_id")
         ok = await _grant_gold_role(discord_id, int(gid) if gid else GUILD_ID)
         log.info("checkout.session.completed handled for discord_id=%s ok=%s", discord_id, ok)
@@ -336,6 +361,11 @@ async def stripe_webhook_handler(request: web.Request):
         try:
             sub = stripe.Subscription.retrieve(subscription_id, expand=["metadata", "customer", "items.data.price"])
             meta = getattr(sub, "metadata", {}) or {}
+            # Fallback: some older sessions might not have propagated metadata to the subscription.
+            # Try customer metadata as a secondary source.
+            if not meta:
+                customer_meta = getattr(getattr(sub, "customer", None), "metadata", None) or {}
+                meta = customer_meta
             discord_id = meta.get("discord_user_id")
             gid = meta.get("guild_id")
             if discord_id:
@@ -405,7 +435,6 @@ async def help_cmd(interaction: discord.Interaction):
             "**/subscribe** — create your personal Stripe checkout (auto-embeds your Discord ID)\n"
             "**/referral `code`** — same as subscribe, with coupon if configured\n"
             "**/myid** — show your numeric Discord ID (for support)\n"
-            "**/link `code`** — (optional) legacy one-time code flow"
         ),
         color=0x5865F2
     )
@@ -431,14 +460,31 @@ async def subscribe_cmd(interaction: discord.Interaction):
 async def referral_cmd(interaction: discord.Interaction, code: str):
     await interaction.response.defer(ephemeral=True, thinking=True)
     try:
-        # known code normalization retained
-        url = await create_checkout_session_for_user_async(interaction.user, interaction.guild_id or GUILD_ID, ref_code=code)
+        # Normalize/alias code
+        canon = canonical_ref(code) or code
+        up = canon.strip().upper()
+
+        # 1) Use a prebuilt Payment Link if provided via env (REF_LINK_<CODE>)
+        env_link = _env_ref_link(up)
+        if env_link:
+            await interaction.followup.send(
+                f"Referral `{code}` applied. Here’s your checkout (payment link):\n{env_link}",
+                ephemeral=True,
+            )
+            return
+
+        # 2) Otherwise, create a Checkout Session and auto-apply promo/coupon if configured
+        url = await create_checkout_session_for_user_async(
+            interaction.user, interaction.guild_id or GUILD_ID, ref_code=canon
+        )
         note = ""
-        if referral_coupon_id_for(code):
+        if referral_discount_for(canon):
+            note = " (discount applied)"
+        elif referral_coupon_id_for(canon):
             note = " (coupon applied)"
         await interaction.followup.send(
             f"Referral `{code}` applied{note}. Here’s your checkout:\n{url}",
-            ephemeral=True
+            ephemeral=True,
         )
     except Exception as e:
         log.exception("referral error: %s", e)
@@ -587,4 +633,17 @@ else:
 # -----------------------------
 # Run
 # -----------------------------
-bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
+if not TOKEN:
+    raise RuntimeError(
+        "Missing DISCORD_BOT_TOKEN. Ensure discord/.env is loaded or export it in your shell.\n"
+        "Tip: the bot now loads discord/.env relative to this file; verify the token lives there."
+    )
+
+try:
+    bot.run(TOKEN)
+except discord.errors.LoginFailure as e:
+    raise SystemExit(
+        "Login failed: Improper token has been passed. Rotate the token in the Discord Developer Portal, "
+        "update discord/.env (DISCORD_BOT_TOKEN=...), then restart the bot."
+    ) from e
