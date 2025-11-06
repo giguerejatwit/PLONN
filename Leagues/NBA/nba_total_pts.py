@@ -40,9 +40,105 @@ from tensorflow.keras import regularizers
 from tensorflow.keras.losses import Huber
 from utils.odds_api import get_nba_dk_lines
 from get_data import get_team_per_game_stats, get_today_games
-from utils.abbr_map import TEAM_MAP, get_team_name_or_abbr
+
+from utils.abbr_map import TEAM_MAP
+
+def to_team_abbr(name_or_abbr: str) -> str:
+    """Normalize an input string (full name or abbr) to a team abbreviation.
+
+    Resolution order:
+      1) If it already matches a Team value in the TPG sheet, return as uppercased.
+      2) If it matches a TEAM_MAP key (assumed to be an abbreviation in some setups), return that key uppercased.
+      3) If it matches a TEAM_MAP value (full name), return the corresponding key.
+      4) Fallback: best-effort uppercased input.
+    """
+    if not name_or_abbr:
+        return ""
+
+    s = str(name_or_abbr).strip()
+    u = s.upper()
+
+    # 1) Check directly against TPG 'Team' column (abbreviations)
+    tpg_df = load_tpg_table()
+    if 'Team' in tpg_df.columns:
+        tpg_abbrs = tpg_df['Team'].astype(str).str.strip().str.upper().unique()
+        if u in tpg_abbrs:
+            return u
+
+    # 2) If TEAM_MAP keys are abbreviations, use them
+    if u in TEAM_MAP:
+        return u
+
+    # 3) Try to match full name against TEAM_MAP values
+    lower = s.lower()
+    for k, v in TEAM_MAP.items():
+        if str(v).strip().lower() == lower:
+            return str(k).upper()
+
+    # 4) Fallback: best-effort
+    return u
+
 
 print("TensorFlow version:", tf.__version__)
+
+# Global cache for TPG (team per-game) table
+_TPG_TABLE = None
+
+def load_tpg_table(path: str = 'leagues/NBA/data/tpgOct26.xlsx', sheet: str = 'TPG') -> pd.DataFrame:
+    """Lazy-load the TPG sheet that contains per-team season averages.
+
+    Expected columns include at least:
+      - 'Team' (abbreviation, e.g. OKC, LAL, BOS)
+      - ORtg, DRtg, eFG%, 2P%, 3P%, FT%, FG%, FGA, 3PA, ORB, TRB,
+        AST, TOV, STL, PF, FTA, FT%, PTS, etc.
+    """
+    global _TPG_TABLE
+    if _TPG_TABLE is not None:
+        return _TPG_TABLE
+
+    try:
+        df = pd.read_excel(path, sheet_name=sheet, header=0)
+        _TPG_TABLE = df
+    except Exception as e:
+        print(f"[WARN] Failed to load TPG sheet from {path} ({sheet}): {e}")
+        _TPG_TABLE = pd.DataFrame()
+    return _TPG_TABLE
+
+
+def get_tpg_stats(team_abbr: str) -> dict:
+    """Return a dict of per-team stats for the given team abbreviation
+    using the TPG sheet. If the team or sheet is missing, return zeros
+    for the expected stat keys.
+    """
+    df = load_tpg_table()
+
+    # Columns we want to feed into the matchup vector (home side).
+    # Away side will be suffixed with '.1' later.
+    wanted_cols = [
+        'PTS', 'FG%', 'FGA', '3P%', '3PA', 'ORB', 'TRB',
+        'AST', 'TOV', 'STL', 'PF', 'ORtg', 'DRtg', 'FTA', 'FT%'
+    ]
+
+    if df.empty or 'Team' not in df.columns:
+        print("[WARN] TPG sheet empty or missing 'Team' column; returning zeros.")
+        return {col: 0.0 for col in wanted_cols}
+
+    abbr = str(team_abbr).strip().upper()
+    mask = df['Team'].astype(str).str.strip().str.upper() == abbr
+    rowset = df[mask]
+
+    if rowset.empty:
+        print(f"[WARN] TPG: no row found for team '{team_abbr}'")
+        return {col: 0.0 for col in wanted_cols}
+
+    row = rowset.iloc[0]
+    stats = {}
+    for col in wanted_cols:
+        val = row[col] if col in row else 0.0
+        if pd.isna(val):
+            val = 0.0
+        stats[col] = float(val)
+    return stats
 
 
 parser = argparse.ArgumentParser(
@@ -57,7 +153,7 @@ parser.add_argument('-m', '--model', type=str,
                     help="select model 'adv' | '30dw'")
 args = parser.parse_args()
 
-feature_columns = feature_columns = [
+feature_columns = [
     'PTS.1',
     'FG%', 'FG%.1', 'FGA', 'FGA.1',
     '3P%', '3P%.1', '3PA', '3PA.1',
@@ -281,17 +377,27 @@ def train(X_train, y_train, input_size):
     return history, model
 
 
-def create_matchup_feature_vector(home_team, away_team, team_abbreviation_func):
-    """
-    For a given matchup, fetch stats for the home and away teams,
-    and create a combined feature vector.
-    """
-    home_abbr = team_abbreviation_func(home_team)
-    away_abbr = team_abbreviation_func(away_team)
+def create_matchup_feature_vector(home_team, away_team):
+    """For a given matchup, fetch stats for the home and away teams and
+    create a combined feature vector.
 
-    # Get stats for both teams
-    home_stats = get_team_per_game_stats(home_abbr, args=args.model)
-    away_stats = get_team_per_game_stats(away_abbr, args=args.model)
+    We normalize both inputs to team abbreviations using
+    `to_team_abbr`, so that lookups against TPG (which is keyed by
+    abbreviations, e.g. CLE, PHI) succeed even if `get_today_games` returns
+    full team names.
+    """
+    # Convert whatever we get (full name or abbr) into a standard abbreviation
+    home_abbr = to_team_abbr(home_team)
+    away_abbr = to_team_abbr(away_team)
+
+    # For the advanced twin-vector model, pull per-team averages from the
+    # TPG sheet. For other models, fall back to get_team_per_game_stats.
+    if args.model in ("adv", "30dw"):
+        home_stats = get_tpg_stats(home_abbr)
+        away_stats = get_tpg_stats(away_abbr)
+    else:
+        home_stats = get_team_per_game_stats(home_abbr, args=args.model)
+        away_stats = get_team_per_game_stats(away_abbr, args=args.model)
 
     # Rename away team keys with '.1' suffix
     away_stats = {f"{key}.1": value for key, value in away_stats.items()}
@@ -314,7 +420,7 @@ def get_home_vector(today_games):
     feature_vectors = []
     for _, game in today_games.iterrows():
         features = create_matchup_feature_vector(
-            game['home_team'], game['away_team'], get_team_name_or_abbr
+            game['home_team'], game['away_team']
         )
 
         feature_vectors.append(features)
@@ -333,7 +439,7 @@ def get_away_vector(today_games):
     feature_vectors = []
     for _, game in today_games.iterrows():
         features = create_matchup_feature_vector(
-            game['away_team'], game['home_team'], get_team_name_or_abbr
+            game['away_team'], game['home_team']
         )
 
         feature_vectors.append(features)
@@ -348,7 +454,6 @@ def get_away_vector(today_games):
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
 
     print(f"Graph mode: {args.graph}\nTraining mode: {args.train}\nModel: {args.model}")
     print(f'Scraping data ⛏ ...')
@@ -398,6 +503,10 @@ if __name__ == "__main__":
         sys.exit(0)
 
     home = get_home_vector(todays_games)
+    print("\n[DEBUG] Home feature head:")
+    print(home.head())
+    print("\n[DEBUG] Home feature describe:")
+    print(home.describe())
     if not args.model:
         time.sleep(160)
     away = get_away_vector(todays_games)

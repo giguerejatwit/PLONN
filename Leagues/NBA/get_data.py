@@ -49,66 +49,113 @@ def get_train_data() -> pd.DataFrame:
 
 def get_today_games() -> pd.DataFrame:
     """
-    Load today's NBA games from a local Excel schedule instead of scraping.
-    File: leagues/NBA/Data/schedule/october_schedule.xlsx
-    Sheet: "October Schedule"
-    Returns DataFrame with columns: home_team, away_team
+    Return all (home_team, away_team) matchups for a chosen slate of dates.
+
+    Important:
+    - This is NOT strictly "today". We intentionally allow multiple dates so
+      we can batch more games into the model at once (bigger inference matrix).
+    - You control the slate by editing DATE_WHITELIST below.
+
+    Expected output columns:
+      home_team, away_team
+
+    How it works:
+    1. Load the local schedule workbook (no scraping).
+    2. Normalize the date column in the sheet to strings like "Fri Oct 31 2025".
+       NOTE: that's strftime("%a %b %d %Y"), which zero-pads the day.
+    3. Filter rows whose normalized date is in DATE_WHITELIST.
+    4. Return just home/away team names.
+
+    If the sheet can't be read, or the columns don't match, or no rows match
+    the whitelist, this returns an empty DataFrame with the correct columns.
     """
-    import os
+    import pandas as pd
     from datetime import datetime as _dt
 
-    # Try both lowercase and capitalized 'Data' folders
-    sheet_name = "October Schedule"
-    # Try both lowercase and capitalized 'Data' folders
-    path_candidates = [
-        "leagues/NBA/data/schedule/october_schedule.xlsx",
-        "leagues/NBA/Data/schedule/october_schedule.xlsx",
-    ]
-    xlsx_path = next((p for p in path_candidates if os.path.exists(p)), path_candidates[0])
-
-    # Determine "today" (local) in Excel string format, e.g. "Tue Oct 21 2025"
+    # ----------------------------
+    # 1. Control which dates we pull
+    # ----------------------------
+    # Use only today's date by default so we always pull the current slate.
     today_str = _dt.now().strftime("%a %b %d %Y")
-    # For quick testing, include a small whitelist of known dates
-    date_whitelist = {
-        # today_str,
-        "Tue Oct 28 2025",
-        "Wed Oct 29 2025",
-        "Thu Oct 30 2025",
-    }
-    # Read the Excel sheet
-    try:
-        df = pd.read_excel(xlsx_path, sheet_name=sheet_name)
-    except Exception as e:
-        print(f"[error] Could not read schedule: {xlsx_path} sheet '{sheet_name}': {e}")
+    DATE_WHITELIST = {today_str}
+
+    # ----------------------------
+    # 2. Load the schedule Excel
+    # ----------------------------
+    # We'll try a primary path, and if that fails we bail gracefully
+    SCHEDULE_PATHS = [
+        "leagues/NBA/data/tpgOct26.xlsx",
+        # "leagues/NBA/data/schedule.xlsx",  # future fallback if you make a generic file
+    ]
+    SHEET_NAME = "October Schedule"
+
+    df = None
+    last_err = None
+    for path in SCHEDULE_PATHS:
+        try:
+            df = pd.read_excel(path, sheet_name=SHEET_NAME, header=0)
+            break
+        except Exception as e:
+            last_err = e
+            continue
+
+    if df is None:
+        print(f"[error] Could not read any schedule file from {SCHEDULE_PATHS} (last err: {last_err})")
         return pd.DataFrame(columns=["home_team", "away_team"])
 
-    # Normalize / detect key columns
+    # ----------------------------
+    # 3. Identify the important columns in whatever header naming the sheet uses
+    # ----------------------------
     norm = {str(c).strip().lower(): c for c in df.columns}
-    # Common header variants
+
     date_col = next((norm[k] for k in ("date", "game date", "day")), None)
     away_col = next((norm[k] for k in ("visitor/neutral", "away", "visitor team", "visitor")), None)
     home_col = next((norm[k] for k in ("home/neutral", "home", "home team")), None)
 
     if not date_col or not away_col or not home_col:
-        print(f"[error] Missing expected columns. Found: {list(df.columns)}")
+        print(f"[error] Missing expected columns for date/home/away. Found: {list(df.columns)}")
         return pd.DataFrame(columns=["home_team", "away_team"])
 
-    # Parse dates and filter to allowed dates, matching Excel's string format
-    df["_date"] = pd.to_datetime(df[date_col], errors="coerce").dt.strftime("%a %b %d %Y")
-    todays = df[df["_date"].isin(date_whitelist)]
-    
+    # ----------------------------
+    # 4. Normalize dates in the sheet to "%a %b %d %Y" strings
+    # ----------------------------
+    df["_date_norm"] = pd.to_datetime(df[date_col], errors="coerce").dt.strftime("%a %b %d %Y")
 
-    if todays.empty:
-        # Nothing for these dates (or sheet doesn't include them yet)
-        print(f"[info] No schedule rows for dates: {sorted(list(date_whitelist))}")
+    # Some sheets might not zero-pad day numbers originally (e.g. 'Sat Nov 1 2025').
+    # We'll also build a non-zero-padded version to be permissive:
+    df["_date_alt"] = pd.to_datetime(df[date_col], errors="coerce").dt.strftime("%a %b %-d %Y" if hasattr(pd.Timestamp.now(), "day") else "%a %b %d %Y")
+    # NOTE: the %-d trick is POSIX-y; on Windows it may not apply. Fallback above keeps it safe.
+
+    # ----------------------------
+    # 5. Filter rows that match ANY of the whitelisted dates
+    # ----------------------------
+    slate = df[(df["_date_norm"].isin(DATE_WHITELIST)) | (df["_date_alt"].isin(DATE_WHITELIST))]
+
+    if slate.empty:
+        print(f"[info] No schedule rows for dates: {sorted(list(DATE_WHITELIST))}")
+        print("[info] This usually means today's games are not in the schedule workbook yet.")
         return pd.DataFrame(columns=["home_team", "away_team"])
 
-    # Build output
-    out = todays.rename(columns={home_col: "home_team", away_col: "away_team"})[["home_team", "away_team"]].copy()
+    # ----------------------------
+    # 6. Build clean output with abbreviations
+    # ----------------------------
+    out = slate.rename(
+        columns={
+            home_col: "home_team",
+            away_col: "away_team",
+        }
+    ).copy()
+
+    # Normalize spacing and map to abbreviations via TEAM_MAP so that
+    # schedule uses the same representation (e.g., "CLE") as the Odds API.
+    def _to_abbrev(name: str) -> str:
+        name = str(name).strip()
+        return TEAM_MAP.get(name, name)
+
     for c in ("home_team", "away_team"):
-        out[c] = out[c].astype(str).str.strip()
+        out[c] = out[c].apply(_to_abbrev)
 
-    return out.reset_index(drop=True)
+    return out[["home_team", "away_team"]].reset_index(drop=True)
 
 def get_team_per_game_stats(team_abbr, args='adv'):
     """

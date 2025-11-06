@@ -390,7 +390,14 @@ def fetch_historical_totals_csv(api_key: str,
             od_resp.raise_for_status()
             odds_json = od_resp.json() or {}
 
-            for bk in odds_json.get('bookmakers', []):
+            # Historical odds responses are wrapped like:
+            # {"timestamp": ..., "previous_timestamp": ..., "next_timestamp": ..., "data": { ...event with bookmakers... }}
+            if isinstance(odds_json, dict) and 'data' in odds_json:
+                payload = odds_json['data'] or {}
+            else:
+                payload = odds_json
+
+            for bk in payload.get('bookmakers', []):
                 bk_key = bk.get('key')
                 if bookmaker_only and bk_key != bookmaker_only:
                     continue
@@ -485,12 +492,19 @@ def fetch_historical_totals_csv(api_key: str,
             if bookmaker_only:
                 day_df = day_df[day_df['bookmaker_key'] == bookmaker_only]
             day_df.sort_values(['commence_time','bookmaker_key','outcome_name'], inplace=True)
-            write_header = not header_exists and not os.path.exists(out_path)
-            day_df.to_csv(out_path, mode='a', index=False, header=write_header)
+            # Always append data to the CSV, preserving progress across runs
+            day_df.to_csv(out_path, mode='a', index=False, header=not os.path.exists(out_path))
+            print(f"[APPEND] {day_str}: appended {len(day_df)} rows to {out_path}")
             header_exists = True
             written_dates.add(day_str)
-            if tqdm is None:
-                print(f"[INFO] {day_str}: wrote {len(day_df)} rows → {out_path}")
+            # Force disk flush after each day's write to avoid data loss on interrupt
+            try:
+                if os.path.exists(out_path):
+                    with open(out_path, 'a') as f:
+                        f.flush()
+                        os.fsync(f.fileno())
+            except Exception as flush_err:
+                print(f"[WARN] Could not flush to disk for {out_path}: {flush_err}")
 
         if show_progress and tqdm is not None:
             try:
@@ -507,7 +521,7 @@ def fetch_historical_totals_csv(api_key: str,
 if __name__ == "__main__":
     import argparse
     start_default = '2022-10-22'
-    end_default = datetime.date.today().strftime('%Y-%m-%d')
+    end_default = '2024-11-13'
     out_default = f"leagues/NBA/data/historical_totals_{start_default}_to_{end_default}.csv"
 
     parser = argparse.ArgumentParser()
