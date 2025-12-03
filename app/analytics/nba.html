@@ -539,14 +539,14 @@ function updateSeriesCharts(filtered) {
 
   // Only include played rows that can produce OU vs DK
   const playable = src.filter(g => Number.isFinite(g.totalActual) && Number.isFinite(g.dkLine));
-  // Derive O/U from ACTUAL vs DK if missing
+  // For Series Trend, always derive O/U from ACTUAL vs DK (ignore model pick)
   const withOU = playable.map(g => {
-    let ou = g.ou;
-    if (!ou) {
-      if (g.totalActual > g.dkLine) ou = 'O';
-      else if (g.totalActual < g.dkLine) ou = 'U';
-      else ou = '';
-    }
+    let ou = '';
+    if (g.totalActual > g.dkLine) {
+      ou = 'O';
+    } else if (g.totalActual < g.dkLine) {
+      ou = 'U';
+    } // leave as '' for exact pushes
     return Object.assign({}, g, { ou });
   });
 
