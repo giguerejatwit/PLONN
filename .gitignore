@@ -1,2 +1,11 @@
 discord/.env
 .DS_Store
+
+Leagues/NBA/models/
+Leagues/MLB/images/
+Leagues/NBA/Data/
+Leagues/MLB/Data/
+PLONN-WP.pdf
+PLONN-WhitePaper.docx
+PLONN/share/doc/
+
