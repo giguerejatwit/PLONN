@@ -1,0 +1,594 @@
+{
+  "basic_feature_ids": [
+    "homeAway",
+    "opponent",
+    "recent",
+    "rest",
+    "season",
+    "workload"
+  ],
+  "meaning": "Native configuration choices only; not evidence of operational training coverage.",
+  "model_types": [
+    "logistic_regression",
+    "decision_tree",
+    "random_forest",
+    "neural_network"
+  ],
+  "rows": [
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Points",
+      "targetKind": "Player",
+      "uiLabel": "Points"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Rebounds",
+      "targetKind": "Player",
+      "uiLabel": "Rebounds"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Assists",
+      "targetKind": "Player",
+      "uiLabel": "Assists"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "3-pointers",
+      "targetKind": "Player",
+      "uiLabel": "3-pointers"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Steals",
+      "targetKind": "Player",
+      "uiLabel": "Steals"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Blocks",
+      "targetKind": "Player",
+      "uiLabel": "Blocks"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Turnovers",
+      "targetKind": "Player",
+      "uiLabel": "Turnovers"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Pts + Reb + Ast",
+      "targetKind": "Player",
+      "uiLabel": "Pts + Reb + Ast"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Pts + Reb",
+      "targetKind": "Player",
+      "uiLabel": "Pts + Reb"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Pts + Ast",
+      "targetKind": "Player",
+      "uiLabel": "Pts + Ast"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Reb + Ast",
+      "targetKind": "Player",
+      "uiLabel": "Reb + Ast"
+    },
+    {
+      "isCustom": true,
+      "league": "NBA",
+      "serviceStat": null,
+      "targetKind": "Player",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Team points",
+      "targetKind": "Team",
+      "uiLabel": "Team points"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Team rebounds",
+      "targetKind": "Team",
+      "uiLabel": "Team rebounds"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Team assists",
+      "targetKind": "Team",
+      "uiLabel": "Team assists"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Team 3-pointers",
+      "targetKind": "Team",
+      "uiLabel": "Team 3-pointers"
+    },
+    {
+      "isCustom": false,
+      "league": "NBA",
+      "serviceStat": "Team turnovers",
+      "targetKind": "Team",
+      "uiLabel": "Team turnovers"
+    },
+    {
+      "isCustom": true,
+      "league": "NBA",
+      "serviceStat": null,
+      "targetKind": "Team",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Hits",
+      "targetKind": "Player",
+      "uiLabel": "Hits"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Total bases",
+      "targetKind": "Player",
+      "uiLabel": "Total bases"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Home runs",
+      "targetKind": "Player",
+      "uiLabel": "Home runs"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "RBI",
+      "targetKind": "Player",
+      "uiLabel": "RBI"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Runs",
+      "targetKind": "Player",
+      "uiLabel": "Runs"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Stolen bases",
+      "targetKind": "Player",
+      "uiLabel": "Stolen bases"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Walks",
+      "targetKind": "Player",
+      "uiLabel": "Walks"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Batter strikeouts",
+      "targetKind": "Player",
+      "uiLabel": "Batter strikeouts"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Pitcher strikeouts",
+      "targetKind": "Player",
+      "uiLabel": "Pitcher strikeouts"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Pitcher outs",
+      "targetKind": "Player",
+      "uiLabel": "Pitcher outs"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Earned runs",
+      "targetKind": "Player",
+      "uiLabel": "Earned runs"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Hits allowed",
+      "targetKind": "Player",
+      "uiLabel": "Hits allowed"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Walks allowed",
+      "targetKind": "Player",
+      "uiLabel": "Walks allowed"
+    },
+    {
+      "isCustom": true,
+      "league": "MLB",
+      "serviceStat": null,
+      "targetKind": "Player",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Team runs",
+      "targetKind": "Team",
+      "uiLabel": "Team runs"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Team hits",
+      "targetKind": "Team",
+      "uiLabel": "Team hits"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Team home runs",
+      "targetKind": "Team",
+      "uiLabel": "Team home runs"
+    },
+    {
+      "isCustom": false,
+      "league": "MLB",
+      "serviceStat": "Team strikeouts",
+      "targetKind": "Team",
+      "uiLabel": "Team strikeouts"
+    },
+    {
+      "isCustom": true,
+      "league": "MLB",
+      "serviceStat": null,
+      "targetKind": "Team",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Rec Yds",
+      "targetKind": "Player",
+      "uiLabel": "Rec Yds"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Receptions",
+      "targetKind": "Player",
+      "uiLabel": "Receptions"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Rush Yds",
+      "targetKind": "Player",
+      "uiLabel": "Rush Yds"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Pass Yds",
+      "targetKind": "Player",
+      "uiLabel": "Pass Yds"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Pass TDs",
+      "targetKind": "Player",
+      "uiLabel": "Pass TDs"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Interceptions thrown",
+      "targetKind": "Player",
+      "uiLabel": "Interceptions thrown"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Rush + Rec Yds",
+      "targetKind": "Player",
+      "uiLabel": "Rush + Rec Yds"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Rush attempts",
+      "targetKind": "Player",
+      "uiLabel": "Rush attempts"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Pass attempts",
+      "targetKind": "Player",
+      "uiLabel": "Pass attempts"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Completions",
+      "targetKind": "Player",
+      "uiLabel": "Completions"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Touchdowns",
+      "targetKind": "Player",
+      "uiLabel": "Touchdowns"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Tackles",
+      "targetKind": "Player",
+      "uiLabel": "Tackles"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Sacks",
+      "targetKind": "Player",
+      "uiLabel": "Sacks"
+    },
+    {
+      "isCustom": true,
+      "league": "NFL",
+      "serviceStat": null,
+      "targetKind": "Player",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Team points",
+      "targetKind": "Team",
+      "uiLabel": "Team points"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Team rush yards",
+      "targetKind": "Team",
+      "uiLabel": "Team rush yards"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Team pass yards",
+      "targetKind": "Team",
+      "uiLabel": "Team pass yards"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Team total yards",
+      "targetKind": "Team",
+      "uiLabel": "Team total yards"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Team sacks",
+      "targetKind": "Team",
+      "uiLabel": "Team sacks"
+    },
+    {
+      "isCustom": false,
+      "league": "NFL",
+      "serviceStat": "Team turnovers",
+      "targetKind": "Team",
+      "uiLabel": "Team turnovers"
+    },
+    {
+      "isCustom": true,
+      "league": "NFL",
+      "serviceStat": null,
+      "targetKind": "Team",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Shots on goal",
+      "targetKind": "Player",
+      "uiLabel": "Shots on goal"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Goals",
+      "targetKind": "Player",
+      "uiLabel": "Goals"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Assists",
+      "targetKind": "Player",
+      "uiLabel": "Assists"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Points",
+      "targetKind": "Player",
+      "uiLabel": "Points"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Blocked shots",
+      "targetKind": "Player",
+      "uiLabel": "Blocked shots"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Saves",
+      "targetKind": "Player",
+      "uiLabel": "Saves"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Goals allowed",
+      "targetKind": "Player",
+      "uiLabel": "Goals allowed"
+    },
+    {
+      "isCustom": true,
+      "league": "NHL",
+      "serviceStat": null,
+      "targetKind": "Player",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Team goals",
+      "targetKind": "Team",
+      "uiLabel": "Team goals"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Team shots on goal",
+      "targetKind": "Team",
+      "uiLabel": "Team shots on goal"
+    },
+    {
+      "isCustom": false,
+      "league": "NHL",
+      "serviceStat": "Team saves",
+      "targetKind": "Team",
+      "uiLabel": "Team saves"
+    },
+    {
+      "isCustom": true,
+      "league": "NHL",
+      "serviceStat": null,
+      "targetKind": "Team",
+      "uiLabel": "Custom stat"
+    },
+    {
+      "league": "NBA",
+      "targetKind": "Team",
+      "uiLabel": "Game total",
+      "serviceStat": "Game total",
+      "isCustom": false
+    },
+    {
+      "league": "NBA",
+      "targetKind": "Team",
+      "uiLabel": "Spread",
+      "serviceStat": "Spread",
+      "isCustom": false
+    },
+    {
+      "league": "NBA",
+      "targetKind": "Team",
+      "uiLabel": "Moneyline",
+      "serviceStat": "Moneyline",
+      "isCustom": false
+    },
+    {
+      "league": "MLB",
+      "targetKind": "Team",
+      "uiLabel": "Game total",
+      "serviceStat": "Game total",
+      "isCustom": false
+    },
+    {
+      "league": "MLB",
+      "targetKind": "Team",
+      "uiLabel": "Spread",
+      "serviceStat": "Spread",
+      "isCustom": false
+    },
+    {
+      "league": "MLB",
+      "targetKind": "Team",
+      "uiLabel": "Moneyline",
+      "serviceStat": "Moneyline",
+      "isCustom": false
+    },
+    {
+      "league": "NFL",
+      "targetKind": "Team",
+      "uiLabel": "Game total",
+      "serviceStat": "Game total",
+      "isCustom": false
+    },
+    {
+      "league": "NFL",
+      "targetKind": "Team",
+      "uiLabel": "Spread",
+      "serviceStat": "Spread",
+      "isCustom": false
+    },
+    {
+      "league": "NFL",
+      "targetKind": "Team",
+      "uiLabel": "Moneyline",
+      "serviceStat": "Moneyline",
+      "isCustom": false
+    },
+    {
+      "league": "NHL",
+      "targetKind": "Team",
+      "uiLabel": "Game total",
+      "serviceStat": "Game total",
+      "isCustom": false
+    },
+    {
+      "league": "NHL",
+      "targetKind": "Team",
+      "uiLabel": "Spread",
+      "serviceStat": "Spread",
+      "isCustom": false
+    },
+    {
+      "league": "NHL",
+      "targetKind": "Team",
+      "uiLabel": "Moneyline",
+      "serviceStat": "Moneyline",
+      "isCustom": false
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,241 @@
+{
+  "contractVersion": "injury-input-v2",
+  "coverage": [
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nhl"
+      ],
+      "state": "partial",
+      "teamID": "espn:nhl:team:10"
+    },
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nhl"
+      ],
+      "state": "partial",
+      "teamID": "espn:nhl:team:23"
+    }
+  ],
+  "event": {
+    "awayTeam": "Montreal Canadiens",
+    "eventID": "espn:401892504",
+    "homeTeam": "Washington Capitals",
+    "sport": "NHL",
+    "startISO": "2026-10-14T23:30:00.000Z"
+  },
+  "observations": [
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:077de20ebadb5bfba2b2dcc1",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:4024833",
+      "playerName": "Pierre-Luc Dubois",
+      "position": "LW",
+      "reportedStatus": "Out",
+      "scope": "general",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "out",
+      "teamID": "espn:nhl:team:23",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T16:02Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:1dd814655227d34efcd5d945",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:5329651",
+      "playerName": "Bryce Pickford",
+      "position": "D",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:10",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-29T16:39Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:65f8a3e7ad175a01a5fcf9f8",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:5188548",
+      "playerName": "Patrick Thomas",
+      "position": "C",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:23",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-29T17:07Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:880c313cadb8b4962dd620d9",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:2976851",
+      "playerName": "Mike Matheson",
+      "position": "D",
+      "reportedStatus": "Out",
+      "scope": "general",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "out",
+      "teamID": "espn:nhl:team:10",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T14:10Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:960dd103a01ed7f0447818d7",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:4997129",
+      "playerName": "Lucas Condotta",
+      "position": "LW",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:10",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-29T16:38Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:a1599f855e9d05134d7fac14",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:4352803",
+      "playerName": "Rasmus Sandin",
+      "position": "D",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:23",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T14:27Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:aaa413aaed771a684707999a",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:5188457",
+      "playerName": "Florian Xhekaj",
+      "position": "LW",
+      "reportedStatus": "Out",
+      "scope": "general",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "out",
+      "teamID": "espn:nhl:team:10",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T19:27Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:c931d6d892e309a4de623c96",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:4874943",
+      "playerName": "Oliver Kapanen",
+      "position": "C",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:10",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-10T21:18Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:e04199fbbbda8cb463c9d04e",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:5216860",
+      "playerName": "Ivan Demidov",
+      "position": "RW",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:10",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-06T21:16Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:f07b81b9c0340fdfc1c17707",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:3942924",
+      "playerName": "Matt Roy",
+      "position": "D",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:23",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T14:25Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:fc8291c9b7726bf7e692f6ae",
+      "identityKind": "provider_id",
+      "playerID": "espn:nhl:player:3942714",
+      "playerName": "Sam Montembeault",
+      "position": "G",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nhl",
+      "statusKind": "ir",
+      "teamID": "espn:nhl:team:10",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-10T21:20Z"
+    }
+  ],
+  "sources": [
+    {
+      "checkedAt": "2026-10-14T12:19:18.764386+00:00",
+      "contentSHA256": "f7cbfe91f473291b8713073b2704d7dd60098e47f7c0ca0955390bd6289ea7e8",
+      "feedUpdatedAt": "2026-10-14T12:19:17Z",
+      "id": "espn-injuries:nhl",
+      "provider": "ESPN",
+      "retrievedAt": "2026-10-14T12:19:18.764386+00:00",
+      "sourceIssuedAt": null,
+      "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries"
+    }
+  ],
+  "teams": [
+    {
+      "id": "espn:nhl:team:10",
+      "name": "Montreal Canadiens"
+    },
+    {
+      "id": "espn:nhl:team:23",
+      "name": "Washington Capitals"
+    }
+  ]
+}

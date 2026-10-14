@@ -1,0 +1,677 @@
+{
+  "contract": "shared-outlook-v1",
+  "fixtureNotice": "ALL EXAMPLES ARE SYNTHETIC TEST DATA, not observed statistics or generated reports.",
+  "route": "GET /plonn/v1/insights/report",
+  "queryFields": [
+    "sport",
+    "eventID",
+    "homeTeam",
+    "awayTeam",
+    "startISO"
+  ],
+  "authentication": "HTTPS normal bearer; identity discarded after authentication. No chat consent, user data, or quota.",
+  "responseMaxBytes": 65536,
+  "statuses": {
+    "ready": "Current identity/fingerprint/versions, generation under 24 hours, source checked under 24 hours.",
+    "missing": "No compatible validated report. report and snapshot null. Read does not enqueue work.",
+    "stale": "Same identity/fingerprint/version valid report exceeds age; report retained for explicit stale display only. Source/version changes suppress old content and return missing."
+  },
+  "requiredResponseFields": [
+    "schemaVersion",
+    "status",
+    "reason",
+    "event",
+    "generatedAt",
+    "sourceAsOf",
+    "sourceRetrievedAt",
+    "sourceCheckedAt",
+    "sourceFingerprint",
+    "versions",
+    "refreshing",
+    "report",
+    "snapshot"
+  ],
+  "rules": {
+    "comparison": "own offense versus opposing defense and same metric/unit league reference; identical period/window; >=3 NFL, >=5 NBA/NHL, >=10 MLB team games for every premise",
+    "high": "offense AND opposing allowance >= 1.10 times league reference",
+    "resistance": "offense >= reference AND opposing allowance <= 0.90 times reference",
+    "lowerScoring": "both offenses AND both defenses <= 0.90 times reference; NBA says lower efficiency, never game total",
+    "pace": "both NBA team paces <=0.95 or >=1.05 times reference; no inference about scoring",
+    "mixedScoring": "NFL: one offense >=1.10 reference, other <=0.90, both opposing allowances inclusively0.90..1.10; matching units/period/window and every sample>=3; no scoring direction prediction"
+  },
+  "examples": {
+    "NFL": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Denver Broncos",
+        "eventID": "espn:401000001",
+        "homeTeam": "Seattle Seahawks",
+        "sport": "NFL",
+        "startISO": "2026-10-15T23:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:01:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "50f5e1f1bcd39dc0219425f70e4ad4d1fd870dfc36ab2ce56222b8c48243aa10",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "home-offense",
+            "away-defense"
+          ],
+          "outlookIDs": [
+            "home:passingAttemptsPerGame:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "away-defense",
+            "text": "Denver Broncos allows 40 pass attempts per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "home-offense",
+            "text": "Seattle Seahawks records 40 pass attempts per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "league-reference",
+            "text": "League reference records 30 pass attempts per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:passingAttemptsPerGame:high",
+            "ruleID": "paired-reference-v2:home:passingAttemptsPerGame:high",
+            "label": "Passing volume",
+            "text": "If the recorded patterns persist, Seattle Seahawks could show a higher passing-volume profile against Denver Broncos. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "home-offense",
+              "away-defense",
+              "league-reference"
+            ],
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Verified injuries, weather, and current lineups are not included."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Denver Broncos",
+          "eventID": "espn:401000001",
+          "homeTeam": "Seattle Seahawks",
+          "sport": "NFL",
+          "startISO": "2026-10-15T23:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "away-defense",
+            "metric": "passingAttemptsPerGame",
+            "period": "2026 regular season",
+            "role": "defense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "Denver Broncos",
+            "unit": "pass attempts per game",
+            "value": 40,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "home-offense",
+            "metric": "passingAttemptsPerGame",
+            "period": "2026 regular season",
+            "role": "offense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "Seattle Seahawks",
+            "unit": "pass attempts per game",
+            "value": 40,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "league-reference",
+            "metric": "passingAttemptsPerGame",
+            "period": "2026 regular season",
+            "role": "reference",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "league",
+            "unit": "pass attempts per game",
+            "value": 30,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "espn-team-stats",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
+          }
+        ]
+      }
+    },
+    "NBA": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Memphis Grizzlies",
+        "eventID": "espn:401000001",
+        "homeTeam": "Chicago Bulls",
+        "sport": "NBA",
+        "startISO": "2026-10-15T23:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:01:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "15956a1bc4702df434a8e8aaa5faeff1fce984915918c38222e0f527b1b5b8dd",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "home-offense",
+            "away-defense"
+          ],
+          "outlookIDs": [
+            "home:offensiveEfficiency:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "away-defense",
+            "text": "Memphis Grizzlies allows 120 points per 100 possessions across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "home-offense",
+            "text": "Chicago Bulls records 120 points per 100 possessions across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "league-reference",
+            "text": "League reference records 105 points per 100 possessions across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:offensiveEfficiency:high",
+            "ruleID": "paired-reference-v2:home:offensiveEfficiency:high",
+            "label": "Scoring efficiency",
+            "text": "If the recorded patterns persist, Chicago Bulls could show efficient scoring against Memphis Grizzlies. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "home-offense",
+              "away-defense",
+              "league-reference"
+            ],
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Verified availability, rotations, and rest adjustments are not included.",
+          "Verified pace data are not supplied in this snapshot."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Memphis Grizzlies",
+          "eventID": "espn:401000001",
+          "homeTeam": "Chicago Bulls",
+          "sport": "NBA",
+          "startISO": "2026-10-15T23:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "away-defense",
+            "metric": "offensiveEfficiency",
+            "period": "2026 regular season",
+            "role": "defense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "Memphis Grizzlies",
+            "unit": "points per 100 possessions",
+            "value": 120,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "home-offense",
+            "metric": "offensiveEfficiency",
+            "period": "2026 regular season",
+            "role": "offense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "Chicago Bulls",
+            "unit": "points per 100 possessions",
+            "value": 120,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "league-reference",
+            "metric": "offensiveEfficiency",
+            "period": "2026 regular season",
+            "role": "reference",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "league",
+            "unit": "points per 100 possessions",
+            "value": 105,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "espn-team-stats",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams"
+          }
+        ]
+      }
+    },
+    "MLB": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Boston Red Sox",
+        "eventID": "espn:401000001",
+        "homeTeam": "New York Yankees",
+        "sport": "MLB",
+        "startISO": "2026-10-15T23:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:01:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "ff0437161b2cf46f6397c354e9c19a8022dfb11d5ecaeb47ab6d6b0249d393d3",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "home-offense",
+            "away-defense"
+          ],
+          "outlookIDs": [
+            "home:runsPerGame:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "away-defense",
+            "text": "Boston Red Sox allows 5.5 runs per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "home-offense",
+            "text": "New York Yankees records 5.5 runs per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "league-reference",
+            "text": "League reference records 4.5 runs per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:runsPerGame:high",
+            "ruleID": "paired-reference-v2:home:runsPerGame:high",
+            "label": "Offense versus pitching",
+            "text": "If the recorded patterns persist, New York Yankees could show a productive run-scoring profile against the recorded team pitching and defense against Boston Red Sox. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "home-offense",
+              "away-defense",
+              "league-reference"
+            ],
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Confirmed starting pitchers, bullpen availability, park, and weather are not included. Team runs allowed describe the recorded pitching and defense together."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Boston Red Sox",
+          "eventID": "espn:401000001",
+          "homeTeam": "New York Yankees",
+          "sport": "MLB",
+          "startISO": "2026-10-15T23:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "away-defense",
+            "metric": "runsPerGame",
+            "period": "2026 regular season",
+            "role": "defense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "Boston Red Sox",
+            "unit": "runs per game",
+            "value": 5.5,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "home-offense",
+            "metric": "runsPerGame",
+            "period": "2026 regular season",
+            "role": "offense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "New York Yankees",
+            "unit": "runs per game",
+            "value": 5.5,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "league-reference",
+            "metric": "runsPerGame",
+            "period": "2026 regular season",
+            "role": "reference",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "league",
+            "unit": "runs per game",
+            "value": 4.5,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "espn-team-stats",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams"
+          }
+        ]
+      }
+    },
+    "NHL": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Vancouver Canucks",
+        "eventID": "espn:401000001",
+        "homeTeam": "Seattle Kraken",
+        "sport": "NHL",
+        "startISO": "2026-10-15T23:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:01:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "ab2e9f436049b8e29f60d22b5e96b7934d5ddfc5393de65c6cbad066401bc8f8",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "home-offense",
+            "away-defense"
+          ],
+          "outlookIDs": [
+            "home:shotsPerGame:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "away-defense",
+            "text": "Vancouver Canucks allows 35 shots on goal per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "home-offense",
+            "text": "Seattle Kraken records 35 shots on goal per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          },
+          {
+            "factID": "league-reference",
+            "text": "League reference records 30 shots on goal per game across 12 team games.",
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "period": "2026 regular season",
+            "windowStart": "2026-09-01T00:00:00.000Z",
+            "windowEnd": "2026-10-12T23:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:shotsPerGame:high",
+            "ruleID": "paired-reference-v2:home:shotsPerGame:high",
+            "label": "Shot volume",
+            "text": "If the recorded patterns persist, Seattle Kraken could show a higher shot-volume profile against Vancouver Canucks. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "home-offense",
+              "away-defense",
+              "league-reference"
+            ],
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Confirmed starting goaltenders, goalie-specific form, and special teams are not included. Goals allowed describe team defense and goaltending together."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Vancouver Canucks",
+          "eventID": "espn:401000001",
+          "homeTeam": "Seattle Kraken",
+          "sport": "NHL",
+          "startISO": "2026-10-15T23:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "away-defense",
+            "metric": "shotsPerGame",
+            "period": "2026 regular season",
+            "role": "defense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "Vancouver Canucks",
+            "unit": "shots on goal per game",
+            "value": 35,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "home-offense",
+            "metric": "shotsPerGame",
+            "period": "2026 regular season",
+            "role": "offense",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "Seattle Kraken",
+            "unit": "shots on goal per game",
+            "value": 35,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          },
+          {
+            "id": "league-reference",
+            "metric": "shotsPerGame",
+            "period": "2026 regular season",
+            "role": "reference",
+            "sample": 12,
+            "sourceIDs": [
+              "espn-team-stats"
+            ],
+            "team": "league",
+            "unit": "shots on goal per game",
+            "value": 30,
+            "windowEnd": "2026-10-12T23:00:00.000Z",
+            "windowStart": "2026-09-01T00:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "espn-team-stats",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "setup": {
+    "targetKind": "Team",
+    "league": "MLB",
+    "stat": "Spread",
+    "player": "Philadelphia Phillies",
+    "opponent": "Washington Nationals",
+    "historical_event_id": "401570893",
+    "line": -1.5,
+    "side": "Over",
+    "features": [
+      "recent",
+      "season",
+      "homeAway",
+      "rest"
+    ],
+    "model_type": "neural_network",
+    "book": "DraftKings",
+    "evaluation_mode": "fixed_threshold_retrospective",
+    "training": {
+      "epochs": 200,
+      "learning_rate": 0.05,
+      "l2": 0.001,
+      "validation_fraction": 0.2
+    }
+  },
+  "result": {
+    "status": "ok",
+    "target_kind": "game",
+    "evaluation_mode": "fixed_threshold_retrospective",
+    "market": "spread",
+    "line": -1.5,
+    "live_prediction": false,
+    "settlement_rules": {
+      "scope": "completed_standard_regular_season_full_games_only",
+      "score_basis": "ESPN_reported_final_score_including_overtime_extra_innings_and_shootout_award",
+      "total": "home_score + away_score; over/under; equality is push",
+      "spread": "selected_score - opponent_score + line; positive cover, negative not_cover, zero push",
+      "moneyline": "selected final-score win/loss; NFL equality is tie, not loss or push",
+      "NHL": "Includes overtime and the final-score shootout winner goal; never add shootout attempts again; no regulation-only markets.",
+      "NBA": "Includes overtime; excludes Cup championship, play-in and postseason.",
+      "MLB": "Includes extra innings; excludes shortened games below nine reported innings and non-final games; no listed-pitcher or book action rule claim.",
+      "NFL": "Includes overtime; permits regular-season ties; no assumed bookmaker tie settlement.",
+      "publication": "Revised history; actual completion/publication timestamps are unverified. Two UTC date guard is not certified as-of replay."
+    },
+    "message": "Experimental revised-history team model; no as-of publication, archived odds, live readiness or ROI claim.",
+    "model": {
+      "id": "mlb_game_spread_v1",
+      "model_type": "neural_network",
+      "artifact_sha256": "6a6b828d04a48d279f41c2c877b37c30ec92e3dcdcad571d749c2b0dbda8acb5"
+    },
+    "training": {
+      "status": "ok",
+      "sample_size": 250,
+      "quality_status": "experimental_uncalibrated",
+      "last_training_game_date": "2024-07-14",
+      "holdout_start_date": "2024-07-20",
+      "class_counts": {
+        "cover": 108,
+        "not_cover": 142
+      }
+    },
+    "inference": {
+      "status": "ok",
+      "target": {
+        "event_id": "401570893",
+        "league": "MLB",
+        "season": "2024",
+        "date": "2024-09-29",
+        "starts_at": "2024-09-29T19:05:00+00:00",
+        "home_team_id": "20",
+        "away_team_id": "22",
+        "home_team": "WSH",
+        "away_team": "PHI",
+        "neutral_site": false,
+        "home_team_name": "Washington Nationals",
+        "away_team_name": "Philadelphia Phillies",
+        "target_kind": "game",
+        "selected_team": "away",
+        "team_id": "22",
+        "team": "PHI",
+        "mode": "retrospective_historical_game_not_live"
+      },
+      "probabilities": {
+        "cover": 0.42946671161017297,
+        "not_cover": 0.570533288389827
+      },
+      "features": {
+        "recent_scored": 4.2,
+        "recent_allowed": 5.8,
+        "season_scored": 4.84375,
+        "season_allowed": 4.1375,
+        "homeAway": -1.0,
+        "rest": 1
+      },
+      "threshold": -1.5
+    },
+    "validation": {
+      "status": "ok",
+      "mode": "fixed_threshold_retrospective",
+      "sample_size": 63,
+      "metrics": {
+        "sample_size": 63,
+        "multiclass_brier": 0.48002351169413504,
+        "log_loss": 0.6730810721631159,
+        "accuracy": 0.5873015873015873,
+        "baseline": {
+          "name": "training_partition_class_frequency",
+          "probabilities": {
+            "cover": 0.432,
+            "not_cover": 0.568
+          },
+          "multiclass_brier": 0.47254958730158725,
+          "model_brier_improvement": -0.007473924392547793
+        },
+        "profit": {
+          "status": "unavailable",
+          "reason": "no_historical_betting_lines_prices_or_book_settlement"
+        }
+      },
+      "exclusions": [
+        {
+          "event_id": "401471111",
+          "reason": "game_not_completed"
+        },
+        {
+          "event_id": "401471262",
+          "reason": "game_not_completed"
+        },
+        {
+          "event_id": "401471941",
+          "reason": "game_not_completed"
+        },
+        {
+          "event_id": "401472125",
+          "reason": "game_not_completed"
+        },
+        {
+          "event_id": "401472712",
+          "reason": "game_not_completed"
+        },
+        {
+          "event_id": "401473411",
+          "reason": "game_not_completed"
+        },
+        {
+          "event_id": "401568472",
+          "reason": "game_not_completed"
+        },
+        {
+          "event_id": "401570878",
+          "reason": "not_before_target_date_guard"
+        },
+        {
+          "event_id": "401570893",
+          "reason": "not_before_target_date_guard"
+        },
+        {
+          "event_id": "401471028",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401471048",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401471063",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401471077",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401471092",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401471105",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401651937",
+          "reason": "game_season_baseline_unavailable"
+        },
+        {
+          "event_id": "401568495",
+          "reason": "game_season_baseline_unavailable"
+        },
+        {
+          "event_id": "401569934",
+          "reason": "split_date_guard"
+        }
+      ],
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "target_observed_outcome": "cover"
+    },
+    "provenance": {
+      "provider": "ESPN",
+      "sources": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/summary?event=401570893",
+          "retrieved_at": "2026-09-30T13:57:40.563415+00:00",
+          "response_sha256": "e349eed41c2d4416388e20c4c20ba44fcb13165a15d38e0ecfe058aebfcdf872",
+          "payload_sha256": "f7e2ef0ff49ec58684501992964df60ccec4479850d636bdbe2d583117292a5c"
+        },
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/22/schedule?season=2023&seasontype=2",
+          "retrieved_at": "2026-09-30T13:59:21.893098+00:00",
+          "response_sha256": "7b5bd049795734c43b04ad00e619b49f2ba1ea3a08e91c2861343abad6796c7f",
+          "payload_sha256": "4c8fe95af441ca358751fd1c00ca090baa032e6d5b524cd1041f42bacf5a9254"
+        },
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams/22/schedule?season=2024&seasontype=2",
+          "retrieved_at": "2026-09-30T13:59:23.225527+00:00",
+          "response_sha256": "67d0cb2e9567db86de7a29fa4f8c6cae49fc76454a3c14412715b32b034d53df",
+          "payload_sha256": "d2df8df786fbc14272aa99d60a0d1810da853f0d809f8a4fa95167ff47e44d59"
+        }
+      ],
+      "network_requests": 0,
+      "feature_scope": "selected_franchise_history_only_not_opponent_strength",
+      "rest_semantics": "days_since_last_date_guard_eligible_game_minus_one_not_true_schedule_rest",
+      "source_game_count": 324,
+      "date_basis": "UTC",
+      "season_basis": "end_year_NBA_NHL_start_year_NFL_calendar_year_MLB"
+    },
+    "target_prop": "Spread",
+    "requested_book": "DraftKings",
+    "threshold_source": "user_selected_research_line_not_verified_sportsbook_quote"
+  }
+}

@@ -1,0 +1,512 @@
+{
+  "contractVersion": "sports-context-v1",
+  "scope": "Server-owned public evidence for one canonical event; no account, chat or injury data.",
+  "limits": {
+    "inputBytes": 32768,
+    "projectedBytes": 32768,
+    "facts": 48,
+    "designations": 8,
+    "sources": 24,
+    "sourcesPerFact": 4
+  },
+  "event": {
+    "sport": "NFL|NBA|MLB|NHL",
+    "eventID": "espn:<digits>",
+    "homeTeam": "exact full name",
+    "awayTeam": "exact full name",
+    "startISO": "UTC ISO8601"
+  },
+  "sourceFields": [
+    "id",
+    "provider",
+    "url",
+    "retrievedAt",
+    "checkedAt",
+    "sourceAsOf",
+    "contentSHA256"
+  ],
+  "sourceTimes": "sourceAsOf is nullable actual provider issuance/update time. Retrieval is not issuance. checkedAt cannot be advanced without a successful source check.",
+  "factFields": [
+    "id",
+    "team",
+    "subject",
+    "role",
+    "metric",
+    "value",
+    "unit",
+    "sample",
+    "season",
+    "phase",
+    "period",
+    "windowStart",
+    "windowEnd",
+    "sourceIDs",
+    "derivation"
+  ],
+  "subject": {
+    "kind": "team|player|league",
+    "id": "provider-prefixed stable ID",
+    "name": "exact source name"
+  },
+  "role": [
+    "offense",
+    "defense",
+    "player",
+    "reference"
+  ],
+  "sample": {
+    "count": "positive integer",
+    "unit": "games|attempts|shots|possessions|plate_appearances|batters_faced"
+  },
+  "phase": [
+    "preseason",
+    "regular",
+    "postseason"
+  ],
+  "derivation": {
+    "kind": "reported|per_game|percent|per_100|ratio",
+    "numerator": "finite nonnegative number",
+    "denominator": "positive number or null for reported"
+  },
+  "designationFields": [
+    "id",
+    "team",
+    "kind",
+    "state",
+    "subject",
+    "eventID",
+    "sourceIDs",
+    "reportedAt",
+    "basis"
+  ],
+  "designationKind": [
+    "starting_pitcher",
+    "starting_goalie",
+    "starting_lineup"
+  ],
+  "designationState": [
+    "confirmed",
+    "probable",
+    "unknown"
+  ],
+  "designationBasis": [
+    "provider_confirmed",
+    "provider_probable",
+    "not_reported"
+  ],
+  "designationUnknown": "subject and reportedAt may be null; absence never means healthy, available or confirmed. Workload never proves availability.",
+  "coverageFields": [
+    "team",
+    "topic",
+    "state",
+    "reason",
+    "sourceIDs"
+  ],
+  "coverageState": [
+    "available",
+    "partial",
+    "missing"
+  ],
+  "coverageReason": [
+    "supported",
+    "partial_source",
+    "not_supplied",
+    "source_unavailable",
+    "unsupported_metric",
+    "no_reported_designation"
+  ],
+  "bundleFields": [
+    "contractVersion",
+    "event",
+    "sources",
+    "facts",
+    "designations",
+    "coverage"
+  ],
+  "projectionFields": [
+    "contractVersion",
+    "event",
+    "fingerprint",
+    "revision",
+    "evaluatedAt",
+    "state",
+    "facts",
+    "designations",
+    "sources",
+    "coverage",
+    "excluded"
+  ],
+  "projectionState": [
+    "fresh",
+    "partial",
+    "stale",
+    "missing"
+  ],
+  "projectionExclusionReasons": [
+    "source_stale",
+    "sample_stale",
+    "designation_stale",
+    "event_started",
+    "conflicting_designation"
+  ],
+  "freshnessSeconds": {
+    "statistics": 86400,
+    "recentWorkload": 21600,
+    "designation": 21600
+  },
+  "api": [
+    "validate_context(bundle, now)",
+    "fingerprint(bundle, now)",
+    "project_context(bundle, now)"
+  ],
+  "consumerRules": [
+    "Validate before use. Use projected eligible facts only; never promote excluded stale context to current evidence.",
+    "Keep numeric values and source IDs intact. Comparisons require matching metric, unit, season, phase and window; directional meaning belongs to reviewed narrative rules.",
+    "Roles are explicit: MLB offense strikeouts describe batters striking out; defense strikeouts describe pitching strikeouts. These meanings are not interchangeable.",
+    "NFL passAttemptShare is pass attempts divided by pass plus rush attempts; it is not full dropback share and does not establish tempo.",
+    "NBA points do not establish possessions, pace or efficiency. Only verified explicit possessions/pace fields can supply them.",
+    "Injury context is passed separately through injury_model_context.py. The final narrative request has its own combined 32KiB bound.",
+    "No read-time fetching, generation, production activation, or alteration of the frozen91 report archive."
+  ],
+  "metricRegistry": {
+    "appearancesLast3Days": {
+      "unit": "appearances in the recorded three-day window",
+      "maximum": 10,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "assistsPerGame": {
+      "unit": "assists per game",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "battingAverage": {
+      "unit": "hits per at-bat",
+      "maximum": 1,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "completionPercentage": {
+      "unit": "percent of pass attempts completed",
+      "maximum": 100,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "completionsPerGame": {
+      "unit": "completions per game",
+      "maximum": 100,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "fieldGoalAttemptsPerGame": {
+      "unit": "field goal attempts per game",
+      "maximum": 200,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "fieldGoalPercentage": {
+      "unit": "percent of field goal attempts made",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "fieldGoalsMadePerGame": {
+      "unit": "field goals made per game",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "freeThrowAttemptsPerGame": {
+      "unit": "free throw attempts per game",
+      "maximum": 150,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "freeThrowPercentage": {
+      "unit": "percent of free throw attempts made",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "freeThrowsMadePerGame": {
+      "unit": "free throws made per game",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "goalsPerGame": {
+      "unit": "goals per game",
+      "maximum": 20,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "hitsPerGame": {
+      "unit": "hits per game",
+      "maximum": 50,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "homeRunsPerGame": {
+      "unit": "home runs per game",
+      "maximum": 20,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "minutesPerGame": {
+      "unit": "minutes per game",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "netPassingYardsPerGame": {
+      "unit": "net passing yards per game",
+      "maximum": 1000,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "offensiveEfficiency": {
+      "unit": "points per 100 possessions",
+      "maximum": 250,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "offensivePlaysPerGame": {
+      "unit": "offensive plays per game",
+      "maximum": 200,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "onBasePercentage": {
+      "unit": "on-base fraction",
+      "maximum": 1,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "outsLast3Days": {
+      "unit": "outs in the recorded three-day window",
+      "maximum": 100,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "pace": {
+      "unit": "possessions per 48 minutes",
+      "maximum": 200,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "passAttemptShare": {
+      "unit": "percent of pass and rush attempts",
+      "maximum": 100,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "passingAttemptsPerGame": {
+      "unit": "pass attempts per game",
+      "maximum": 100,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "passingYardsPerGame": {
+      "unit": "gross passing yards per game",
+      "maximum": 1000,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "penaltyKillPercentage": {
+      "unit": "percent of opponent power plays killed",
+      "maximum": 100,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "pitchesLast3Days": {
+      "unit": "pitches in the recorded three-day window",
+      "maximum": 500,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "pointsPerGame": {
+      "unit": "points per game",
+      "maximum": 250,
+      "sports": [
+        "NBA",
+        "NFL"
+      ]
+    },
+    "possessionsPerGame": {
+      "unit": "possessions per game",
+      "maximum": 200,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "powerPlayGoalsPerGame": {
+      "unit": "power-play goals per game",
+      "maximum": 20,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "powerPlayPercentage": {
+      "unit": "percent of power plays converted",
+      "maximum": 100,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "reboundsPerGame": {
+      "unit": "rebounds per game",
+      "maximum": 120,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "runsPerGame": {
+      "unit": "runs per game",
+      "maximum": 40,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "rushingAttemptsPerGame": {
+      "unit": "rush attempts per game",
+      "maximum": 100,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "rushingYardsPerGame": {
+      "unit": "rushing yards per game",
+      "maximum": 1000,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "sacksMadePerGame": {
+      "unit": "defensive sacks made per game",
+      "maximum": 30,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "sacksTakenPerGame": {
+      "unit": "passing sacks taken per game",
+      "maximum": 30,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "savePercentage": {
+      "unit": "fraction of shots saved",
+      "maximum": 1,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "savesPerGame": {
+      "unit": "saves per game",
+      "maximum": 100,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "secondsPerOffensivePlay": {
+      "unit": "possession seconds per offensive play",
+      "maximum": 120,
+      "sports": [
+        "NFL"
+      ]
+    },
+    "shortHandedGoalsPerGame": {
+      "unit": "shorthanded goals per game",
+      "maximum": 20,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "shotsPerGame": {
+      "unit": "shots on goal per game",
+      "maximum": 100,
+      "sports": [
+        "NHL"
+      ]
+    },
+    "sluggingPercentage": {
+      "unit": "total bases per at-bat",
+      "maximum": 4,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "strikeoutsPerGame": {
+      "unit": "strikeouts per game",
+      "maximum": 50,
+      "sports": [
+        "MLB"
+      ]
+    },
+    "threePointAttemptsPerGame": {
+      "unit": "three-point attempts per game",
+      "maximum": 150,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "threePointPercentage": {
+      "unit": "percent of three-point attempts made",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "threePointersMadePerGame": {
+      "unit": "three-pointers made per game",
+      "maximum": 70,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "turnoversPerGame": {
+      "unit": "turnovers per game",
+      "maximum": 100,
+      "sports": [
+        "NBA"
+      ]
+    },
+    "walksPerGame": {
+      "unit": "walks per game",
+      "maximum": 40,
+      "sports": [
+        "MLB"
+      ]
+    }
+  },
+  "sampleWindowMeaning": "Explicit interval over complete verified sample inputs; not an assertion that every team played at either boundary. Same-period comparisons require exact bounds, phase and units.",
+  "providerRules": "Provider must match the allowlisted host. A derived aggregate is not an HTTP source; full lineage outside the caps is not accepted."
+}

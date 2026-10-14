@@ -1,0 +1,129 @@
+{
+  "contractVersion": "injury-model-context-v1",
+  "policyVersion": "injury-model-freshness-v1",
+  "event": {
+    "awayTeam": "Brooklyn Nets",
+    "eventID": "espn:401898404",
+    "homeTeam": "Miami Heat",
+    "sport": "NBA",
+    "startISO": "2026-10-14T23:30:00.000Z"
+  },
+  "teams": [
+    {
+      "id": "espn:nba:team:14",
+      "name": "Miami Heat"
+    },
+    {
+      "id": "espn:nba:team:17",
+      "name": "Brooklyn Nets"
+    }
+  ],
+  "injuryFingerprint": "8d84179e930c315aeca5172098cf7e6354617c2a2fe7d17137b706734739dc2d",
+  "contextFingerprint": "ad8ecdc8ff8de66a2ccbde32c9e368f971b3a80bb8d9a7d9cdcb1bc8f06768a1",
+  "state": "stale",
+  "observations": [],
+  "excluded": [
+    {
+      "id": "injury-observation:04f7e616f6f85af895bebff4",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:084cce986232ba7a27d9cd7f",
+      "teamID": "espn:nba:team:17",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:44423e54d773f37863b346c2",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:6b6b19490da56b0f85e8379c",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:6d80c077931b173e1e1639aa",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:6f2c360d939de10ffa471abf",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:7eeea12250b1ebdd7f20b407",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:8be91708dc81da98cf9e5938",
+      "teamID": "espn:nba:team:17",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:bd9bee83d3b1260a0b550287",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:d35fc34e470848f5bfdbe33c",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:fc61ed0d0bef9d7d09eff2b7",
+      "teamID": "espn:nba:team:14",
+      "sourceID": "espn-injuries:nba",
+      "reason": "observation_stale"
+    }
+  ],
+  "coverage": [
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nba"
+      ],
+      "state": "stale",
+      "teamID": "espn:nba:team:14",
+      "eligibleCount": 0,
+      "excludedObservationCount": 9
+    },
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nba"
+      ],
+      "state": "stale",
+      "teamID": "espn:nba:team:17",
+      "eligibleCount": 0,
+      "excludedObservationCount": 2
+    }
+  ],
+  "sources": [
+    {
+      "checkedAt": "2026-10-14T12:19:18.257871+00:00",
+      "contentSHA256": "833048b920f9c8664107d9768679c49102c7db59de362977c790aaa4a58212b5",
+      "feedUpdatedAt": "2026-10-14T12:19:09Z",
+      "id": "espn-injuries:nba",
+      "provider": "ESPN",
+      "retrievedAt": "2026-10-14T12:19:18.257871+00:00",
+      "sourceIssuedAt": null,
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries"
+    }
+  ]
+}

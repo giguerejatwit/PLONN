@@ -1,0 +1,9 @@
+.build/
+DerivedData/
+*.ipa
+*.xcarchive/
+*.xcresult/
+*.log
+__pycache__/
+*.pyc
+xcuserdata/

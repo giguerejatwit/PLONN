@@ -1,0 +1,3711 @@
+{
+  "schema_version": "4",
+  "enabled": true,
+  "service_enabled": true,
+  "scope": "hosted",
+  "model_types": [
+    "logistic_regression",
+    "decision_tree",
+    "random_forest",
+    "neural_network"
+  ],
+  "default_model_type": "logistic_regression",
+  "entries": [
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Game total",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Game total",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Spread",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Spread",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Moneyline",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Moneyline",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Team points",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team points",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Team rebounds",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team rebounds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Team assists",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Team 3-pointers",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team 3-pointers",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Team turnovers",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team turnovers",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "team",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Game total",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Game total",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Spread",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Spread",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Moneyline",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Moneyline",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Team runs",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team runs",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Team hits",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team hits",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Team home runs",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team home runs",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Team strikeouts",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team strikeouts",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "team",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "team",
+      "prop": "Game total",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Game total",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "team",
+      "prop": "Spread",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Spread",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "team",
+      "prop": "Moneyline",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Moneyline",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "team",
+      "prop": "Team goals",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team goals",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "team",
+      "prop": "Team shots on goal",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team shots on goal",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "team",
+      "prop": "Team saves",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team saves",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "team",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Game total",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Game total",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Spread",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Spread",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Moneyline",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Moneyline",
+      "data_connection": "espn_completed_regular_season_team_schedules",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "workload",
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "targetKind",
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Team points",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team points",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Team rush yards",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team rush yards",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Team pass yards",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team pass yards",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Team total yards",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team total yards",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Team sacks",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team sacks",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Team turnovers",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Team turnovers",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "team",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Points",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Points",
+      "data_connection": "espn_regular_season_player_logs",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Rebounds",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Rebounds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Assists",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "3-pointers",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "3-pointers",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Steals",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Steals",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Blocks",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Blocks",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Turnovers",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Turnovers",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Pts + Reb + Ast",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pts + Reb + Ast",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Pts + Reb",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pts + Reb",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Pts + Ast",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pts + Ast",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Reb + Ast",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Reb + Ast",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Hits",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Hits",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Total bases",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Total bases",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Home runs",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Home runs",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "RBI",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "RBI",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Runs",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Runs",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Stolen bases",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Stolen bases",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Walks",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Walks",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Batter strikeouts",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Batter strikeouts",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Pitcher strikeouts",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pitcher strikeouts",
+      "data_connection": "public_mlb_pitching_logs",
+      "availability": "conditional",
+      "reason": "requires_unique_regular_season_probable_start_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Pitcher outs",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pitcher outs",
+      "data_connection": "public_mlb_pitching_logs",
+      "availability": "conditional",
+      "reason": "requires_unique_regular_season_probable_start_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Earned runs",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Earned runs",
+      "data_connection": "public_mlb_pitching_logs",
+      "availability": "conditional",
+      "reason": "requires_unique_regular_season_probable_start_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Hits allowed",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Hits allowed",
+      "data_connection": "public_mlb_pitching_logs",
+      "availability": "conditional",
+      "reason": "requires_unique_regular_season_probable_start_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Walks allowed",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Walks allowed",
+      "data_connection": "public_mlb_pitching_logs",
+      "availability": "conditional",
+      "reason": "requires_unique_regular_season_probable_start_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Shots on goal",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Shots on goal",
+      "data_connection": "espn_regular_season_player_logs",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Goals",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Goals",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Assists",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Points",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Points",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Blocked shots",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Blocked shots",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Saves",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Saves",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Goals allowed",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Goals allowed",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Rec Yds",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Rec Yds",
+      "data_connection": "nflverse_weekly_player_stats_and_schedule",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Receptions",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Receptions",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Rush Yds",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Rush Yds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Pass Yds",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pass Yds",
+      "data_connection": "nflverse_weekly_player_stats_and_schedule",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Pass TDs",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pass TDs",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Interceptions thrown",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Interceptions thrown",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Rush + Rec Yds",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Rush + Rec Yds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Rush attempts",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Rush attempts",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Pass attempts",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Pass attempts",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Completions",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Completions",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Touchdowns",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Touchdowns",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Tackles",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Tackles",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Sacks",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Sacks",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "Custom stat",
+      "origin": "ai_lab_ui",
+      "canonical_prop": "Custom stat",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_points",
+      "origin": "odds_catalog",
+      "canonical_prop": "Points",
+      "data_connection": "espn_regular_season_player_logs",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_rebounds",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_rebounds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_assists",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_threes",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_threes",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_steals",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_steals",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_blocks",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_blocks",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_points_rebounds_assists",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_points_rebounds_assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_points_rebounds",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_points_rebounds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_points_assists",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_points_assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NBA",
+      "target_kind": "player",
+      "prop": "player_rebounds_assists",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_rebounds_assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "batter_hits",
+      "origin": "odds_catalog",
+      "canonical_prop": "batter_hits",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "batter_rbis",
+      "origin": "odds_catalog",
+      "canonical_prop": "batter_rbis",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "batter_stolen_bases",
+      "origin": "odds_catalog",
+      "canonical_prop": "batter_stolen_bases",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "batter_home_runs",
+      "origin": "odds_catalog",
+      "canonical_prop": "batter_home_runs",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "batter_total_bases",
+      "origin": "odds_catalog",
+      "canonical_prop": "batter_total_bases",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "batter_runs_scored",
+      "origin": "odds_catalog",
+      "canonical_prop": "batter_runs_scored",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "MLB",
+      "target_kind": "player",
+      "prop": "pitcher_strikeouts",
+      "origin": "odds_catalog",
+      "canonical_prop": "Pitcher strikeouts",
+      "data_connection": "public_mlb_pitching_logs",
+      "availability": "conditional",
+      "reason": "requires_unique_regular_season_probable_start_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_pass_yds",
+      "origin": "odds_catalog",
+      "canonical_prop": "Pass Yds",
+      "data_connection": "nflverse_weekly_player_stats_and_schedule",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_pass_tds",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_pass_tds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_rush_yds",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_rush_yds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_reception_yds",
+      "origin": "odds_catalog",
+      "canonical_prop": "Rec Yds",
+      "data_connection": "nflverse_weekly_player_stats_and_schedule",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_receptions",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_receptions",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_pass_attempts",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_pass_attempts",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_pass_completions",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_pass_completions",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_pass_interceptions",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_pass_interceptions",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_rush_attempts",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_rush_attempts",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NFL",
+      "target_kind": "player",
+      "prop": "player_rush_reception_yds",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_rush_reception_yds",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "player_points",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_points",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "player_assists",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_assists",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "player_goals",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_goals",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "player_shots_on_goal",
+      "origin": "odds_catalog",
+      "canonical_prop": "Shots on goal",
+      "data_connection": "espn_regular_season_player_logs",
+      "availability": "conditional",
+      "reason": "requires_explicit_historical_event_id_and_sufficient_history",
+      "supported_features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "unsupported_features": [
+        "opponent",
+        "advanced_columns"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "route": "/v1/train-run",
+      "genuine_verification": "retrospective_completed_games",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [
+        "historical_event_id"
+      ],
+      "supported_game_type": "regular_season",
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "player_blocked_shots",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_blocked_shots",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "player_total_saves",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_total_saves",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "NHL",
+      "target_kind": "player",
+      "prop": "player_power_play_points",
+      "origin": "odds_catalog",
+      "canonical_prop": "player_power_play_points",
+      "data_connection": "none",
+      "availability": "unavailable",
+      "reason": "historical_target_and_feature_pipeline_not_connected",
+      "supported_features": [],
+      "unsupported_features": [
+        "all"
+      ],
+      "model_types": [],
+      "evaluation_mode": null,
+      "route": null,
+      "genuine_verification": "none",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "required_request_fields": [],
+      "supported_game_type": null,
+      "postseason_supported": false
+    },
+    {
+      "sport": "Soccer",
+      "target_kind": "team",
+      "context": "national",
+      "prop": "match_outcome",
+      "origin": "optional_team_adapter",
+      "availability": "unavailable",
+      "reason": "not_hosted",
+      "data_connection": "none",
+      "supported_features": [],
+      "model_types": [],
+      "evaluation_mode": "retrospective_result_date_only",
+      "route": null,
+      "genuine_verification": "retrospective_all_four_models",
+      "live_inference_verified": false,
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false
+    }
+  ],
+  "supported": [
+    {
+      "league": "MLB",
+      "stat": "Pitcher strikeouts",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective"
+    },
+    {
+      "league": "MLB",
+      "stat": "Pitcher outs",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective"
+    },
+    {
+      "league": "MLB",
+      "stat": "Earned runs",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective"
+    },
+    {
+      "league": "MLB",
+      "stat": "Hits allowed",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective"
+    },
+    {
+      "league": "MLB",
+      "stat": "Walks allowed",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective"
+    }
+  ],
+  "optional_team_models": [],
+  "supported_data_targets": [
+    {
+      "league": "MLB",
+      "stat": "Pitcher strikeouts",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": false
+    },
+    {
+      "league": "MLB",
+      "stat": "Pitcher outs",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": false
+    },
+    {
+      "league": "MLB",
+      "stat": "Earned runs",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": false
+    },
+    {
+      "league": "MLB",
+      "stat": "Hits allowed",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": false
+    },
+    {
+      "league": "MLB",
+      "stat": "Walks allowed",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": false
+    },
+    {
+      "league": "NFL",
+      "stat": "Pass Yds",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true
+    },
+    {
+      "league": "NFL",
+      "stat": "Rec Yds",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true
+    },
+    {
+      "league": "NBA",
+      "stat": "Points",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true
+    },
+    {
+      "league": "NHL",
+      "stat": "Shots on goal",
+      "features": [
+        "recent",
+        "season",
+        "workload",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true
+    },
+    {
+      "league": "NBA",
+      "target_kind": "team",
+      "stat": "Game total",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "total"
+    },
+    {
+      "league": "NBA",
+      "target_kind": "team",
+      "stat": "Spread",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "spread"
+    },
+    {
+      "league": "NBA",
+      "target_kind": "team",
+      "stat": "Moneyline",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "moneyline"
+    },
+    {
+      "league": "MLB",
+      "target_kind": "team",
+      "stat": "Game total",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "total"
+    },
+    {
+      "league": "MLB",
+      "target_kind": "team",
+      "stat": "Spread",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "spread"
+    },
+    {
+      "league": "MLB",
+      "target_kind": "team",
+      "stat": "Moneyline",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "moneyline"
+    },
+    {
+      "league": "NFL",
+      "target_kind": "team",
+      "stat": "Game total",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "total"
+    },
+    {
+      "league": "NFL",
+      "target_kind": "team",
+      "stat": "Spread",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "spread"
+    },
+    {
+      "league": "NFL",
+      "target_kind": "team",
+      "stat": "Moneyline",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "moneyline"
+    },
+    {
+      "league": "NHL",
+      "target_kind": "team",
+      "stat": "Game total",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "total"
+    },
+    {
+      "league": "NHL",
+      "target_kind": "team",
+      "stat": "Spread",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "spread"
+    },
+    {
+      "league": "NHL",
+      "target_kind": "team",
+      "stat": "Moneyline",
+      "features": [
+        "recent",
+        "season",
+        "homeAway",
+        "rest"
+      ],
+      "model_types": [
+        "logistic_regression",
+        "decision_tree",
+        "random_forest",
+        "neural_network"
+      ],
+      "evaluation_mode": "fixed_threshold_retrospective",
+      "historical_event_required": true,
+      "market": "moneyline"
+    }
+  ],
+  "legacy_supported_field": "MLB compatibility subset; use entries or supported_data_targets for full coverage.",
+  "aliases": {
+    "MLB": {
+      "Strikeouts": "Pitcher strikeouts",
+      "pitcher_strikeouts": "Pitcher strikeouts"
+    },
+    "NFL": {
+      "Passing yards": "Pass Yds",
+      "Receiving yards": "Rec Yds",
+      "player_pass_yds": "Pass Yds",
+      "player_reception_yds": "Rec Yds"
+    },
+    "NBA": {
+      "Player points": "Points",
+      "player_points": "Points"
+    },
+    "NHL": {
+      "Shots": "Shots on goal",
+      "Player shots": "Shots on goal",
+      "player_shots_on_goal": "Shots on goal"
+    }
+  },
+  "archive_bundle_note": "Explicit supplied-data bundles remain possible; generic model algorithms do not establish connected sport/prop coverage.",
+  "acceptance_command": "python3 -m unittest discover -s app/backend/local_lab/tests -v"
+}

@@ -1,0 +1,826 @@
+{
+  "description": "Portable exact-value projections of recorded ESPN JSON. capturedBodyHash hashes the original full response, not this projection. No inferred statistics.",
+  "nfl": [
+    {
+      "source": {
+        "id": "public-23b98c580c92ce3fcaa1",
+        "provider": "ESPN",
+        "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/17/statistics?season=2026&seasontype=2",
+        "retrievedAt": "2026-10-13T20:37:31.515503Z",
+        "checkedAt": "2026-10-13T20:37:31.515503Z",
+        "sourceAsOf": null
+      },
+      "capturedBodyHash": "9f612afe8b88b68f718da2d83e1447786a51bde75488bae0e11f940f18337175",
+      "payload": {
+        "requestedSeason": {
+          "displayName": "2026",
+          "name": "Regular Season",
+          "qualifiedPostSeason": false,
+          "type": 2,
+          "year": 2026
+        },
+        "results": {
+          "opponent": [
+            {
+              "name": "passing",
+              "stats": [
+                {
+                  "name": "completionPct",
+                  "value": 66.049
+                },
+                {
+                  "name": "completions",
+                  "value": 107.0
+                },
+                {
+                  "name": "netPassingYards",
+                  "value": 1027.0
+                },
+                {
+                  "name": "passingAttempts",
+                  "value": 162.0
+                },
+                {
+                  "name": "sacks",
+                  "value": 11.0
+                },
+                {
+                  "name": "passingYards",
+                  "value": 1113.0
+                },
+                {
+                  "name": "teamGamesPlayed",
+                  "value": 5.0
+                }
+              ]
+            },
+            {
+              "name": "rushing",
+              "stats": [
+                {
+                  "name": "rushingAttempts",
+                  "value": 113.0
+                },
+                {
+                  "name": "rushingYards",
+                  "value": 454.0
+                },
+                {
+                  "name": "teamGamesPlayed",
+                  "value": 5.0
+                },
+                {
+                  "name": "totalOffensivePlays",
+                  "value": 286.0
+                }
+              ]
+            },
+            {
+              "name": "miscellaneous",
+              "stats": [
+                {
+                  "name": "possessionTimeSeconds",
+                  "value": 8484.0
+                }
+              ]
+            },
+            {
+              "name": "defensive",
+              "stats": [
+                {
+                  "name": "sacks",
+                  "value": 11.0
+                },
+                {
+                  "name": "teamGamesPlayed",
+                  "value": 5.0
+                }
+              ]
+            },
+            {
+              "name": "general",
+              "stats": [
+                {
+                  "name": "gamesPlayed",
+                  "value": 5.0
+                }
+              ]
+            },
+            {
+              "name": "scoring",
+              "stats": [
+                {
+                  "name": "totalPoints",
+                  "value": 94.0
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "categories": [
+              {
+                "name": "passing",
+                "stats": [
+                  {
+                    "name": "completionPct",
+                    "value": 65.6
+                  },
+                  {
+                    "name": "completions",
+                    "value": 103.0
+                  },
+                  {
+                    "name": "netPassingYards",
+                    "value": 1226.0
+                  },
+                  {
+                    "name": "passingAttempts",
+                    "value": 157.0
+                  },
+                  {
+                    "name": "sacks",
+                    "value": 11.0
+                  },
+                  {
+                    "name": "passingYards",
+                    "value": 1274.0
+                  },
+                  {
+                    "name": "teamGamesPlayed",
+                    "value": 5.0
+                  }
+                ]
+              },
+              {
+                "name": "rushing",
+                "stats": [
+                  {
+                    "name": "rushingAttempts",
+                    "value": 151.0
+                  },
+                  {
+                    "name": "rushingYards",
+                    "value": 636.0
+                  },
+                  {
+                    "name": "teamGamesPlayed",
+                    "value": 5.0
+                  },
+                  {
+                    "name": "totalOffensivePlays",
+                    "value": 319.0
+                  }
+                ]
+              },
+              {
+                "name": "miscellaneous",
+                "stats": [
+                  {
+                    "name": "possessionTimeSeconds",
+                    "value": 9465.0
+                  }
+                ]
+              },
+              {
+                "name": "defensive",
+                "stats": [
+                  {
+                    "name": "sacks",
+                    "value": 11.0
+                  },
+                  {
+                    "name": "teamGamesPlayed",
+                    "value": 5.0
+                  }
+                ]
+              },
+              {
+                "name": "general",
+                "stats": [
+                  {
+                    "name": "gamesPlayed",
+                    "value": 5.0
+                  }
+                ]
+              },
+              {
+                "name": "scoring",
+                "stats": [
+                  {
+                    "name": "totalPoints",
+                    "value": 110.0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "season": {
+          "displayName": "2026",
+          "name": "Regular Season",
+          "type": 2,
+          "year": 2026
+        },
+        "status": "success",
+        "team": {
+          "id": "17",
+          "displayName": "New England Patriots"
+        }
+      }
+    },
+    {
+      "source": {
+        "id": "public-b277ecd6976a2a73ff65",
+        "provider": "ESPN",
+        "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/20/statistics?season=2026&seasontype=2",
+        "retrievedAt": "2026-10-13T20:37:33.615208Z",
+        "checkedAt": "2026-10-13T20:37:33.615208Z",
+        "sourceAsOf": null
+      },
+      "capturedBodyHash": "72f744a701e5d28a97f85ffce698e02bf7ab7987e5215c117cae327a27dd2e65",
+      "payload": {
+        "requestedSeason": {
+          "displayName": "2026",
+          "name": "Regular Season",
+          "qualifiedPostSeason": false,
+          "type": 2,
+          "year": 2026
+        },
+        "results": {
+          "opponent": [
+            {
+              "name": "passing",
+              "stats": [
+                {
+                  "name": "completionPct",
+                  "value": 62.5
+                },
+                {
+                  "name": "completions",
+                  "value": 100.0
+                },
+                {
+                  "name": "netPassingYards",
+                  "value": 875.0
+                },
+                {
+                  "name": "passingAttempts",
+                  "value": 160.0
+                },
+                {
+                  "name": "sacks",
+                  "value": 17.0
+                },
+                {
+                  "name": "passingYards",
+                  "value": 977.0
+                },
+                {
+                  "name": "teamGamesPlayed",
+                  "value": 5.0
+                }
+              ]
+            },
+            {
+              "name": "rushing",
+              "stats": [
+                {
+                  "name": "rushingAttempts",
+                  "value": 140.0
+                },
+                {
+                  "name": "rushingYards",
+                  "value": 590.0
+                },
+                {
+                  "name": "teamGamesPlayed",
+                  "value": 5.0
+                },
+                {
+                  "name": "totalOffensivePlays",
+                  "value": 317.0
+                }
+              ]
+            },
+            {
+              "name": "miscellaneous",
+              "stats": [
+                {
+                  "name": "possessionTimeSeconds",
+                  "value": 9061.0
+                }
+              ]
+            },
+            {
+              "name": "defensive",
+              "stats": [
+                {
+                  "name": "sacks",
+                  "value": 16.0
+                },
+                {
+                  "name": "teamGamesPlayed",
+                  "value": 5.0
+                }
+              ]
+            },
+            {
+              "name": "general",
+              "stats": [
+                {
+                  "name": "gamesPlayed",
+                  "value": 5.0
+                }
+              ]
+            },
+            {
+              "name": "scoring",
+              "stats": [
+                {
+                  "name": "totalPoints",
+                  "value": 96.0
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "categories": [
+              {
+                "name": "passing",
+                "stats": [
+                  {
+                    "name": "completionPct",
+                    "value": 69.4
+                  },
+                  {
+                    "name": "completions",
+                    "value": 102.0
+                  },
+                  {
+                    "name": "netPassingYards",
+                    "value": 950.0
+                  },
+                  {
+                    "name": "passingAttempts",
+                    "value": 147.0
+                  },
+                  {
+                    "name": "sacks",
+                    "value": 16.0
+                  },
+                  {
+                    "name": "passingYards",
+                    "value": 1084.0
+                  },
+                  {
+                    "name": "teamGamesPlayed",
+                    "value": 5.0
+                  }
+                ]
+              },
+              {
+                "name": "rushing",
+                "stats": [
+                  {
+                    "name": "rushingAttempts",
+                    "value": 131.0
+                  },
+                  {
+                    "name": "rushingYards",
+                    "value": 470.0
+                  },
+                  {
+                    "name": "teamGamesPlayed",
+                    "value": 5.0
+                  },
+                  {
+                    "name": "totalOffensivePlays",
+                    "value": 294.0
+                  }
+                ]
+              },
+              {
+                "name": "miscellaneous",
+                "stats": [
+                  {
+                    "name": "possessionTimeSeconds",
+                    "value": 9216.0
+                  }
+                ]
+              },
+              {
+                "name": "defensive",
+                "stats": [
+                  {
+                    "name": "sacks",
+                    "value": 17.0
+                  },
+                  {
+                    "name": "teamGamesPlayed",
+                    "value": 5.0
+                  }
+                ]
+              },
+              {
+                "name": "general",
+                "stats": [
+                  {
+                    "name": "gamesPlayed",
+                    "value": 5.0
+                  }
+                ]
+              },
+              {
+                "name": "scoring",
+                "stats": [
+                  {
+                    "name": "totalPoints",
+                    "value": 93.0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "season": {
+          "displayName": "2026",
+          "name": "Regular Season",
+          "type": 2,
+          "year": 2026
+        },
+        "status": "success",
+        "team": {
+          "id": "20",
+          "displayName": "New York Jets"
+        }
+      }
+    }
+  ],
+  "nba": {
+    "source": {
+      "id": "public-6115204a57882cd735c6",
+      "provider": "ESPN",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?limit=1000&dates=20261003",
+      "retrievedAt": "2026-10-13T22:36:25.475655Z",
+      "checkedAt": "2026-10-13T22:36:25.475655Z",
+      "sourceAsOf": null
+    },
+    "capturedBodyHash": "a8cc2693020f8be9cc0d4df898a6e27e0435bb50731a4c75b9cd9d99a60d9cd6",
+    "payload": {
+      "id": "401902644",
+      "date": "2026-10-03T23:00Z",
+      "season": {
+        "slug": "preseason",
+        "type": 1,
+        "year": 2027
+      },
+      "competitions": [
+        {
+          "id": "401902644",
+          "status": {
+            "clock": 0.0,
+            "displayClock": "0.0",
+            "period": 4,
+            "type": {
+              "completed": true,
+              "description": "Final",
+              "detail": "Final",
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "shortDetail": "Final",
+              "state": "post"
+            }
+          },
+          "competitors": [
+            {
+              "id": "28",
+              "homeAway": "home",
+              "score": "105",
+              "team": {
+                "id": "28",
+                "displayName": "Toronto Raptors"
+              },
+              "statistics": [
+                {
+                  "abbreviation": "REB",
+                  "displayValue": "43",
+                  "name": "rebounds"
+                },
+                {
+                  "abbreviation": "REB",
+                  "displayValue": "43.0",
+                  "name": "avgRebounds"
+                },
+                {
+                  "abbreviation": "AST",
+                  "displayValue": "25",
+                  "name": "assists"
+                },
+                {
+                  "abbreviation": "FGA",
+                  "displayValue": "94",
+                  "name": "fieldGoalsAttempted"
+                },
+                {
+                  "abbreviation": "FGM",
+                  "displayValue": "37",
+                  "name": "fieldGoalsMade"
+                },
+                {
+                  "abbreviation": "FG%",
+                  "displayValue": "39.4",
+                  "name": "fieldGoalPct"
+                },
+                {
+                  "abbreviation": "FT%",
+                  "displayValue": "63.3",
+                  "name": "freeThrowPct"
+                },
+                {
+                  "abbreviation": "FTA",
+                  "displayValue": "30",
+                  "name": "freeThrowsAttempted"
+                },
+                {
+                  "abbreviation": "FTM",
+                  "displayValue": "19",
+                  "name": "freeThrowsMade"
+                },
+                {
+                  "abbreviation": "PTS",
+                  "displayValue": "105",
+                  "name": "points"
+                },
+                {
+                  "abbreviation": "3P%",
+                  "displayValue": "29.3",
+                  "name": "threePointPct"
+                },
+                {
+                  "abbreviation": "3PA",
+                  "displayValue": "41",
+                  "name": "threePointFieldGoalsAttempted"
+                },
+                {
+                  "abbreviation": "3PM",
+                  "displayValue": "12",
+                  "name": "threePointFieldGoalsMade"
+                },
+                {
+                  "abbreviation": "PTS",
+                  "displayValue": "105.0",
+                  "name": "avgPoints"
+                },
+                {
+                  "abbreviation": "AST",
+                  "displayValue": "25.0",
+                  "name": "avgAssists"
+                },
+                {
+                  "abbreviation": "3P%",
+                  "displayValue": "29.3",
+                  "name": "threePointFieldGoalPct"
+                }
+              ],
+              "leaders": [
+                {
+                  "name": "points",
+                  "leaders": [
+                    {
+                      "value": 15.0,
+                      "team": {
+                        "id": "28"
+                      },
+                      "athlete": {
+                        "id": "4395625",
+                        "displayName": "RJ Barrett",
+                        "team": {
+                          "id": "28"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "rebounds",
+                  "leaders": [
+                    {
+                      "value": 9.0,
+                      "team": {
+                        "id": "28"
+                      },
+                      "athlete": {
+                        "id": "5093267",
+                        "displayName": "Collin Murray-Boyles",
+                        "team": {
+                          "id": "28"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "assists",
+                  "leaders": [
+                    {
+                      "value": 7.0,
+                      "team": {
+                        "id": "28"
+                      },
+                      "athlete": {
+                        "id": "4432241",
+                        "displayName": "Jamal Shead",
+                        "team": {
+                          "id": "28"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "14",
+              "homeAway": "away",
+              "score": "129",
+              "team": {
+                "id": "14",
+                "displayName": "Miami Heat"
+              },
+              "statistics": [
+                {
+                  "abbreviation": "REB",
+                  "displayValue": "55",
+                  "name": "rebounds"
+                },
+                {
+                  "abbreviation": "REB",
+                  "displayValue": "55.0",
+                  "name": "avgRebounds"
+                },
+                {
+                  "abbreviation": "AST",
+                  "displayValue": "31",
+                  "name": "assists"
+                },
+                {
+                  "abbreviation": "FGA",
+                  "displayValue": "86",
+                  "name": "fieldGoalsAttempted"
+                },
+                {
+                  "abbreviation": "FGM",
+                  "displayValue": "42",
+                  "name": "fieldGoalsMade"
+                },
+                {
+                  "abbreviation": "FG%",
+                  "displayValue": "48.8",
+                  "name": "fieldGoalPct"
+                },
+                {
+                  "abbreviation": "FT%",
+                  "displayValue": "86.1",
+                  "name": "freeThrowPct"
+                },
+                {
+                  "abbreviation": "FTA",
+                  "displayValue": "36",
+                  "name": "freeThrowsAttempted"
+                },
+                {
+                  "abbreviation": "FTM",
+                  "displayValue": "31",
+                  "name": "freeThrowsMade"
+                },
+                {
+                  "abbreviation": "PTS",
+                  "displayValue": "129",
+                  "name": "points"
+                },
+                {
+                  "abbreviation": "3P%",
+                  "displayValue": "35.0",
+                  "name": "threePointPct"
+                },
+                {
+                  "abbreviation": "3PA",
+                  "displayValue": "40",
+                  "name": "threePointFieldGoalsAttempted"
+                },
+                {
+                  "abbreviation": "3PM",
+                  "displayValue": "14",
+                  "name": "threePointFieldGoalsMade"
+                },
+                {
+                  "abbreviation": "PTS",
+                  "displayValue": "129.0",
+                  "name": "avgPoints"
+                },
+                {
+                  "abbreviation": "AST",
+                  "displayValue": "31.0",
+                  "name": "avgAssists"
+                },
+                {
+                  "abbreviation": "3P%",
+                  "displayValue": "35.0",
+                  "name": "threePointFieldGoalPct"
+                }
+              ],
+              "leaders": [
+                {
+                  "name": "points",
+                  "leaders": [
+                    {
+                      "value": 14.0,
+                      "team": {
+                        "id": "14"
+                      },
+                      "athlete": {
+                        "id": "2528210",
+                        "displayName": "Tim Hardaway Jr.",
+                        "team": {
+                          "id": "14"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "rebounds",
+                  "leaders": [
+                    {
+                      "value": 7.0,
+                      "team": {
+                        "id": "14"
+                      },
+                      "athlete": {
+                        "id": "4997528",
+                        "displayName": "Nikola Jovic",
+                        "team": {
+                          "id": "14"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "assists",
+                  "leaders": [
+                    {
+                      "value": 7.0,
+                      "team": {
+                        "id": "14"
+                      },
+                      "athlete": {
+                        "id": "3032977",
+                        "displayName": "Giannis Antetokounmpo",
+                        "team": {
+                          "id": "14"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "nbaTeams": {
+    "1": "Atlanta Hawks",
+    "2": "Boston Celtics",
+    "17": "Brooklyn Nets",
+    "30": "Charlotte Hornets",
+    "4": "Chicago Bulls",
+    "5": "Cleveland Cavaliers",
+    "6": "Dallas Mavericks",
+    "7": "Denver Nuggets",
+    "8": "Detroit Pistons",
+    "9": "Golden State Warriors",
+    "10": "Houston Rockets",
+    "11": "Indiana Pacers",
+    "12": "LA Clippers",
+    "13": "Los Angeles Lakers",
+    "29": "Memphis Grizzlies",
+    "14": "Miami Heat",
+    "15": "Milwaukee Bucks",
+    "16": "Minnesota Timberwolves",
+    "3": "New Orleans Pelicans",
+    "18": "New York Knicks",
+    "25": "Oklahoma City Thunder",
+    "19": "Orlando Magic",
+    "20": "Philadelphia 76ers",
+    "21": "Phoenix Suns",
+    "22": "Portland Trail Blazers",
+    "23": "Sacramento Kings",
+    "24": "San Antonio Spurs",
+    "28": "Toronto Raptors",
+    "26": "Utah Jazz",
+    "27": "Washington Wizards"
+  }
+}

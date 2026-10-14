@@ -1,0 +1,477 @@
+{
+  "contract": "matchup-summary-v1",
+  "description": "Offline parity corpus with synthetic cases and public-stat reconstructions. No captured production prompts or responses. Exact selected evidence remains unchanged; commentary is bounded by supplied entity, quantity, metric and nonforecast rules. Bounded morphology families permit paraphrases without new factual vocabulary. Numeric prose is accepted only as complete verbatim evidence.text sentences, optionally joined by exact whereas, with named-team or bounded single-year season provenance; no quantity-set authorization.",
+  "teams": [
+    "Seattle Seahawks",
+    "Denver Broncos"
+  ],
+  "evidence": [
+    {
+      "id": "fixture-passing",
+      "title": "Passing",
+      "text": "Seattle Seahawks average 240 passing yards per game; Denver Broncos allow 210 passing yards per game."
+    }
+  ],
+  "cases": [
+    {
+      "id": "comparison",
+      "summary": "Seattle Seahawks passing production is compared with Denver Broncos allowance. These observations describe a limited sample.",
+      "accepted": true
+    },
+    {
+      "id": "contrast",
+      "summary": "Seattle Seahawks passing production contrasts with Denver Broncos allowance. These observations describe a limited sample.",
+      "accepted": true
+    },
+    {
+      "id": "past_contrast",
+      "summary": "Seattle Seahawks passing production contrasted with Denver Broncos allowance. These observations describe a limited sample.",
+      "accepted": true
+    },
+    {
+      "id": "sentence_start",
+      "summary": "Comparing Seattle Seahawks passing production with Denver Broncos allowance describes the recorded sample.",
+      "accepted": true
+    },
+    {
+      "id": "provenance",
+      "summary": "Recorded Seattle Seahawks passing production and Denver Broncos allowance support a descriptive comparison.",
+      "accepted": true
+    },
+    {
+      "id": "limitations",
+      "summary": "Seattle Seahawks passing production contrasts with Denver Broncos allowance. Sample limitations support only a cautious comparison.",
+      "accepted": true
+    },
+    {
+      "id": "outside_entity",
+      "summary": "Seattle Seahawks passing production contrasts with Dallas Cowboys allowance.",
+      "accepted": false
+    },
+    {
+      "id": "outside_entity_lower",
+      "summary": "seattle seahawks passing production contrasts with dallas cowboys allowance.",
+      "accepted": false
+    },
+    {
+      "id": "numeric",
+      "summary": "Seattle Seahawks average 250 passing yards.",
+      "accepted": false
+    },
+    {
+      "id": "unicode_numeric",
+      "summary": "Seattle Seahawks average ２５０ passing yards.",
+      "accepted": false
+    },
+    {
+      "id": "prediction",
+      "summary": "Seattle Seahawks will produce more passing yards than Denver Broncos.",
+      "accepted": false
+    },
+    {
+      "id": "modal_prediction",
+      "summary": "Seattle Seahawks could produce more passing yards than Denver Broncos.",
+      "accepted": false
+    },
+    {
+      "id": "new_metric",
+      "summary": "Seattle Seahawks rushing production contrasts with Denver Broncos allowance.",
+      "accepted": false
+    },
+    {
+      "id": "unsupported_comparative",
+      "summary": "Seattle Seahawks have superior passing production.",
+      "accepted": false
+    },
+    {
+      "id": "causation",
+      "summary": "Seattle Seahawks passing production causes Denver Broncos allowance.",
+      "accepted": false
+    },
+    {
+      "id": "citation",
+      "summary": "Seattle Seahawks passing production is recorded. See https://example.com",
+      "accepted": false
+    },
+    {
+      "id": "unsupported_name",
+      "summary": "Patrick Mahomes produces passing yards.",
+      "accepted": false
+    },
+    {
+      "id": "quantity_words",
+      "summary": "Seattle Seahawks average three passing yards.",
+      "accepted": false
+    },
+    {
+      "id": "recombined_entity",
+      "summary": "Seattle Broncos passing production contrasts with Denver Seahawks allowance.",
+      "accepted": false
+    },
+    {
+      "id": "partial_entity",
+      "summary": "Seahawks passing production contrasts with Broncos allowance.",
+      "accepted": false
+    },
+    {
+      "id": "unbounded_suffix",
+      "evidence": [
+        {
+          "id": "fixture-trophy",
+          "title": "Trophy",
+          "text": "Seattle Seahawks trophy observation."
+        }
+      ],
+      "summary": "Seattle Seahawks trophys observation.",
+      "accepted": false
+    },
+    {
+      "id": "grounded_metric_plural",
+      "evidence": [
+        {
+          "id": "fixture-turnover",
+          "title": "Recorded rates",
+          "text": "Seattle Seahawks recorded 12 turnovers and Denver Broncos recorded 14 turnovers in the sample."
+        }
+      ],
+      "summary": "Seattle Seahawks and Denver Broncos have contrasting recorded turnover patterns. The sample limits the comparison.",
+      "accepted": true
+    },
+    {
+      "id": "exact_numeric_sentences",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games.",
+      "accepted": true,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_whereas_and_season",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games whereas Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics. The small sample limits the comparison.",
+      "accepted": true,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_without_terminal",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games",
+      "accepted": true,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_swapped_values",
+      "summary": "Seattle Seahawks recorded 188.4 passing yards per game across 5 games whereas Denver Broncos recorded 238.2 passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_changed_unit",
+      "summary": "Seattle Seahawks recorded 238.2 passing points per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_changed_sample",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 6 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_dropped_sample",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_changed_team",
+      "summary": "Denver Broncos recorded 238.2 passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_fragment",
+      "summary": "238.2 passing yards per game.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_prefix_neither",
+      "summary": "Neither Seattle Seahawks recorded 238.2 passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_suffix_more",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games more.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_unicode_digit",
+      "summary": "Seattle Seahawks recorded ２３８.２ passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_unicode_space",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_modified_case",
+      "summary": "seattle seahawks recorded 238.2 passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_extra_year",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. 2026.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_modified_season",
+      "summary": "These are observed 2025 regular-season team statistics.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_unsupported_join",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games and Denver Broncos recorded 188.4 passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-exact-numeric",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games. Denver Broncos recorded 188.4 passing yards per game across 5 games. These are observed 2026 regular-season team statistics."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_teamless_fragment",
+      "summary": "5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fragment",
+          "title": "Sample",
+          "text": "5 games."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_title_only",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "title",
+          "title": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games",
+          "text": "Recorded sample."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_forbidden",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games will win.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "unsafe",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games will win."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_comparative",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games with superior production.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "unsafe",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games with superior production."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_semicolon_complete",
+      "summary": "Seattle Seahawks average 240 passing yards per game; Denver Broncos allow 210 passing yards per game.",
+      "accepted": true,
+      "evidence": [
+        {
+          "id": "fixture-passing",
+          "title": "Passing",
+          "text": "Seattle Seahawks average 240 passing yards per game; Denver Broncos allow 210 passing yards per game."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_semicolon_fragment",
+      "summary": "Seattle Seahawks average 240 passing yards per game.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-passing",
+          "title": "Passing",
+          "text": "Seattle Seahawks average 240 passing yards per game; Denver Broncos allow 210 passing yards per game."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_terminal_ellipsis",
+      "summary": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games...",
+      "accepted": true,
+      "evidence": [
+        {
+          "id": "fixture-ellipsis",
+          "title": "Passing",
+          "text": "Seattle Seahawks recorded 238.2 passing yards per game across 5 games."
+        }
+      ]
+    },
+    {
+      "id": "exact_numeric_reject_unbounded_year",
+      "summary": "Season team statistics for x2025.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "fixture-unbounded-year",
+          "title": "Season",
+          "text": "Season team statistics for x2025."
+        }
+      ]
+    },
+    {
+      "id": "ui_semicolon_exact",
+      "summary": "Denver Broncos runs 23.8 times per game for 86.2 rushing yards per game; Seattle Seahawks allows 100.4 rushing yards per game. The small sample limits the comparison.",
+      "accepted": true,
+      "evidence": [
+        {
+          "id": "public-rushing",
+          "title": "Rushing",
+          "text": "Denver Broncos runs 23.8 times per game for 86.2 rushing yards per game; Seattle Seahawks allows 100.4 rushing yards per game.\nDenver Broncos: 2026 ESPN team statistics · 5 games; Seattle Seahawks: 2026 ESPN team statistics · 5 games. Team history, not a player forecast."
+        }
+      ]
+    },
+    {
+      "id": "ui_semicolon_rewrite",
+      "summary": "Denver Broncos runs 23.8 times per game for 86.2 rushing yards per game whereas Seattle Seahawks allows 100.4 rushing yards per game.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "public-rushing",
+          "title": "Rushing",
+          "text": "Denver Broncos runs 23.8 times per game for 86.2 rushing yards per game; Seattle Seahawks allows 100.4 rushing yards per game.\nDenver Broncos: 2026 ESPN team statistics · 5 games; Seattle Seahawks: 2026 ESPN team statistics · 5 games. Team history, not a player forecast."
+        }
+      ]
+    },
+    {
+      "id": "ui_sample_paraphrase",
+      "summary": "These observations are based on 5 games for Denver Broncos and 5 games for Seattle Seahawks.",
+      "accepted": false,
+      "evidence": [
+        {
+          "id": "public-rushing",
+          "title": "Rushing",
+          "text": "Denver Broncos runs 23.8 times per game for 86.2 rushing yards per game; Seattle Seahawks allows 100.4 rushing yards per game.\nDenver Broncos: 2026 ESPN team statistics · 5 games; Seattle Seahawks: 2026 ESPN team statistics · 5 games. Team history, not a player forecast."
+        }
+      ]
+    }
+  ]
+}

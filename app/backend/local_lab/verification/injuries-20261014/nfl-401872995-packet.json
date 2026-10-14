@@ -1,0 +1,241 @@
+{
+  "contractVersion": "injury-input-v2",
+  "coverage": [
+    {
+      "excludedRows": 18,
+      "reason": "unsupported_rows",
+      "sourceIDs": [
+        "espn-injuries:nfl"
+      ],
+      "state": "partial",
+      "teamID": "espn:nfl:team:26"
+    },
+    {
+      "excludedRows": 21,
+      "reason": "unsupported_rows",
+      "sourceIDs": [
+        "espn-injuries:nfl"
+      ],
+      "state": "partial",
+      "teamID": "espn:nfl:team:7"
+    }
+  ],
+  "event": {
+    "awayTeam": "Seattle Seahawks",
+    "eventID": "espn:401872995",
+    "homeTeam": "Denver Broncos",
+    "sport": "NFL",
+    "startISO": "2026-10-16T00:15:00.000Z"
+  },
+  "observations": [
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:22f50892f20a83ef1054289a",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4430878",
+      "playerName": "Jaxon Smith-Njigba",
+      "position": "WR",
+      "reportedStatus": "Questionable",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "questionable",
+      "teamID": "espn:nfl:team:26",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T23:56Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:24c480173c6de00b34ac60c9",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4360853",
+      "playerName": "Talanoa Hufanga",
+      "position": "S",
+      "reportedStatus": "Questionable",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "questionable",
+      "teamID": "espn:nfl:team:7",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T23:21Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:2e3d0db5f429a40a4a22e6ab",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:2971622",
+      "playerName": "Leonard Williams",
+      "position": "DT",
+      "reportedStatus": "Questionable",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "questionable",
+      "teamID": "espn:nfl:team:26",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T20:45Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:370e6b126771f1f86e99ceba",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4382401",
+      "playerName": "Riley Moss",
+      "position": "CB",
+      "reportedStatus": "Questionable",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "questionable",
+      "teamID": "espn:nfl:team:7",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T17:10Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:52c92186dec11db95831f15a",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4037521",
+      "playerName": "Chazz Surratt",
+      "position": "LB",
+      "reportedStatus": "Questionable",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "questionable",
+      "teamID": "espn:nfl:team:26",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T17:10Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:5b0246014789bc5e3665b9da",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4600981",
+      "playerName": "Pat Bryant",
+      "position": "WR",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "ir",
+      "teamID": "espn:nfl:team:7",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-09T21:47Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:7d67bded6fb862b90ee98752",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4684543",
+      "playerName": "Julian Neal",
+      "position": "CB",
+      "reportedStatus": "Injured Reserve",
+      "scope": "roster",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "ir",
+      "teamID": "espn:nfl:team:26",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-11T02:04Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:8d2caf46f4e8515f269ef840",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4372012",
+      "playerName": "Pat Surtain II",
+      "position": "CB",
+      "reportedStatus": "Doubtful",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "doubtful",
+      "teamID": "espn:nfl:team:7",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T17:10Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:b47c9524934e3da36facae23",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4426385",
+      "playerName": "Zach Charbonnet",
+      "position": "RB",
+      "reportedStatus": "Out",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "out",
+      "teamID": "espn:nfl:team:26",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-14T00:15Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:c4b051958765de6d7342b49c",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:3924327",
+      "playerName": "Drew Lock",
+      "position": "QB",
+      "reportedStatus": "Questionable",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "questionable",
+      "teamID": "espn:nfl:team:26",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-14T00:20Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:cb8061aea9c28a59b3f176e5",
+      "identityKind": "provider_id",
+      "playerID": "espn:nfl:player:4428659",
+      "playerName": "Drake Thomas",
+      "position": "LB",
+      "reportedStatus": "Questionable",
+      "scope": "general",
+      "sourceID": "espn-injuries:nfl",
+      "statusKind": "questionable",
+      "teamID": "espn:nfl:team:26",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T23:22Z"
+    }
+  ],
+  "sources": [
+    {
+      "checkedAt": "2026-10-14T12:19:43.750479+00:00",
+      "contentSHA256": "927d1000b3ac4128ae51e4a14e4e07fdba4671ebf5cde57c1a25e2acfd5a546e",
+      "feedUpdatedAt": "2026-10-14T12:19:41Z",
+      "id": "espn-injuries:nfl",
+      "provider": "ESPN",
+      "retrievedAt": "2026-10-14T12:19:43.750479+00:00",
+      "sourceIssuedAt": null,
+      "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries"
+    }
+  ],
+  "teams": [
+    {
+      "id": "espn:nfl:team:26",
+      "name": "Seattle Seahawks"
+    },
+    {
+      "id": "espn:nfl:team:7",
+      "name": "Denver Broncos"
+    }
+  ]
+}

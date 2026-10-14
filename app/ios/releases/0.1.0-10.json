@@ -1,0 +1,29 @@
+{
+  "verifiedAt": "2026-10-14T19:39:22.367444+00:00",
+  "version": "0.1.0",
+  "build": "10",
+  "buildID": "01ff9b9d-4ab2-4219-8776-622b00a9c7b2",
+  "appID": "6821990305",
+  "status": "Testing",
+  "group": "PLONN Internal",
+  "uploadAttempts": 1,
+  "publicSubmission": false,
+  "groupAssignmentSucceeded": true,
+  "termsPatchExcluded": true,
+  "workingSignupUnchanged": true,
+  "testsExecuted": 592,
+  "testsSkipped": 2,
+  "testFailures": 0,
+  "visualLimitation": "Four-sport manual Analytics acceptance not completed; user directed release after feasible checks",
+  "sourceAssociation": "Retrospective source verification, not a claim that this Git commit preceded the archive.",
+  "sourceFiles": 204,
+  "exactMatchingFiles": 203,
+  "excludedManifestEntry": "Python bytecode cache",
+  "releaseConfigurationOverrides": {
+    "CURRENT_PROJECT_VERSION": "10",
+    "CODE_SIGN_STYLE": "Manual",
+    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+    "signing": "Existing distribution team, certificate and provisioning profile supplied during archive"
+  },
+  "ipaSHA256": "3b57131314fbfff1b9a936daeb88bd3b3d18cf28da4a29b5ff1cb616ccd8a906"
+}

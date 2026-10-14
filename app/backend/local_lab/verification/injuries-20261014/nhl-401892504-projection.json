@@ -1,0 +1,129 @@
+{
+  "contractVersion": "injury-model-context-v1",
+  "policyVersion": "injury-model-freshness-v1",
+  "event": {
+    "awayTeam": "Montreal Canadiens",
+    "eventID": "espn:401892504",
+    "homeTeam": "Washington Capitals",
+    "sport": "NHL",
+    "startISO": "2026-10-14T23:30:00.000Z"
+  },
+  "teams": [
+    {
+      "id": "espn:nhl:team:10",
+      "name": "Montreal Canadiens"
+    },
+    {
+      "id": "espn:nhl:team:23",
+      "name": "Washington Capitals"
+    }
+  ],
+  "injuryFingerprint": "d2f55cf675b8f359e2df26e7373c6b30d06c6ea72eb3f6c2778bd4c39ef8b0cb",
+  "contextFingerprint": "73841a878daf5ec18b142d43e81472955238b4d7cf976cce1075dcbcfc9ebbbb",
+  "state": "stale",
+  "observations": [],
+  "excluded": [
+    {
+      "id": "injury-observation:077de20ebadb5bfba2b2dcc1",
+      "teamID": "espn:nhl:team:23",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:1dd814655227d34efcd5d945",
+      "teamID": "espn:nhl:team:10",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:65f8a3e7ad175a01a5fcf9f8",
+      "teamID": "espn:nhl:team:23",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:880c313cadb8b4962dd620d9",
+      "teamID": "espn:nhl:team:10",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:960dd103a01ed7f0447818d7",
+      "teamID": "espn:nhl:team:10",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:a1599f855e9d05134d7fac14",
+      "teamID": "espn:nhl:team:23",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:aaa413aaed771a684707999a",
+      "teamID": "espn:nhl:team:10",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:c931d6d892e309a4de623c96",
+      "teamID": "espn:nhl:team:10",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:e04199fbbbda8cb463c9d04e",
+      "teamID": "espn:nhl:team:10",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:f07b81b9c0340fdfc1c17707",
+      "teamID": "espn:nhl:team:23",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:fc8291c9b7726bf7e692f6ae",
+      "teamID": "espn:nhl:team:10",
+      "sourceID": "espn-injuries:nhl",
+      "reason": "observation_stale"
+    }
+  ],
+  "coverage": [
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nhl"
+      ],
+      "state": "stale",
+      "teamID": "espn:nhl:team:10",
+      "eligibleCount": 0,
+      "excludedObservationCount": 7
+    },
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nhl"
+      ],
+      "state": "stale",
+      "teamID": "espn:nhl:team:23",
+      "eligibleCount": 0,
+      "excludedObservationCount": 4
+    }
+  ],
+  "sources": [
+    {
+      "checkedAt": "2026-10-14T12:19:18.764386+00:00",
+      "contentSHA256": "f7cbfe91f473291b8713073b2704d7dd60098e47f7c0ca0955390bd6289ea7e8",
+      "feedUpdatedAt": "2026-10-14T12:19:17Z",
+      "id": "espn-injuries:nhl",
+      "provider": "ESPN",
+      "retrievedAt": "2026-10-14T12:19:18.764386+00:00",
+      "sourceIssuedAt": null,
+      "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries"
+    }
+  ]
+}

@@ -1,0 +1,2318 @@
+{
+  "fixtureNotice": "Synthetic whole-league collector fixtures only; not actual public statistics or real model output.",
+  "contract": "shared-outlook-v1",
+  "fakePublicGETs": 228,
+  "examples": {
+    "NFL": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Denver Broncos",
+        "eventID": "espn:401000001",
+        "homeTeam": "Seattle Seahawks",
+        "sport": "NFL",
+        "startISO": "2026-10-14T12:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:00:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "f49e4654cc4609287a56b8a19030a6d7a979cb2dee5101702c75adb41769a6e4",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "nfl-1:defense:passingAttemptsPerGame"
+          ],
+          "outlookIDs": [
+            "home:passingAttemptsPerGame:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "nfl-1:defense:passingAttemptsPerGame",
+            "text": "Seattle Seahawks allows 30 pass attempts per game across 6 team games.",
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "period": "NFL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nfl-1:offense:passingAttemptsPerGame",
+            "text": "Seattle Seahawks records 40 pass attempts per game across 6 team games.",
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "period": "NFL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nfl-2:defense:passingAttemptsPerGame",
+            "text": "Denver Broncos allows 40 pass attempts per game across 6 team games.",
+            "sourceIDs": [
+              "public-73ed412e2868b11dbd5b"
+            ],
+            "period": "NFL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nfl:league:passingAttemptsPerGame",
+            "text": "League reference records 30.3125 pass attempts per game across 192 team games.",
+            "sourceIDs": [
+              "public-023247816fbd8a0fd6d5",
+              "public-0300b79af29915bd75bc",
+              "public-0b014c0633f03b1c558a",
+              "public-14184efb0d789f4168ce",
+              "public-2086862fce59edc1c21e",
+              "public-23b98c580c92ce3fcaa1",
+              "public-426247c27d4205cb1de6",
+              "public-467cfa19616e3e0cae1e",
+              "public-49468d65a7be1ceaf964",
+              "public-5b90492aeafab289a5f8",
+              "public-60f3c9fe7b198cd6a49f",
+              "public-70d656dd201338d74d8a",
+              "public-73ed412e2868b11dbd5b",
+              "public-7b42aaae46d9540c53f7",
+              "public-7df48581d83f5ce67e44",
+              "public-7dff48ecf9c6b7c70e21",
+              "public-88416228e65d05571d39",
+              "public-9ff22e4e2f84194a2cc0",
+              "public-a3be97415586adb694b5",
+              "public-a66ca5b9ae9ca14da305",
+              "public-aacfea257fde7990ceb8",
+              "public-aeba0e67f77cc6cc9c5a",
+              "public-af391d2a8f91643bccb0",
+              "public-b226846d0a4246eb1e5d",
+              "public-b277ecd6976a2a73ff65",
+              "public-c238a25c7f699e5b211d",
+              "public-cd64715e2eefc4bf4ac0",
+              "public-ce77603b871c82c36ce2",
+              "public-df4ae8c8e295dd206587",
+              "public-ee96b89008319213dbb1",
+              "public-efbfc3687016625c011b",
+              "public-ffb9dcbe0e4004c068d8"
+            ],
+            "period": "NFL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:passingAttemptsPerGame:high",
+            "ruleID": "paired-reference-v2:home:passingAttemptsPerGame:high",
+            "label": "Passing volume",
+            "text": "If the recorded patterns persist, Seattle Seahawks could show a higher passing-volume profile against Denver Broncos. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "nfl-1:offense:passingAttemptsPerGame",
+              "nfl-2:defense:passingAttemptsPerGame",
+              "nfl:league:passingAttemptsPerGame"
+            ],
+            "sourceIDs": [
+              "public-023247816fbd8a0fd6d5",
+              "public-0300b79af29915bd75bc",
+              "public-0b014c0633f03b1c558a",
+              "public-14184efb0d789f4168ce",
+              "public-2086862fce59edc1c21e",
+              "public-23b98c580c92ce3fcaa1",
+              "public-426247c27d4205cb1de6",
+              "public-467cfa19616e3e0cae1e",
+              "public-49468d65a7be1ceaf964",
+              "public-5b90492aeafab289a5f8",
+              "public-60f3c9fe7b198cd6a49f",
+              "public-70d656dd201338d74d8a",
+              "public-73ed412e2868b11dbd5b",
+              "public-7b42aaae46d9540c53f7",
+              "public-7df48581d83f5ce67e44",
+              "public-7dff48ecf9c6b7c70e21",
+              "public-88416228e65d05571d39",
+              "public-9ff22e4e2f84194a2cc0",
+              "public-a3be97415586adb694b5",
+              "public-a66ca5b9ae9ca14da305",
+              "public-aacfea257fde7990ceb8",
+              "public-aeba0e67f77cc6cc9c5a",
+              "public-af391d2a8f91643bccb0",
+              "public-b226846d0a4246eb1e5d",
+              "public-b277ecd6976a2a73ff65",
+              "public-c238a25c7f699e5b211d",
+              "public-cd64715e2eefc4bf4ac0",
+              "public-ce77603b871c82c36ce2",
+              "public-df4ae8c8e295dd206587",
+              "public-ee96b89008319213dbb1",
+              "public-efbfc3687016625c011b",
+              "public-ffb9dcbe0e4004c068d8"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Verified injuries, weather, and current lineups are not included."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Denver Broncos",
+          "eventID": "espn:401000001",
+          "homeTeam": "Seattle Seahawks",
+          "sport": "NFL",
+          "startISO": "2026-10-14T12:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "nfl-1:defense:passingAttemptsPerGame",
+            "metric": "passingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "team": "Seattle Seahawks",
+            "unit": "pass attempts per game",
+            "value": 30.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-1:defense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "team": "Seattle Seahawks",
+            "unit": "points per game",
+            "value": 24.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-1:defense:rushingAttemptsPerGame",
+            "metric": "rushingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "team": "Seattle Seahawks",
+            "unit": "rush attempts per game",
+            "value": 20.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-1:offense:passingAttemptsPerGame",
+            "metric": "passingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "team": "Seattle Seahawks",
+            "unit": "pass attempts per game",
+            "value": 40.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-1:offense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "team": "Seattle Seahawks",
+            "unit": "points per game",
+            "value": 24.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-1:offense:rushingAttemptsPerGame",
+            "metric": "rushingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-df4ae8c8e295dd206587"
+            ],
+            "team": "Seattle Seahawks",
+            "unit": "rush attempts per game",
+            "value": 20.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-2:defense:passingAttemptsPerGame",
+            "metric": "passingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-73ed412e2868b11dbd5b"
+            ],
+            "team": "Denver Broncos",
+            "unit": "pass attempts per game",
+            "value": 40.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-2:defense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-73ed412e2868b11dbd5b"
+            ],
+            "team": "Denver Broncos",
+            "unit": "points per game",
+            "value": 24.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-2:defense:rushingAttemptsPerGame",
+            "metric": "rushingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-73ed412e2868b11dbd5b"
+            ],
+            "team": "Denver Broncos",
+            "unit": "rush attempts per game",
+            "value": 20.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-2:offense:passingAttemptsPerGame",
+            "metric": "passingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-73ed412e2868b11dbd5b"
+            ],
+            "team": "Denver Broncos",
+            "unit": "pass attempts per game",
+            "value": 30.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-2:offense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-73ed412e2868b11dbd5b"
+            ],
+            "team": "Denver Broncos",
+            "unit": "points per game",
+            "value": 24.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl-2:offense:rushingAttemptsPerGame",
+            "metric": "rushingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-73ed412e2868b11dbd5b"
+            ],
+            "team": "Denver Broncos",
+            "unit": "rush attempts per game",
+            "value": 20.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl:league:passingAttemptsPerGame",
+            "metric": "passingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "reference",
+            "sample": 192,
+            "sourceIDs": [
+              "public-023247816fbd8a0fd6d5",
+              "public-0300b79af29915bd75bc",
+              "public-0b014c0633f03b1c558a",
+              "public-14184efb0d789f4168ce",
+              "public-2086862fce59edc1c21e",
+              "public-23b98c580c92ce3fcaa1",
+              "public-426247c27d4205cb1de6",
+              "public-467cfa19616e3e0cae1e",
+              "public-49468d65a7be1ceaf964",
+              "public-5b90492aeafab289a5f8",
+              "public-60f3c9fe7b198cd6a49f",
+              "public-70d656dd201338d74d8a",
+              "public-73ed412e2868b11dbd5b",
+              "public-7b42aaae46d9540c53f7",
+              "public-7df48581d83f5ce67e44",
+              "public-7dff48ecf9c6b7c70e21",
+              "public-88416228e65d05571d39",
+              "public-9ff22e4e2f84194a2cc0",
+              "public-a3be97415586adb694b5",
+              "public-a66ca5b9ae9ca14da305",
+              "public-aacfea257fde7990ceb8",
+              "public-aeba0e67f77cc6cc9c5a",
+              "public-af391d2a8f91643bccb0",
+              "public-b226846d0a4246eb1e5d",
+              "public-b277ecd6976a2a73ff65",
+              "public-c238a25c7f699e5b211d",
+              "public-cd64715e2eefc4bf4ac0",
+              "public-ce77603b871c82c36ce2",
+              "public-df4ae8c8e295dd206587",
+              "public-ee96b89008319213dbb1",
+              "public-efbfc3687016625c011b",
+              "public-ffb9dcbe0e4004c068d8"
+            ],
+            "team": "league",
+            "unit": "pass attempts per game",
+            "value": 30.3125,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl:league:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "reference",
+            "sample": 192,
+            "sourceIDs": [
+              "public-023247816fbd8a0fd6d5",
+              "public-0300b79af29915bd75bc",
+              "public-0b014c0633f03b1c558a",
+              "public-14184efb0d789f4168ce",
+              "public-2086862fce59edc1c21e",
+              "public-23b98c580c92ce3fcaa1",
+              "public-426247c27d4205cb1de6",
+              "public-467cfa19616e3e0cae1e",
+              "public-49468d65a7be1ceaf964",
+              "public-5b90492aeafab289a5f8",
+              "public-60f3c9fe7b198cd6a49f",
+              "public-70d656dd201338d74d8a",
+              "public-73ed412e2868b11dbd5b",
+              "public-7b42aaae46d9540c53f7",
+              "public-7df48581d83f5ce67e44",
+              "public-7dff48ecf9c6b7c70e21",
+              "public-88416228e65d05571d39",
+              "public-9ff22e4e2f84194a2cc0",
+              "public-a3be97415586adb694b5",
+              "public-a66ca5b9ae9ca14da305",
+              "public-aacfea257fde7990ceb8",
+              "public-aeba0e67f77cc6cc9c5a",
+              "public-af391d2a8f91643bccb0",
+              "public-b226846d0a4246eb1e5d",
+              "public-b277ecd6976a2a73ff65",
+              "public-c238a25c7f699e5b211d",
+              "public-cd64715e2eefc4bf4ac0",
+              "public-ce77603b871c82c36ce2",
+              "public-df4ae8c8e295dd206587",
+              "public-ee96b89008319213dbb1",
+              "public-efbfc3687016625c011b",
+              "public-ffb9dcbe0e4004c068d8"
+            ],
+            "team": "league",
+            "unit": "points per game",
+            "value": 24.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nfl:league:rushingAttemptsPerGame",
+            "metric": "rushingAttemptsPerGame",
+            "period": "NFL 2026 regular season",
+            "role": "reference",
+            "sample": 192,
+            "sourceIDs": [
+              "public-023247816fbd8a0fd6d5",
+              "public-0300b79af29915bd75bc",
+              "public-0b014c0633f03b1c558a",
+              "public-14184efb0d789f4168ce",
+              "public-2086862fce59edc1c21e",
+              "public-23b98c580c92ce3fcaa1",
+              "public-426247c27d4205cb1de6",
+              "public-467cfa19616e3e0cae1e",
+              "public-49468d65a7be1ceaf964",
+              "public-5b90492aeafab289a5f8",
+              "public-60f3c9fe7b198cd6a49f",
+              "public-70d656dd201338d74d8a",
+              "public-73ed412e2868b11dbd5b",
+              "public-7b42aaae46d9540c53f7",
+              "public-7df48581d83f5ce67e44",
+              "public-7dff48ecf9c6b7c70e21",
+              "public-88416228e65d05571d39",
+              "public-9ff22e4e2f84194a2cc0",
+              "public-a3be97415586adb694b5",
+              "public-a66ca5b9ae9ca14da305",
+              "public-aacfea257fde7990ceb8",
+              "public-aeba0e67f77cc6cc9c5a",
+              "public-af391d2a8f91643bccb0",
+              "public-b226846d0a4246eb1e5d",
+              "public-b277ecd6976a2a73ff65",
+              "public-c238a25c7f699e5b211d",
+              "public-cd64715e2eefc4bf4ac0",
+              "public-ce77603b871c82c36ce2",
+              "public-df4ae8c8e295dd206587",
+              "public-ee96b89008319213dbb1",
+              "public-efbfc3687016625c011b",
+              "public-ffb9dcbe0e4004c068d8"
+            ],
+            "team": "league",
+            "unit": "rush attempts per game",
+            "value": 20.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-023247816fbd8a0fd6d5",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/9/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-0300b79af29915bd75bc",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/18/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-0b014c0633f03b1c558a",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/25/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-14184efb0d789f4168ce",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/22/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-2086862fce59edc1c21e",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/7/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-23b98c580c92ce3fcaa1",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/17/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-426247c27d4205cb1de6",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/30/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-467cfa19616e3e0cae1e",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/32/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-49468d65a7be1ceaf964",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/8/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-5b90492aeafab289a5f8",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/3/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-60f3c9fe7b198cd6a49f",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/24/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-70d656dd201338d74d8a",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/26/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-73ed412e2868b11dbd5b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/2/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7b42aaae46d9540c53f7",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/10/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7df48581d83f5ce67e44",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/21/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7dff48ecf9c6b7c70e21",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/5/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-88416228e65d05571d39",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/19/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-9ff22e4e2f84194a2cc0",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/28/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-a3be97415586adb694b5",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-a66ca5b9ae9ca14da305",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/4/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-aacfea257fde7990ceb8",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/27/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-aeba0e67f77cc6cc9c5a",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/14/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-af391d2a8f91643bccb0",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/6/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b226846d0a4246eb1e5d",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/31/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b277ecd6976a2a73ff65",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/20/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-c238a25c7f699e5b211d",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/29/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-cd64715e2eefc4bf4ac0",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/11/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-ce77603b871c82c36ce2",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/16/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-df4ae8c8e295dd206587",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/1/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-ee96b89008319213dbb1",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/13/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-efbfc3687016625c011b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/15/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-ffb9dcbe0e4004c068d8",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/23/statistics?season=2026&seasontype=2"
+          }
+        ]
+      }
+    },
+    "NBA": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Memphis Grizzlies",
+        "eventID": "espn:401000001",
+        "homeTeam": "Chicago Bulls",
+        "sport": "NBA",
+        "startISO": "2026-10-14T12:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:00:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "e9f27b3b1fd49498c2fde7d0d97e4f67ce7399428a26203e00c0d93747e46851",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "nba-1:defense:offensiveEfficiency"
+          ],
+          "outlookIDs": [
+            "home:pointsPerGame:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "nba-1:defense:offensiveEfficiency",
+            "text": "Chicago Bulls allows 100 points per 100 possessions across 6 team games.",
+            "sourceIDs": [
+              "public-38f65e713b0886906975"
+            ],
+            "period": "NBA 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nba-1:offense:pointsPerGame",
+            "text": "Chicago Bulls records 120 points per game across 6 team games.",
+            "sourceIDs": [
+              "public-38f65e713b0886906975"
+            ],
+            "period": "NBA 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nba-2:defense:pointsPerGame",
+            "text": "Memphis Grizzlies allows 120 points per game across 6 team games.",
+            "sourceIDs": [
+              "public-44c241f9c5be7474abdb"
+            ],
+            "period": "NBA 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nba:league:pointsPerGame",
+            "text": "League reference records 100.667 points per game across 180 team games.",
+            "sourceIDs": [
+              "public-0921dd99add0e849456d",
+              "public-175311dee9d3aa073e21",
+              "public-1a39cfb2b2b77ff71ade",
+              "public-1b4d3046e8a892ea8c96",
+              "public-1ee199af0388254501fd",
+              "public-215ddff3431d7dcb6aab",
+              "public-3714d23c29586fc5505c",
+              "public-38f65e713b0886906975",
+              "public-41ee2f27dc21bf010d10",
+              "public-4866a51806bc0b273c42",
+              "public-53a6b0eb031a5178f747",
+              "public-57750368aafc9eef4ec0",
+              "public-594b59d75ea95d25a883",
+              "public-6bffc5b569d4f8f7b63b",
+              "public-6e9cc450acdc4b8388be",
+              "public-7530bc9d8fbfef885ee7",
+              "public-7cadadfc31d5f224ff87",
+              "public-7fbdc950e078ed2b2a33",
+              "public-8d86aa4879997190d06b",
+              "public-9138c148f01be4685c9a",
+              "public-92d550130b03a0b24af1",
+              "public-93740ed724c0e3ea1c1b",
+              "public-980b3565c92664eb1c24",
+              "public-98ccbc17f60abde42142",
+              "public-a86b61798368e88636a8",
+              "public-bc50b1dcfb87ab1049cc",
+              "public-c20cb07311c6f1ba5b62",
+              "public-e07fed13ab34315b0534",
+              "public-e6cd3bedda23dd3180fe",
+              "public-fb3d78285accdb4bf13c"
+            ],
+            "period": "NBA 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:pointsPerGame:high",
+            "ruleID": "paired-reference-v2:home:pointsPerGame:high",
+            "label": "Scoring",
+            "text": "If the recorded patterns persist, Chicago Bulls could show a higher-scoring profile against Memphis Grizzlies. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "nba-1:offense:pointsPerGame",
+              "nba-2:defense:pointsPerGame",
+              "nba:league:pointsPerGame"
+            ],
+            "sourceIDs": [
+              "public-0921dd99add0e849456d",
+              "public-175311dee9d3aa073e21",
+              "public-1a39cfb2b2b77ff71ade",
+              "public-1b4d3046e8a892ea8c96",
+              "public-1ee199af0388254501fd",
+              "public-215ddff3431d7dcb6aab",
+              "public-3714d23c29586fc5505c",
+              "public-38f65e713b0886906975",
+              "public-41ee2f27dc21bf010d10",
+              "public-44c241f9c5be7474abdb",
+              "public-4866a51806bc0b273c42",
+              "public-53a6b0eb031a5178f747",
+              "public-57750368aafc9eef4ec0",
+              "public-594b59d75ea95d25a883",
+              "public-6bffc5b569d4f8f7b63b",
+              "public-6e9cc450acdc4b8388be",
+              "public-7530bc9d8fbfef885ee7",
+              "public-7cadadfc31d5f224ff87",
+              "public-7fbdc950e078ed2b2a33",
+              "public-8d86aa4879997190d06b",
+              "public-9138c148f01be4685c9a",
+              "public-92d550130b03a0b24af1",
+              "public-93740ed724c0e3ea1c1b",
+              "public-980b3565c92664eb1c24",
+              "public-98ccbc17f60abde42142",
+              "public-a86b61798368e88636a8",
+              "public-bc50b1dcfb87ab1049cc",
+              "public-c20cb07311c6f1ba5b62",
+              "public-e07fed13ab34315b0534",
+              "public-e6cd3bedda23dd3180fe",
+              "public-fb3d78285accdb4bf13c"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Verified availability, rotations, and rest adjustments are not included."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Memphis Grizzlies",
+          "eventID": "espn:401000001",
+          "homeTeam": "Chicago Bulls",
+          "sport": "NBA",
+          "startISO": "2026-10-14T12:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "nba-1:defense:offensiveEfficiency",
+            "metric": "offensiveEfficiency",
+            "period": "NBA 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-38f65e713b0886906975"
+            ],
+            "team": "Chicago Bulls",
+            "unit": "points per 100 possessions",
+            "value": 100.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-1:defense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NBA 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-b858026179c654f24abd"
+            ],
+            "team": "Chicago Bulls",
+            "unit": "points per game",
+            "value": 100.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-1:offense:offensiveEfficiency",
+            "metric": "offensiveEfficiency",
+            "period": "NBA 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-38f65e713b0886906975"
+            ],
+            "team": "Chicago Bulls",
+            "unit": "points per 100 possessions",
+            "value": 120.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-1:offense:pace",
+            "metric": "pace",
+            "period": "NBA 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-38f65e713b0886906975"
+            ],
+            "team": "Chicago Bulls",
+            "unit": "possessions per game",
+            "value": 100.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-1:offense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NBA 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-38f65e713b0886906975"
+            ],
+            "team": "Chicago Bulls",
+            "unit": "points per game",
+            "value": 120.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-2:defense:offensiveEfficiency",
+            "metric": "offensiveEfficiency",
+            "period": "NBA 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-c20cb07311c6f1ba5b62"
+            ],
+            "team": "Memphis Grizzlies",
+            "unit": "points per 100 possessions",
+            "value": 120.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-2:defense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NBA 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-44c241f9c5be7474abdb"
+            ],
+            "team": "Memphis Grizzlies",
+            "unit": "points per game",
+            "value": 120.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-2:offense:offensiveEfficiency",
+            "metric": "offensiveEfficiency",
+            "period": "NBA 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-c20cb07311c6f1ba5b62"
+            ],
+            "team": "Memphis Grizzlies",
+            "unit": "points per 100 possessions",
+            "value": 100.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-2:offense:pace",
+            "metric": "pace",
+            "period": "NBA 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-c20cb07311c6f1ba5b62"
+            ],
+            "team": "Memphis Grizzlies",
+            "unit": "possessions per game",
+            "value": 100.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba-2:offense:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NBA 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-c20cb07311c6f1ba5b62"
+            ],
+            "team": "Memphis Grizzlies",
+            "unit": "points per game",
+            "value": 100.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba:league:offensiveEfficiency",
+            "metric": "offensiveEfficiency",
+            "period": "NBA 2026 regular season",
+            "role": "reference",
+            "sample": 180,
+            "sourceIDs": [
+              "public-0921dd99add0e849456d",
+              "public-175311dee9d3aa073e21",
+              "public-1a39cfb2b2b77ff71ade",
+              "public-1b4d3046e8a892ea8c96",
+              "public-1ee199af0388254501fd",
+              "public-215ddff3431d7dcb6aab",
+              "public-3714d23c29586fc5505c",
+              "public-38f65e713b0886906975",
+              "public-41ee2f27dc21bf010d10",
+              "public-4866a51806bc0b273c42",
+              "public-53a6b0eb031a5178f747",
+              "public-57750368aafc9eef4ec0",
+              "public-594b59d75ea95d25a883",
+              "public-6bffc5b569d4f8f7b63b",
+              "public-6e9cc450acdc4b8388be",
+              "public-7530bc9d8fbfef885ee7",
+              "public-7cadadfc31d5f224ff87",
+              "public-7fbdc950e078ed2b2a33",
+              "public-8d86aa4879997190d06b",
+              "public-9138c148f01be4685c9a",
+              "public-92d550130b03a0b24af1",
+              "public-93740ed724c0e3ea1c1b",
+              "public-980b3565c92664eb1c24",
+              "public-98ccbc17f60abde42142",
+              "public-a86b61798368e88636a8",
+              "public-bc50b1dcfb87ab1049cc",
+              "public-c20cb07311c6f1ba5b62",
+              "public-e07fed13ab34315b0534",
+              "public-e6cd3bedda23dd3180fe",
+              "public-fb3d78285accdb4bf13c"
+            ],
+            "team": "league",
+            "unit": "points per 100 possessions",
+            "value": 100.66666666666667,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba:league:pace",
+            "metric": "pace",
+            "period": "NBA 2026 regular season",
+            "role": "reference",
+            "sample": 180,
+            "sourceIDs": [
+              "public-0921dd99add0e849456d",
+              "public-175311dee9d3aa073e21",
+              "public-1a39cfb2b2b77ff71ade",
+              "public-1b4d3046e8a892ea8c96",
+              "public-1ee199af0388254501fd",
+              "public-215ddff3431d7dcb6aab",
+              "public-3714d23c29586fc5505c",
+              "public-38f65e713b0886906975",
+              "public-41ee2f27dc21bf010d10",
+              "public-4866a51806bc0b273c42",
+              "public-53a6b0eb031a5178f747",
+              "public-57750368aafc9eef4ec0",
+              "public-594b59d75ea95d25a883",
+              "public-6bffc5b569d4f8f7b63b",
+              "public-6e9cc450acdc4b8388be",
+              "public-7530bc9d8fbfef885ee7",
+              "public-7cadadfc31d5f224ff87",
+              "public-7fbdc950e078ed2b2a33",
+              "public-8d86aa4879997190d06b",
+              "public-9138c148f01be4685c9a",
+              "public-92d550130b03a0b24af1",
+              "public-93740ed724c0e3ea1c1b",
+              "public-980b3565c92664eb1c24",
+              "public-98ccbc17f60abde42142",
+              "public-a86b61798368e88636a8",
+              "public-bc50b1dcfb87ab1049cc",
+              "public-c20cb07311c6f1ba5b62",
+              "public-e07fed13ab34315b0534",
+              "public-e6cd3bedda23dd3180fe",
+              "public-fb3d78285accdb4bf13c"
+            ],
+            "team": "league",
+            "unit": "possessions per game",
+            "value": 100.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nba:league:pointsPerGame",
+            "metric": "pointsPerGame",
+            "period": "NBA 2026 regular season",
+            "role": "reference",
+            "sample": 180,
+            "sourceIDs": [
+              "public-0921dd99add0e849456d",
+              "public-175311dee9d3aa073e21",
+              "public-1a39cfb2b2b77ff71ade",
+              "public-1b4d3046e8a892ea8c96",
+              "public-1ee199af0388254501fd",
+              "public-215ddff3431d7dcb6aab",
+              "public-3714d23c29586fc5505c",
+              "public-38f65e713b0886906975",
+              "public-41ee2f27dc21bf010d10",
+              "public-4866a51806bc0b273c42",
+              "public-53a6b0eb031a5178f747",
+              "public-57750368aafc9eef4ec0",
+              "public-594b59d75ea95d25a883",
+              "public-6bffc5b569d4f8f7b63b",
+              "public-6e9cc450acdc4b8388be",
+              "public-7530bc9d8fbfef885ee7",
+              "public-7cadadfc31d5f224ff87",
+              "public-7fbdc950e078ed2b2a33",
+              "public-8d86aa4879997190d06b",
+              "public-9138c148f01be4685c9a",
+              "public-92d550130b03a0b24af1",
+              "public-93740ed724c0e3ea1c1b",
+              "public-980b3565c92664eb1c24",
+              "public-98ccbc17f60abde42142",
+              "public-a86b61798368e88636a8",
+              "public-bc50b1dcfb87ab1049cc",
+              "public-c20cb07311c6f1ba5b62",
+              "public-e07fed13ab34315b0534",
+              "public-e6cd3bedda23dd3180fe",
+              "public-fb3d78285accdb4bf13c"
+            ],
+            "team": "league",
+            "unit": "points per game",
+            "value": 100.66666666666667,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-0921dd99add0e849456d",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/11/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-175311dee9d3aa073e21",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/17/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-1a39cfb2b2b77ff71ade",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/28/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-1b4d3046e8a892ea8c96",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/21/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-1ee199af0388254501fd",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/23/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-215ddff3431d7dcb6aab",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/26/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-3714d23c29586fc5505c",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/15/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-38f65e713b0886906975",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/1/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-41ee2f27dc21bf010d10",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/29/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-44c241f9c5be7474abdb",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/2/schedule?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-4866a51806bc0b273c42",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/8/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-53a6b0eb031a5178f747",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/24/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-57750368aafc9eef4ec0",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/6/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-594b59d75ea95d25a883",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/7/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-6bffc5b569d4f8f7b63b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/27/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-6e9cc450acdc4b8388be",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/20/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7530bc9d8fbfef885ee7",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/12/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7cadadfc31d5f224ff87",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/9/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7fbdc950e078ed2b2a33",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/30/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-8d86aa4879997190d06b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/16/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-9138c148f01be4685c9a",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/19/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-92d550130b03a0b24af1",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/4/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-93740ed724c0e3ea1c1b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/10/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-980b3565c92664eb1c24",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/22/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-98ccbc17f60abde42142",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/5/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-a86b61798368e88636a8",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b858026179c654f24abd",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/1/schedule?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-bc50b1dcfb87ab1049cc",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/18/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-c20cb07311c6f1ba5b62",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/2/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-e07fed13ab34315b0534",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/25/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-e6cd3bedda23dd3180fe",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/3/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-fb3d78285accdb4bf13c",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/14/statistics?season=2026&seasontype=2"
+          }
+        ]
+      }
+    },
+    "MLB": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Boston Red Sox",
+        "eventID": "espn:401000001",
+        "homeTeam": "New York Yankees",
+        "sport": "MLB",
+        "startISO": "2026-10-14T12:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:00:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "60c64e2a5489beae2bc037df29ba4c1b234fcb4b4efbeed8c90d3306b89c629d",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "mlb-1:defense:runsPerGame"
+          ],
+          "outlookIDs": [
+            "home:runsPerGame:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "mlb-1:defense:runsPerGame",
+            "text": "New York Yankees allows 3 runs per game across 12 team games.",
+            "sourceIDs": [
+              "public-e2f67c1108aed0730f42"
+            ],
+            "period": "MLB 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "mlb-1:offense:runsPerGame",
+            "text": "New York Yankees records 5 runs per game across 12 team games.",
+            "sourceIDs": [
+              "public-b3aa4ebca5723e8db13a"
+            ],
+            "period": "MLB 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "mlb-2:defense:runsPerGame",
+            "text": "Boston Red Sox allows 5 runs per game across 12 team games.",
+            "sourceIDs": [
+              "public-e2f67c1108aed0730f42"
+            ],
+            "period": "MLB 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "mlb:league:runsPerGame",
+            "text": "League reference records 3.06667 runs per game across 360 team games.",
+            "sourceIDs": [
+              "public-b3aa4ebca5723e8db13a"
+            ],
+            "period": "MLB 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:runsPerGame:high",
+            "ruleID": "paired-reference-v2:home:runsPerGame:high",
+            "label": "Offense versus pitching",
+            "text": "If the recorded patterns persist, New York Yankees could show a productive run-scoring profile against the recorded team pitching and defense against Boston Red Sox. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "mlb-1:offense:runsPerGame",
+              "mlb-2:defense:runsPerGame",
+              "mlb:league:runsPerGame"
+            ],
+            "sourceIDs": [
+              "public-b3aa4ebca5723e8db13a",
+              "public-e2f67c1108aed0730f42"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Confirmed starting pitchers, bullpen availability, park, and weather are not included. Team runs allowed describe the recorded pitching and defense together."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Boston Red Sox",
+          "eventID": "espn:401000001",
+          "homeTeam": "New York Yankees",
+          "sport": "MLB",
+          "startISO": "2026-10-14T12:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "mlb-1:defense:runsPerGame",
+            "metric": "runsPerGame",
+            "period": "MLB 2026 regular season",
+            "role": "defense",
+            "sample": 12,
+            "sourceIDs": [
+              "public-e2f67c1108aed0730f42"
+            ],
+            "team": "New York Yankees",
+            "unit": "runs per game",
+            "value": 3.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "mlb-1:offense:runsPerGame",
+            "metric": "runsPerGame",
+            "period": "MLB 2026 regular season",
+            "role": "offense",
+            "sample": 12,
+            "sourceIDs": [
+              "public-b3aa4ebca5723e8db13a"
+            ],
+            "team": "New York Yankees",
+            "unit": "runs per game",
+            "value": 5.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "mlb-2:defense:runsPerGame",
+            "metric": "runsPerGame",
+            "period": "MLB 2026 regular season",
+            "role": "defense",
+            "sample": 12,
+            "sourceIDs": [
+              "public-e2f67c1108aed0730f42"
+            ],
+            "team": "Boston Red Sox",
+            "unit": "runs per game",
+            "value": 5.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "mlb-2:offense:runsPerGame",
+            "metric": "runsPerGame",
+            "period": "MLB 2026 regular season",
+            "role": "offense",
+            "sample": 12,
+            "sourceIDs": [
+              "public-b3aa4ebca5723e8db13a"
+            ],
+            "team": "Boston Red Sox",
+            "unit": "runs per game",
+            "value": 3.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "mlb:league:runsPerGame",
+            "metric": "runsPerGame",
+            "period": "MLB 2026 regular season",
+            "role": "reference",
+            "sample": 360,
+            "sourceIDs": [
+              "public-b3aa4ebca5723e8db13a"
+            ],
+            "team": "league",
+            "unit": "runs per game",
+            "value": 3.066666666666667,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b3aa4ebca5723e8db13a",
+            "provider": "MLB Stats API",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://statsapi.mlb.com/api/v1/teams/stats?stats=season&group=hitting&sportIds=1&season=2026&gameType=R"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-e2f67c1108aed0730f42",
+            "provider": "MLB Stats API",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://statsapi.mlb.com/api/v1/teams/stats?stats=season&group=pitching&sportIds=1&season=2026&gameType=R"
+          }
+        ]
+      }
+    },
+    "NHL": {
+      "schemaVersion": 1,
+      "status": "ready",
+      "reason": null,
+      "event": {
+        "awayTeam": "Vancouver Canucks",
+        "eventID": "espn:401000001",
+        "homeTeam": "Seattle Kraken",
+        "sport": "NHL",
+        "startISO": "2026-10-14T12:00:00.000Z"
+      },
+      "generatedAt": "2026-10-13T12:00:00.000Z",
+      "sourceAsOf": null,
+      "sourceRetrievedAt": "2026-10-13T12:00:00.000Z",
+      "sourceCheckedAt": "2026-10-13T12:00:00.000Z",
+      "sourceFingerprint": "19a27c8591c8776038b85a8474efbf091788a4156587ba050d1ae3e21fbeb3b8",
+      "versions": {
+        "contract": "shared-outlook-v1",
+        "rules": "paired-reference-v2",
+        "model": "gemma4:26b",
+        "modelDigest": "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68",
+        "prompt": "6c2ba97b58fdbcdcf557ff452dd217b6ba56ddea263c6d8e39f08e7d89b17483",
+        "validator": "f8215951d598aee9a0e2f19602f0832c12ece5934d1c92f9cc32d36cf99327e2"
+      },
+      "refreshing": false,
+      "report": {
+        "contractVersion": "shared-outlook-v1",
+        "selection": {
+          "observationIDs": [
+            "nhl-1:defense:goalsPerGame"
+          ],
+          "outlookIDs": [
+            "home:goalsPerGame:high"
+          ]
+        },
+        "observations": [
+          {
+            "factID": "nhl-1:defense:goalsPerGame",
+            "text": "Seattle Kraken allows 3 goals per game across 6 team games.",
+            "sourceIDs": [
+              "public-4dc7d71171a22ec46b5d"
+            ],
+            "period": "NHL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nhl-1:offense:goalsPerGame",
+            "text": "Seattle Kraken records 4 goals per game across 6 team games.",
+            "sourceIDs": [
+              "public-4dc7d71171a22ec46b5d"
+            ],
+            "period": "NHL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nhl-2:defense:goalsPerGame",
+            "text": "Vancouver Canucks allows 4 goals per game across 6 team games.",
+            "sourceIDs": [
+              "public-7388de1cc44b2613ae8c"
+            ],
+            "period": "NHL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "factID": "nhl:league:goalsPerGame",
+            "text": "League reference records 3.03125 goals per game across 192 team games.",
+            "sourceIDs": [
+              "public-000a380adf72fb0c702b",
+              "public-049a126a1383710ad5c3",
+              "public-0822ef3cb78ce2098fbf",
+              "public-19cde63add11a306f44f",
+              "public-1fd8f4863c4e289e15d6",
+              "public-25382f0820b9eca70ecf",
+              "public-28ab8bf534f92b9fd6d2",
+              "public-2bbf6811663d249d5978",
+              "public-37f95b083ef79d7d4381",
+              "public-3ff3ae8886fe90683227",
+              "public-46c3c67e0e0aeb11343c",
+              "public-4dc7d71171a22ec46b5d",
+              "public-533e62d2055ed1bdad7a",
+              "public-574a270b71932c5816ad",
+              "public-7388de1cc44b2613ae8c",
+              "public-74c221c3e0d94ea391a4",
+              "public-79445565a9d32b092a9d",
+              "public-7c38cea3a25c3265e853",
+              "public-8b00db4084a9698466b5",
+              "public-9d332a9694055f91bb91",
+              "public-a373327f3b4897ac97a5",
+              "public-aa1be2e91593be61f888",
+              "public-b191eeefb46c28a125a9",
+              "public-b66b389b084ff9841e5e",
+              "public-b833cf0592c65ffa4bcc",
+              "public-b8d612d419aaf46cac56",
+              "public-ba999b347329fd79acda",
+              "public-bd37169d39ca4a967ada",
+              "public-da3bbeaabbf99f67f72c",
+              "public-ea067bb5be7b850f8e8b",
+              "public-efea7e927c666fa04444",
+              "public-fd3e859140fb3e8b476b"
+            ],
+            "period": "NHL 2026 regular season",
+            "windowStart": "2026-09-13T12:00:00.000Z",
+            "windowEnd": "2026-10-13T12:00:00.000Z"
+          }
+        ],
+        "outlook": [
+          {
+            "id": "home:goalsPerGame:high",
+            "ruleID": "paired-reference-v2:home:goalsPerGame:high",
+            "label": "Scoring",
+            "text": "If the recorded patterns persist, Seattle Kraken could show a higher-scoring profile against Vancouver Canucks. Its offense and the opposing allowance are both above the cited league reference.",
+            "factIDs": [
+              "nhl-1:offense:goalsPerGame",
+              "nhl-2:defense:goalsPerGame",
+              "nhl:league:goalsPerGame"
+            ],
+            "sourceIDs": [
+              "public-000a380adf72fb0c702b",
+              "public-049a126a1383710ad5c3",
+              "public-0822ef3cb78ce2098fbf",
+              "public-19cde63add11a306f44f",
+              "public-1fd8f4863c4e289e15d6",
+              "public-25382f0820b9eca70ecf",
+              "public-28ab8bf534f92b9fd6d2",
+              "public-2bbf6811663d249d5978",
+              "public-37f95b083ef79d7d4381",
+              "public-3ff3ae8886fe90683227",
+              "public-46c3c67e0e0aeb11343c",
+              "public-4dc7d71171a22ec46b5d",
+              "public-533e62d2055ed1bdad7a",
+              "public-574a270b71932c5816ad",
+              "public-7388de1cc44b2613ae8c",
+              "public-74c221c3e0d94ea391a4",
+              "public-79445565a9d32b092a9d",
+              "public-7c38cea3a25c3265e853",
+              "public-8b00db4084a9698466b5",
+              "public-9d332a9694055f91bb91",
+              "public-a373327f3b4897ac97a5",
+              "public-aa1be2e91593be61f888",
+              "public-b191eeefb46c28a125a9",
+              "public-b66b389b084ff9841e5e",
+              "public-b833cf0592c65ffa4bcc",
+              "public-b8d612d419aaf46cac56",
+              "public-ba999b347329fd79acda",
+              "public-bd37169d39ca4a967ada",
+              "public-da3bbeaabbf99f67f72c",
+              "public-ea067bb5be7b850f8e8b",
+              "public-efea7e927c666fa04444",
+              "public-fd3e859140fb3e8b476b"
+            ],
+            "uncertainty": "Conditional team profile from the cited sample, not a calibrated prediction. Game context and small samples can change the pattern."
+          }
+        ],
+        "missingContext": [
+          "Confirmed starting goaltenders, goalie-specific form, and special teams are not included. Goals allowed describe team defense and goaltending together."
+        ],
+        "provenance": "Gemma4 selected public observations and eligible outlook rules; conditional wording is rule-based, not free-form model prose."
+      },
+      "snapshot": {
+        "event": {
+          "awayTeam": "Vancouver Canucks",
+          "eventID": "espn:401000001",
+          "homeTeam": "Seattle Kraken",
+          "sport": "NHL",
+          "startISO": "2026-10-14T12:00:00.000Z"
+        },
+        "facts": [
+          {
+            "id": "nhl-1:defense:goalsPerGame",
+            "metric": "goalsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-4dc7d71171a22ec46b5d"
+            ],
+            "team": "Seattle Kraken",
+            "unit": "goals per game",
+            "value": 3.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl-1:defense:shotsPerGame",
+            "metric": "shotsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-4dc7d71171a22ec46b5d"
+            ],
+            "team": "Seattle Kraken",
+            "unit": "shots on goal per game",
+            "value": 30.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl-1:offense:goalsPerGame",
+            "metric": "goalsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-4dc7d71171a22ec46b5d"
+            ],
+            "team": "Seattle Kraken",
+            "unit": "goals per game",
+            "value": 4.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl-1:offense:shotsPerGame",
+            "metric": "shotsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-4dc7d71171a22ec46b5d"
+            ],
+            "team": "Seattle Kraken",
+            "unit": "shots on goal per game",
+            "value": 40.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl-2:defense:goalsPerGame",
+            "metric": "goalsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-7388de1cc44b2613ae8c"
+            ],
+            "team": "Vancouver Canucks",
+            "unit": "goals per game",
+            "value": 4.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl-2:defense:shotsPerGame",
+            "metric": "shotsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "defense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-7388de1cc44b2613ae8c"
+            ],
+            "team": "Vancouver Canucks",
+            "unit": "shots on goal per game",
+            "value": 40.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl-2:offense:goalsPerGame",
+            "metric": "goalsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-7388de1cc44b2613ae8c"
+            ],
+            "team": "Vancouver Canucks",
+            "unit": "goals per game",
+            "value": 3.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl-2:offense:shotsPerGame",
+            "metric": "shotsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "offense",
+            "sample": 6,
+            "sourceIDs": [
+              "public-7388de1cc44b2613ae8c"
+            ],
+            "team": "Vancouver Canucks",
+            "unit": "shots on goal per game",
+            "value": 30.0,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl:league:goalsPerGame",
+            "metric": "goalsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "reference",
+            "sample": 192,
+            "sourceIDs": [
+              "public-000a380adf72fb0c702b",
+              "public-049a126a1383710ad5c3",
+              "public-0822ef3cb78ce2098fbf",
+              "public-19cde63add11a306f44f",
+              "public-1fd8f4863c4e289e15d6",
+              "public-25382f0820b9eca70ecf",
+              "public-28ab8bf534f92b9fd6d2",
+              "public-2bbf6811663d249d5978",
+              "public-37f95b083ef79d7d4381",
+              "public-3ff3ae8886fe90683227",
+              "public-46c3c67e0e0aeb11343c",
+              "public-4dc7d71171a22ec46b5d",
+              "public-533e62d2055ed1bdad7a",
+              "public-574a270b71932c5816ad",
+              "public-7388de1cc44b2613ae8c",
+              "public-74c221c3e0d94ea391a4",
+              "public-79445565a9d32b092a9d",
+              "public-7c38cea3a25c3265e853",
+              "public-8b00db4084a9698466b5",
+              "public-9d332a9694055f91bb91",
+              "public-a373327f3b4897ac97a5",
+              "public-aa1be2e91593be61f888",
+              "public-b191eeefb46c28a125a9",
+              "public-b66b389b084ff9841e5e",
+              "public-b833cf0592c65ffa4bcc",
+              "public-b8d612d419aaf46cac56",
+              "public-ba999b347329fd79acda",
+              "public-bd37169d39ca4a967ada",
+              "public-da3bbeaabbf99f67f72c",
+              "public-ea067bb5be7b850f8e8b",
+              "public-efea7e927c666fa04444",
+              "public-fd3e859140fb3e8b476b"
+            ],
+            "team": "league",
+            "unit": "goals per game",
+            "value": 3.03125,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          },
+          {
+            "id": "nhl:league:shotsPerGame",
+            "metric": "shotsPerGame",
+            "period": "NHL 2026 regular season",
+            "role": "reference",
+            "sample": 192,
+            "sourceIDs": [
+              "public-000a380adf72fb0c702b",
+              "public-049a126a1383710ad5c3",
+              "public-0822ef3cb78ce2098fbf",
+              "public-19cde63add11a306f44f",
+              "public-1fd8f4863c4e289e15d6",
+              "public-25382f0820b9eca70ecf",
+              "public-28ab8bf534f92b9fd6d2",
+              "public-2bbf6811663d249d5978",
+              "public-37f95b083ef79d7d4381",
+              "public-3ff3ae8886fe90683227",
+              "public-46c3c67e0e0aeb11343c",
+              "public-4dc7d71171a22ec46b5d",
+              "public-533e62d2055ed1bdad7a",
+              "public-574a270b71932c5816ad",
+              "public-7388de1cc44b2613ae8c",
+              "public-74c221c3e0d94ea391a4",
+              "public-79445565a9d32b092a9d",
+              "public-7c38cea3a25c3265e853",
+              "public-8b00db4084a9698466b5",
+              "public-9d332a9694055f91bb91",
+              "public-a373327f3b4897ac97a5",
+              "public-aa1be2e91593be61f888",
+              "public-b191eeefb46c28a125a9",
+              "public-b66b389b084ff9841e5e",
+              "public-b833cf0592c65ffa4bcc",
+              "public-b8d612d419aaf46cac56",
+              "public-ba999b347329fd79acda",
+              "public-bd37169d39ca4a967ada",
+              "public-da3bbeaabbf99f67f72c",
+              "public-ea067bb5be7b850f8e8b",
+              "public-efea7e927c666fa04444",
+              "public-fd3e859140fb3e8b476b"
+            ],
+            "team": "league",
+            "unit": "shots on goal per game",
+            "value": 30.3125,
+            "windowEnd": "2026-10-13T12:00:00.000Z",
+            "windowStart": "2026-09-13T12:00:00.000Z"
+          }
+        ],
+        "schemaVersion": 1,
+        "sources": [
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-000a380adf72fb0c702b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/14/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-049a126a1383710ad5c3",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/4/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-0822ef3cb78ce2098fbf",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/22/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-19cde63add11a306f44f",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/10/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-1fd8f4863c4e289e15d6",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/16/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-25382f0820b9eca70ecf",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/12/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-28ab8bf534f92b9fd6d2",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/8/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-2bbf6811663d249d5978",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/18/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-37f95b083ef79d7d4381",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/31/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-3ff3ae8886fe90683227",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/13/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-46c3c67e0e0aeb11343c",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/21/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-4dc7d71171a22ec46b5d",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/1/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-533e62d2055ed1bdad7a",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/27/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-574a270b71932c5816ad",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/25/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7388de1cc44b2613ae8c",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/2/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-74c221c3e0d94ea391a4",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/11/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-79445565a9d32b092a9d",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/5/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-7c38cea3a25c3265e853",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/6/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-8b00db4084a9698466b5",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/26/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-9d332a9694055f91bb91",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/32/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-a373327f3b4897ac97a5",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/23/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-aa1be2e91593be61f888",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/7/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b191eeefb46c28a125a9",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/24/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b66b389b084ff9841e5e",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/19/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b833cf0592c65ffa4bcc",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/15/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-b8d612d419aaf46cac56",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/29/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-ba999b347329fd79acda",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/30/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-bd37169d39ca4a967ada",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/20/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-da3bbeaabbf99f67f72c",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/3/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-ea067bb5be7b850f8e8b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/28/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-efea7e927c666fa04444",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/17/statistics?season=2026&seasontype=2"
+          },
+          {
+            "checkedAt": "2026-10-13T12:00:00.000Z",
+            "id": "public-fd3e859140fb3e8b476b",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-13T12:00:00.000Z",
+            "sourceAsOf": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/9/statistics?season=2026&seasontype=2"
+          }
+        ]
+      }
+    }
+  }
+}

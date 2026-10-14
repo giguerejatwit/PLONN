@@ -1,0 +1,192 @@
+{
+  "setup": {
+    "targetKind": "Team",
+    "league": "NHL",
+    "stat": "Moneyline",
+    "player": "Edmonton Oilers",
+    "opponent": "Arizona Coyotes",
+    "historical_event_id": "401560533",
+    "line": 0,
+    "side": "Over",
+    "features": [
+      "recent",
+      "season",
+      "homeAway",
+      "rest"
+    ],
+    "model_type": "logistic_regression",
+    "book": "DraftKings",
+    "evaluation_mode": "fixed_threshold_retrospective",
+    "training": {
+      "epochs": 200,
+      "learning_rate": 0.05,
+      "l2": 0.001,
+      "validation_fraction": 0.2
+    }
+  },
+  "result": {
+    "status": "ok",
+    "target_kind": "game",
+    "evaluation_mode": "fixed_threshold_retrospective",
+    "market": "moneyline",
+    "line": null,
+    "live_prediction": false,
+    "settlement_rules": {
+      "scope": "completed_standard_regular_season_full_games_only",
+      "score_basis": "ESPN_reported_final_score_including_overtime_extra_innings_and_shootout_award",
+      "total": "home_score + away_score; over/under; equality is push",
+      "spread": "selected_score - opponent_score + line; positive cover, negative not_cover, zero push",
+      "moneyline": "selected final-score win/loss; NFL equality is tie, not loss or push",
+      "NHL": "Includes overtime and the final-score shootout winner goal; never add shootout attempts again; no regulation-only markets.",
+      "NBA": "Includes overtime; excludes Cup championship, play-in and postseason.",
+      "MLB": "Includes extra innings; excludes shortened games below nine reported innings and non-final games; no listed-pitcher or book action rule claim.",
+      "NFL": "Includes overtime; permits regular-season ties; no assumed bookmaker tie settlement.",
+      "publication": "Revised history; actual completion/publication timestamps are unverified. Two UTC date guard is not certified as-of replay."
+    },
+    "message": "Experimental revised-history team model; no as-of publication, archived odds, live readiness or ROI claim.",
+    "model": {
+      "id": "nhl_game_moneyline_v1",
+      "model_type": "logistic_regression",
+      "artifact_sha256": "0f82c0046bed2f12a5ab7ea02bee3aee03b668e7820fdb554d71a1b8b7a8fd53"
+    },
+    "training": {
+      "status": "ok",
+      "sample_size": 124,
+      "quality_status": "experimental_uncalibrated",
+      "last_training_game_date": "2024-02-11",
+      "holdout_start_date": "2024-02-14",
+      "class_counts": {
+        "win": 78,
+        "loss": 46
+      }
+    },
+    "inference": {
+      "status": "ok",
+      "target": {
+        "event_id": "401560533",
+        "league": "NHL",
+        "season": "2024",
+        "date": "2024-04-18",
+        "starts_at": "2024-04-18T02:00:00+00:00",
+        "home_team_id": "24",
+        "away_team_id": "6",
+        "home_team": "ARI",
+        "away_team": "EDM",
+        "neutral_site": false,
+        "home_team_name": "Arizona Coyotes",
+        "away_team_name": "Edmonton Oilers",
+        "target_kind": "game",
+        "selected_team": "away",
+        "team_id": "6",
+        "team": "EDM",
+        "mode": "retrospective_historical_game_not_live"
+      },
+      "probabilities": {
+        "win": 0.7772530920891711,
+        "loss": 0.22274690791082882
+      },
+      "features": {
+        "recent_scored": 4.2,
+        "recent_allowed": 2.2,
+        "season_scored": 3.6375,
+        "season_allowed": 2.8375,
+        "homeAway": -1.0,
+        "rest": 1
+      },
+      "threshold": null
+    },
+    "validation": {
+      "status": "ok",
+      "mode": "fixed_threshold_retrospective",
+      "sample_size": 32,
+      "metrics": {
+        "sample_size": 32,
+        "multiclass_brier": 0.5316750829621547,
+        "log_loss": 0.7359223168527611,
+        "accuracy": 0.59375,
+        "baseline": {
+          "name": "training_partition_class_frequency",
+          "probabilities": {
+            "win": 0.6290322580645161,
+            "loss": 0.3709677419354839
+          },
+          "multiclass_brier": 0.4849115504682621,
+          "model_brier_improvement": -0.04676353249389259
+        },
+        "profit": {
+          "status": "unavailable",
+          "reason": "no_historical_betting_lines_prices_or_book_settlement"
+        }
+      },
+      "exclusions": [
+        {
+          "event_id": "401560533",
+          "reason": "not_before_target_date_guard"
+        },
+        {
+          "event_id": "401560537",
+          "reason": "not_before_target_date_guard"
+        },
+        {
+          "event_id": "401458597",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401458617",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401458639",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401458651",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401458666",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401559243",
+          "reason": "game_season_baseline_unavailable"
+        }
+      ],
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "target_observed_outcome": "loss"
+    },
+    "provenance": {
+      "provider": "ESPN",
+      "sources": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/summary?event=401560533",
+          "retrieved_at": "2026-09-30T13:57:40.563181+00:00",
+          "response_sha256": "a15934712594d991bbfe12ff70bcd5e45132aa186482213ea56b492f1aef6bd0",
+          "payload_sha256": "56c35801496005fdf840422f4e571280a27985ebca32ca0ed4017c98e71f7785"
+        },
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/6/schedule?season=2023&seasontype=2",
+          "retrieved_at": "2026-09-30T14:03:41.122013+00:00",
+          "response_sha256": "13ffc4cf77d43b6b97187075902422065d46194bfde36e1322a69f8293f83943",
+          "payload_sha256": "76c3039b6b7acb729745dae9e60f88cc4447ece985680490de70f4abb0565832"
+        },
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/6/schedule?season=2024&seasontype=2",
+          "retrieved_at": "2026-09-30T14:03:48.110039+00:00",
+          "response_sha256": "365bddc79a2d90a7b269c150f218d7a81fb9af77e840f22b54539f3eaec2d2e6",
+          "payload_sha256": "b05d08fa6dc8f305dbee64d52d45aeab9cf77cb21e1c638334efcb62eabe444e"
+        }
+      ],
+      "network_requests": 0,
+      "feature_scope": "selected_franchise_history_only_not_opponent_strength",
+      "rest_semantics": "days_since_last_date_guard_eligible_game_minus_one_not_true_schedule_rest",
+      "source_game_count": 164,
+      "date_basis": "UTC",
+      "season_basis": "end_year_NBA_NHL_start_year_NFL_calendar_year_MLB"
+    },
+    "target_prop": "Moneyline",
+    "requested_book": "DraftKings",
+    "threshold_source": "user_selected_research_line_not_verified_sportsbook_quote"
+  }
+}

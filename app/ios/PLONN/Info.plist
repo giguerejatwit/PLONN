@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>PLONN authentication</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			</array>
+		</dict>
+	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>PLONNAppleAuthEnabled</key>
+	<false/>
+	<key>PLONNAppleAuthReady</key>
+	<false/>
+	<key>PLONNChatEnabled</key>
+	<true/>
+	<key>PLONNGoogleAuthEnabled</key>
+	<false/>
+	<key>PLONNGoogleAuthReady</key>
+	<false/>
+	<key>PLONNIdentityLinkingReady</key>
+	<false/>
+	<key>PLONNNBAPreseasonCacheEnabled</key>
+	<true/>
+	<key>PLONNPublicPagesApproved</key>
+	<true/>
+	<key>PLONNPurchasesEnabled</key>
+	<false/>
+	<key>PLONNScopedOddsEnabled</key>
+	<false/>
+	<key>PLONNStoreKitProductIDs</key>
+	<array/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+</dict>
+</plist>

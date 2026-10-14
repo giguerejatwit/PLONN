@@ -1,0 +1,151 @@
+{
+  "contractVersion": "injury-model-context-v1",
+  "policyVersion": "injury-model-freshness-v1",
+  "event": {
+    "awayTeam": "Milwaukee Brewers",
+    "eventID": "espn:401908032",
+    "homeTeam": "Los Angeles Dodgers",
+    "sport": "MLB",
+    "startISO": "2026-10-15T00:00:00.000Z"
+  },
+  "teams": [
+    {
+      "id": "espn:mlb:team:19",
+      "name": "Los Angeles Dodgers"
+    },
+    {
+      "id": "espn:mlb:team:8",
+      "name": "Milwaukee Brewers"
+    }
+  ],
+  "injuryFingerprint": "c8ebd211c2d7ecf7a11f7d5328586d4be181bb30c5007f8d61ec357599a4be19",
+  "contextFingerprint": "05587cad67e5c64369c74250611111ce57fb9542cd684f1dddc856d545fe59d6",
+  "state": "partial",
+  "observations": [
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:67da3370a04e05d724fbdbf4",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:37515",
+      "playerName": "Brandon Woodruff",
+      "position": "SP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:8",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T23:36Z",
+      "assertion": "reported_il_60",
+      "eventStatusConfirmed": false,
+      "freshness": "fresh",
+      "claimID": "injury-claim:4d1212c51fbc817b3990d4fe"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "injury-observation:4879f40caf8470f564e857e2",
+      "teamID": "espn:mlb:team:8",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:51d4132121974585f6a03581",
+      "teamID": "espn:mlb:team:8",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:5dc8ddbd52dbbc5001e0ac67",
+      "teamID": "espn:mlb:team:19",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:6a1ef925992d2866d069a55e",
+      "teamID": "espn:mlb:team:19",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:82105b59eee313162da29781",
+      "teamID": "espn:mlb:team:8",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:853a51d08ced62141ca84573",
+      "teamID": "espn:mlb:team:19",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:88711bf38777bcce72419778",
+      "teamID": "espn:mlb:team:19",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:89c5a36496a09c7e9c63536e",
+      "teamID": "espn:mlb:team:19",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:e3d376d3e6b0123617fa7e7f",
+      "teamID": "espn:mlb:team:8",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:e6edf29c6d6da2de20b05f87",
+      "teamID": "espn:mlb:team:19",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    },
+    {
+      "id": "injury-observation:fadd64c3bdea0d2f651fd6bc",
+      "teamID": "espn:mlb:team:19",
+      "sourceID": "espn-injuries:mlb",
+      "reason": "observation_stale"
+    }
+  ],
+  "coverage": [
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:mlb"
+      ],
+      "state": "stale",
+      "teamID": "espn:mlb:team:19",
+      "eligibleCount": 0,
+      "excludedObservationCount": 7
+    },
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:mlb"
+      ],
+      "state": "partial",
+      "teamID": "espn:mlb:team:8",
+      "eligibleCount": 1,
+      "excludedObservationCount": 4
+    }
+  ],
+  "sources": [
+    {
+      "checkedAt": "2026-10-14T12:20:47.553726+00:00",
+      "contentSHA256": "47d14efc7a28f68bfc729eb54095770c2530f3ea064851bd3e5dea96680d181a",
+      "feedUpdatedAt": "2026-10-14T12:20:42Z",
+      "id": "espn-injuries:mlb",
+      "provider": "ESPN",
+      "retrievedAt": "2026-10-14T12:20:47.553726+00:00",
+      "sourceIssuedAt": null,
+      "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries"
+    }
+  ]
+}

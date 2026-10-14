@@ -1,0 +1,640 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plonn.local/contracts/injury-role-context-v1.json",
+  "title": "Proposed v5 injuryRoleContext input",
+  "description": "Isolated server-owned typed role/usage/replacement evidence. The Python validator additionally enforces canonical UTF-8 <=12288 bytes, exact sport/provider/URL rules, field identities/hashes, time ordering and source joins. Eligibility is evaluated at read time. This is not injury-input-v2 or a v4 extension.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "event",
+    "sources",
+    "facts",
+    "coverage"
+  ],
+  "properties": {
+    "contractVersion": {
+      "const": "injury-role-context-v1"
+    },
+    "event": {
+      "$ref": "#/$defs/event"
+    },
+    "sources": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "facts": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "$ref": "#/$defs/fact"
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/coverage"
+      },
+      "minItems": 2
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sport",
+        "eventID",
+        "homeTeam",
+        "awayTeam",
+        "startISO"
+      ],
+      "properties": {
+        "sport": {
+          "enum": [
+            "NFL",
+            "NBA",
+            "MLB",
+            "NHL"
+          ]
+        },
+        "eventID": {
+          "type": "string",
+          "pattern": "^espn:[0-9]{1,15}$"
+        },
+        "homeTeam": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "awayTeam": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "startISO": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 40
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "provider",
+        "url",
+        "issuedAt",
+        "retrievedAt",
+        "checkedAt",
+        "contentSHA256"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "provider": {
+          "enum": [
+            "Denver Broncos",
+            "ESPN",
+            "MLB",
+            "NBA",
+            "NFL",
+            "NHL",
+            "Seattle Seahawks"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600,
+          "format": "uri"
+        },
+        "issuedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 40
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrievedAt": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 40
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 40
+        },
+        "contentSHA256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "provider": {
+                  "const": "ESPN"
+                },
+                "url": {
+                  "pattern": "^https://site\\.api\\.espn\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "ESPN"
+                },
+                "url": {
+                  "pattern": "^https://site\\.web\\.api\\.espn\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "MLB"
+                },
+                "url": {
+                  "pattern": "^https://statsapi\\.mlb\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "MLB"
+                },
+                "url": {
+                  "pattern": "^https://www\\.mlb\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "NHL"
+                },
+                "url": {
+                  "pattern": "^https://api\\.nhle\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "NHL"
+                },
+                "url": {
+                  "pattern": "^https://www\\.nhl\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "NFL"
+                },
+                "url": {
+                  "pattern": "^https://www\\.nfl\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "Seattle Seahawks"
+                },
+                "url": {
+                  "pattern": "^https://www\\.seahawks\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "Denver Broncos"
+                },
+                "url": {
+                  "pattern": "^https://www\\.denverbroncos\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "NBA"
+                },
+                "url": {
+                  "pattern": "^https://official\\.nba\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "NBA"
+                },
+                "url": {
+                  "pattern": "^https://ak-static\\.cms\\.nba\\.com/"
+                }
+              }
+            },
+            {
+              "properties": {
+                "provider": {
+                  "const": "NBA"
+                },
+                "url": {
+                  "pattern": "^https://www\\.nba\\.com/"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "teamID",
+        "teamName",
+        "playerID",
+        "playerName",
+        "eventID",
+        "eventStartISO",
+        "kind",
+        "role",
+        "detail",
+        "reportedAt",
+        "timeBasis",
+        "sourceIDs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^role:[a-f0-9]{24}$"
+        },
+        "teamID": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?:espn:(?:nfl|nba|mlb|nhl):(?:team|player):[0-9]{1,15}|(?:nfl|nba|mlb|nhl):[a-z0-9-]{1,50})$"
+        },
+        "teamName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "playerID": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?:espn:(?:nfl|nba|mlb|nhl):(?:team|player):[0-9]{1,15}|(?:nfl|nba|mlb|nhl):[a-z0-9-]{1,50})$"
+        },
+        "playerName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "eventID": {
+          "type": "string",
+          "pattern": "^espn:[0-9]{1,15}$"
+        },
+        "eventStartISO": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 40
+        },
+        "kind": {
+          "enum": [
+            "role",
+            "usage",
+            "replacement"
+          ]
+        },
+        "role": {
+          "enum": [
+            "batter",
+            "big",
+            "defenseman",
+            "defensive_line",
+            "forward",
+            "goalie",
+            "guard",
+            "linebacker",
+            "offensive_line",
+            "quarterback",
+            "receiver",
+            "relief_pitcher",
+            "running_back",
+            "secondary",
+            "starting_pitcher",
+            "tight_end",
+            "wing"
+          ]
+        },
+        "detail": {},
+        "reportedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 40
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timeBasis": {
+          "enum": [
+            "source_report",
+            "historical_window",
+            "observed_position"
+          ]
+        },
+        "sourceIDs": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "role"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "detail": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "designation"
+                ],
+                "properties": {
+                  "designation": {
+                    "enum": [
+                      "starter",
+                      "backup",
+                      "rotation",
+                      "position",
+                      "team_leader",
+                      "league_leader"
+                    ]
+                  }
+                }
+              },
+              "timeBasis": {
+                "enum": [
+                  "source_report",
+                  "observed_position"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "usage"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "detail": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "metric",
+                  "value",
+                  "unit",
+                  "season",
+                  "phase",
+                  "sample",
+                  "windowStart",
+                  "windowEnd"
+                ],
+                "properties": {
+                  "metric": {
+                    "enum": [
+                      "passing_attempts",
+                      "rushing_attempts",
+                      "targets",
+                      "offensive_snaps",
+                      "defensive_snaps",
+                      "minutes",
+                      "usage_rate",
+                      "shot_attempts",
+                      "pitches",
+                      "plate_appearances",
+                      "batters_faced",
+                      "time_on_ice",
+                      "shots_faced",
+                      "starts"
+                    ]
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  "unit": {
+                    "enum": [
+                      "attempts",
+                      "batters faced",
+                      "minutes",
+                      "percent",
+                      "pitches",
+                      "plate appearances",
+                      "shots",
+                      "snaps",
+                      "starts",
+                      "targets"
+                    ]
+                  },
+                  "season": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2100
+                  },
+                  "phase": {
+                    "enum": [
+                      "preseason",
+                      "regular",
+                      "postseason"
+                    ]
+                  },
+                  "sample": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "count",
+                      "unit"
+                    ],
+                    "properties": {
+                      "count": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 200
+                      },
+                      "unit": {
+                        "const": "games"
+                      }
+                    }
+                  },
+                  "windowStart": {
+                    "type": "string",
+                    "format": "date-time",
+                    "maxLength": 40
+                  },
+                  "windowEnd": {
+                    "type": "string",
+                    "format": "date-time",
+                    "maxLength": 40
+                  }
+                }
+              },
+              "timeBasis": {
+                "enum": [
+                  "historical_window"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "replacement"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "detail": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "playerID",
+                  "playerName",
+                  "designation",
+                  "basis"
+                ],
+                "properties": {
+                  "playerID": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^(?:espn:(?:nfl|nba|mlb|nhl):(?:team|player):[0-9]{1,15}|(?:nfl|nba|mlb|nhl):[a-z0-9-]{1,50})$"
+                  },
+                  "playerName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "designation": {
+                    "enum": [
+                      "confirmed",
+                      "probable"
+                    ]
+                  },
+                  "basis": {
+                    "const": "direct_event_designation"
+                  }
+                }
+              },
+              "timeBasis": {
+                "enum": [
+                  "source_report"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "teamName",
+        "state",
+        "reason"
+      ],
+      "properties": {
+        "teamName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "state": {
+          "enum": [
+            "partial",
+            "missing"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "partial_evidence",
+            "not_supplied",
+            "identity_unresolved",
+            "no_current_role",
+            "source_unavailable"
+          ]
+        }
+      }
+    }
+  },
+  "x-budgets": {
+    "rawUTF8Bytes": 12288,
+    "modelUTF8Bytes": 4096,
+    "modelFacts": 6,
+    "completeV5RequestUTF8Bytes": 32768,
+    "completeV5ResponseUTF8Bytes": 131072
+  },
+  "x-runtime-validator": "app.backend.local_lab.injury_role_context.validate_role_input",
+  "x-semantic-rules": [
+    "Exact sport-qualified identity and team name join; no fuzzy alias or cross-provider join.",
+    "Source provider must equal allowlisted URL host owner. Source IDs must bind every fact.",
+    "Role fact ID hashes every typed fact premise. Reported time must bind a source-issued time.",
+    "Historical usage preserves metric, unit, season, phase, sample and window; it does not establish current assignment.",
+    "Replacement must be a direct event/role designation; depth-chart order is not sufficient.",
+    "Checked/retrieved clocks never refresh source-issued facts or historical windows.",
+    "Model projection omits whole facts with exact omitted IDs/count; reject an unshrinkable envelope."
+  ]
+}

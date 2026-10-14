@@ -1,0 +1,312 @@
+{
+  "evaluationClock": "2026-10-14T12:33:31.692110+00:00",
+  "eventIdentitySource": "app/backend/local_lab/verification/shared-insights-live-20261013",
+  "eventIdentitySourceRefetched": false,
+  "directPublicAttempts": 6,
+  "successfulUsableCaptures": 4,
+  "discardedSizeCapResponses": 2,
+  "paidCalls": 0,
+  "modelCalls": 0,
+  "deployment": false,
+  "sources": [
+    {
+      "sport": "NFL",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
+      "status": 200,
+      "bytes": 8743658,
+      "contentSHA256": "927d1000b3ac4128ae51e4a14e4e07fdba4671ebf5cde57c1a25e2acfd5a546e",
+      "retrievedAt": "2026-10-14T12:19:43.750479+00:00",
+      "feedUpdatedAt": "2026-10-14T12:19:41Z",
+      "teamGroups": 32,
+      "rowCount": 800,
+      "reportedStatuses": {
+        "Injured Reserve": 49,
+        "Questionable": 136,
+        "Active": 582,
+        "Out": 17,
+        "Suspension": 3,
+        "Doubtful": 12,
+        "Reserve-Ret": 1
+      },
+      "gap": "General feed has no event binding or complete coverage guarantee; player update age controls eligibility. Active excluded; absent teams/rows never imply available."
+    },
+    {
+      "sport": "NBA",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries",
+      "status": 200,
+      "bytes": 1532932,
+      "contentSHA256": "833048b920f9c8664107d9768679c49102c7db59de362977c790aaa4a58212b5",
+      "retrievedAt": "2026-10-14T12:19:18.257871+00:00",
+      "feedUpdatedAt": "2026-10-14T12:19:09Z",
+      "teamGroups": 30,
+      "rowCount": 137,
+      "reportedStatuses": {
+        "Day-To-Day": 116,
+        "Out": 21
+      },
+      "gap": "General feed has no event binding or complete coverage guarantee; player update age controls eligibility. Active excluded; absent teams/rows never imply available."
+    },
+    {
+      "sport": "MLB",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries",
+      "status": 200,
+      "bytes": 3113550,
+      "contentSHA256": "47d14efc7a28f68bfc729eb54095770c2530f3ea064851bd3e5dea96680d181a",
+      "retrievedAt": "2026-10-14T12:20:47.553726+00:00",
+      "feedUpdatedAt": "2026-10-14T12:20:42Z",
+      "teamGroups": 30,
+      "rowCount": 283,
+      "reportedStatuses": {
+        "15-Day-IL": 43,
+        "60-Day-IL": 171,
+        "10-Day-IL": 27,
+        "Out": 24,
+        "Day-To-Day": 12,
+        "suspension": 1,
+        "7-Day IL": 4,
+        "paternity": 1
+      },
+      "gap": "General feed has no event binding or complete coverage guarantee; player update age controls eligibility. Active excluded; absent teams/rows never imply available."
+    },
+    {
+      "sport": "NHL",
+      "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries",
+      "status": 200,
+      "bytes": 1357355,
+      "contentSHA256": "f7cbfe91f473291b8713073b2704d7dd60098e47f7c0ca0955390bd6289ea7e8",
+      "retrievedAt": "2026-10-14T12:19:18.764386+00:00",
+      "feedUpdatedAt": "2026-10-14T12:19:17Z",
+      "teamGroups": 29,
+      "rowCount": 131,
+      "reportedStatuses": {
+        "Out": 28,
+        "Injured Reserve": 99,
+        "Suspension": 1,
+        "Day-To-Day": 3
+      },
+      "gap": "General feed has no event binding or complete coverage guarantee; player update age controls eligibility. Active excluded; absent teams/rows never imply available."
+    }
+  ],
+  "samples": [
+    {
+      "event": {
+        "awayTeam": "New York Jets",
+        "eventID": "espn:401873001",
+        "homeTeam": "New England Patriots",
+        "sport": "NFL",
+        "startISO": "2026-10-18T17:00:00.000Z"
+      },
+      "packet": "nfl-401873001-packet.json",
+      "projection": "nfl-401873001-projection.json",
+      "prompt": "nfl-401873001-prompt.json",
+      "inputBytes": 7580,
+      "projectionBytes": 7647,
+      "promptBytes": 5076,
+      "observations": 16,
+      "eligible": 10,
+      "excluded": 6,
+      "promptObservations": 6,
+      "state": "partial",
+      "coverage": [
+        {
+          "excludedRows": 16,
+          "reason": "unsupported_rows",
+          "sourceIDs": [
+            "espn-injuries:nfl"
+          ],
+          "state": "partial",
+          "teamID": "espn:nfl:team:17",
+          "eligibleCount": 6,
+          "excludedObservationCount": 3
+        },
+        {
+          "excludedRows": 18,
+          "reason": "unsupported_rows",
+          "sourceIDs": [
+            "espn-injuries:nfl"
+          ],
+          "state": "partial",
+          "teamID": "espn:nfl:team:20",
+          "eligibleCount": 4,
+          "excludedObservationCount": 3
+        }
+      ]
+    },
+    {
+      "event": {
+        "awayTeam": "Seattle Seahawks",
+        "eventID": "espn:401872995",
+        "homeTeam": "Denver Broncos",
+        "sport": "NFL",
+        "startISO": "2026-10-16T00:15:00.000Z"
+      },
+      "packet": "nfl-401872995-packet.json",
+      "projection": "nfl-401872995-projection.json",
+      "prompt": "nfl-401872995-prompt.json",
+      "inputBytes": 5471,
+      "projectionBytes": 5268,
+      "promptBytes": 5036,
+      "observations": 11,
+      "eligible": 6,
+      "excluded": 5,
+      "promptObservations": 6,
+      "state": "partial",
+      "coverage": [
+        {
+          "excludedRows": 18,
+          "reason": "unsupported_rows",
+          "sourceIDs": [
+            "espn-injuries:nfl"
+          ],
+          "state": "partial",
+          "teamID": "espn:nfl:team:26",
+          "eligibleCount": 4,
+          "excludedObservationCount": 3
+        },
+        {
+          "excludedRows": 21,
+          "reason": "unsupported_rows",
+          "sourceIDs": [
+            "espn-injuries:nfl"
+          ],
+          "state": "partial",
+          "teamID": "espn:nfl:team:7",
+          "eligibleCount": 2,
+          "excludedObservationCount": 2
+        }
+      ]
+    },
+    {
+      "event": {
+        "awayTeam": "Brooklyn Nets",
+        "eventID": "espn:401898404",
+        "homeTeam": "Miami Heat",
+        "sport": "NBA",
+        "startISO": "2026-10-14T23:30:00.000Z"
+      },
+      "packet": "nba-401898404-packet.json",
+      "projection": "nba-401898404-projection.json",
+      "prompt": "nba-401898404-prompt.json",
+      "inputBytes": 5440,
+      "projectionBytes": 2835,
+      "promptBytes": 1756,
+      "observations": 11,
+      "eligible": 0,
+      "excluded": 11,
+      "promptObservations": 0,
+      "state": "stale",
+      "coverage": [
+        {
+          "excludedRows": 0,
+          "reason": "partial_source",
+          "sourceIDs": [
+            "espn-injuries:nba"
+          ],
+          "state": "stale",
+          "teamID": "espn:nba:team:14",
+          "eligibleCount": 0,
+          "excludedObservationCount": 9
+        },
+        {
+          "excludedRows": 0,
+          "reason": "partial_source",
+          "sourceIDs": [
+            "espn-injuries:nba"
+          ],
+          "state": "stale",
+          "teamID": "espn:nba:team:17",
+          "eligibleCount": 0,
+          "excludedObservationCount": 2
+        }
+      ]
+    },
+    {
+      "event": {
+        "awayTeam": "Milwaukee Brewers",
+        "eventID": "espn:401908032",
+        "homeTeam": "Los Angeles Dodgers",
+        "sport": "MLB",
+        "startISO": "2026-10-15T00:00:00.000Z"
+      },
+      "packet": "mlb-401908032-packet.json",
+      "projection": "mlb-401908032-projection.json",
+      "prompt": "mlb-401908032-prompt.json",
+      "inputBytes": 5789,
+      "projectionBytes": 3388,
+      "promptBytes": 2312,
+      "observations": 12,
+      "eligible": 1,
+      "excluded": 11,
+      "promptObservations": 1,
+      "state": "partial",
+      "coverage": [
+        {
+          "excludedRows": 0,
+          "reason": "partial_source",
+          "sourceIDs": [
+            "espn-injuries:mlb"
+          ],
+          "state": "stale",
+          "teamID": "espn:mlb:team:19",
+          "eligibleCount": 0,
+          "excludedObservationCount": 7
+        },
+        {
+          "excludedRows": 0,
+          "reason": "partial_source",
+          "sourceIDs": [
+            "espn-injuries:mlb"
+          ],
+          "state": "partial",
+          "teamID": "espn:mlb:team:8",
+          "eligibleCount": 1,
+          "excludedObservationCount": 4
+        }
+      ]
+    },
+    {
+      "event": {
+        "awayTeam": "Montreal Canadiens",
+        "eventID": "espn:401892504",
+        "homeTeam": "Washington Capitals",
+        "sport": "NHL",
+        "startISO": "2026-10-14T23:30:00.000Z"
+      },
+      "packet": "nhl-401892504-packet.json",
+      "projection": "nhl-401892504-projection.json",
+      "prompt": "nhl-401892504-prompt.json",
+      "inputBytes": 5407,
+      "projectionBytes": 2859,
+      "promptBytes": 1780,
+      "observations": 11,
+      "eligible": 0,
+      "excluded": 11,
+      "promptObservations": 0,
+      "state": "stale",
+      "coverage": [
+        {
+          "excludedRows": 0,
+          "reason": "partial_source",
+          "sourceIDs": [
+            "espn-injuries:nhl"
+          ],
+          "state": "stale",
+          "teamID": "espn:nhl:team:10",
+          "eligibleCount": 0,
+          "excludedObservationCount": 7
+        },
+        {
+          "excludedRows": 0,
+          "reason": "partial_source",
+          "sourceIDs": [
+            "espn-injuries:nhl"
+          ],
+          "state": "stale",
+          "teamID": "espn:nhl:team:23",
+          "eligibleCount": 0,
+          "excludedObservationCount": 4
+        }
+      ]
+    }
+  ]
+}

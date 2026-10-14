@@ -1,0 +1,230 @@
+{
+  "inputVersion": "injury-input-v2",
+  "modelContextVersion": "injury-model-context-v1",
+  "envelopeKey": "injuryContext",
+  "consumer": "isolated shared-insights-narrative-v4 only; frozen v1/v2/v3/91 unchanged",
+  "limits": {
+    "inputBytes": 24576,
+    "projectionBytes": 24576,
+    "promptBytes": 12288,
+    "observations": 48,
+    "sources": 8,
+    "teams": 2,
+    "combinedModelRequestBytes": 32768,
+    "runtimeSuggestedPromptBytes": 6144,
+    "runtimeSuggestedObservations": 6
+  },
+  "packetFields": [
+    "contractVersion",
+    "event",
+    "teams",
+    "sources",
+    "observations",
+    "coverage"
+  ],
+  "eventFields": [
+    "sport",
+    "eventID",
+    "homeTeam",
+    "awayTeam",
+    "startISO"
+  ],
+  "eventIDPattern": "^espn:[0-9]{1,15}$",
+  "teamFields": [
+    "id",
+    "name"
+  ],
+  "sourceFields": [
+    "checkedAt",
+    "contentSHA256",
+    "feedUpdatedAt",
+    "id",
+    "provider",
+    "retrievedAt",
+    "sourceIssuedAt",
+    "url"
+  ],
+  "observationFields": [
+    "estimated",
+    "eventID",
+    "eventStartISO",
+    "id",
+    "identityKind",
+    "playerID",
+    "playerName",
+    "position",
+    "reportedStatus",
+    "scope",
+    "sourceID",
+    "statusKind",
+    "teamID",
+    "timeBasis",
+    "updatedAt"
+  ],
+  "coverageFields": [
+    "teamID",
+    "state",
+    "reason",
+    "sourceIDs",
+    "excludedRows"
+  ],
+  "coverageStates": [
+    "partial",
+    "missing"
+  ],
+  "coverageReasons": [
+    "no_supported_observations",
+    "partial_source",
+    "source_unavailable",
+    "team_not_reported",
+    "unsupported_rows"
+  ],
+  "espnStatusMapping": {
+    "NFL": {
+      "Questionable": [
+        "questionable",
+        "general"
+      ],
+      "Doubtful": [
+        "doubtful",
+        "general"
+      ],
+      "Out": [
+        "out",
+        "general"
+      ],
+      "Injured Reserve": [
+        "ir",
+        "roster"
+      ],
+      "Suspension": [
+        "suspension",
+        "roster"
+      ],
+      "Reserve-Ret": [
+        "reserve_retired",
+        "roster"
+      ]
+    },
+    "NBA": {
+      "Day-To-Day": [
+        "day_to_day",
+        "general"
+      ],
+      "Out": [
+        "out",
+        "general"
+      ]
+    },
+    "MLB": {
+      "Day-To-Day": [
+        "day_to_day",
+        "general"
+      ],
+      "Out": [
+        "out",
+        "general"
+      ],
+      "7-Day IL": [
+        "il_7",
+        "roster"
+      ],
+      "10-Day-IL": [
+        "il_10",
+        "roster"
+      ],
+      "15-Day-IL": [
+        "il_15",
+        "roster"
+      ],
+      "60-Day-IL": [
+        "il_60",
+        "roster"
+      ],
+      "suspension": [
+        "suspension",
+        "roster"
+      ],
+      "paternity": [
+        "paternity",
+        "roster"
+      ]
+    },
+    "NHL": {
+      "Day-To-Day": [
+        "day_to_day",
+        "general"
+      ],
+      "Out": [
+        "out",
+        "general"
+      ],
+      "Injured Reserve": [
+        "ir",
+        "roster"
+      ],
+      "Suspension": [
+        "suspension",
+        "roster"
+      ]
+    }
+  },
+  "sourceURLs": {
+    "NFL": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
+    "NBA": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries",
+    "MLB": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries",
+    "NHL": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries"
+  },
+  "sourceTimeRules": "sourceIssuedAt is actual official report time, null for ESPN general feed. feedUpdatedAt is audit metadata only. updatedAt is actual player update/report time or null. retrievedAt and checkedAt are separate successful-check clocks. Old body cannot be stamped with a new retrieval time.",
+  "projectionFields": [
+    "contractVersion",
+    "policyVersion",
+    "event",
+    "teams",
+    "injuryFingerprint",
+    "contextFingerprint",
+    "state",
+    "observations",
+    "excluded",
+    "coverage",
+    "sources"
+  ],
+  "eligibleObservationAdds": [
+    "claimID",
+    "assertion",
+    "eventStatusConfirmed",
+    "freshness"
+  ],
+  "exclusionReasons": [
+    "source_stale",
+    "observation_stale",
+    "update_unknown",
+    "event_started",
+    "different_event",
+    "identity_unresolved",
+    "conflicting_status"
+  ],
+  "projectedCoverageAdds": [
+    "eligibleCount",
+    "excludedObservationCount"
+  ],
+  "promptView": "Replaces excluded row IDs with per-team exclusions reasons/counts/promptOmittedCount. All source references stay resolvable. Deterministic bounded selection has no inferred importance.",
+  "api": [
+    "validate_injury_input(packet, now)",
+    "injury_fingerprint(packet, now)",
+    "project_injury_context(packet, now)",
+    "model_injury_context(packet, now, max_observations=12, max_bytes=12288)",
+    "from_official_bundle(bundle,event,now,event_binding=None)",
+    "injury_espn.espn_injuries(payload,event,teams,retrieved_at,now)"
+  ],
+  "fingerprintRules": "Semantic fingerprint binds exact event, identities, statuses, row/report update time, source identity/URL and coverage. Excludes retrieval/check/feed clocks and raw-content hash; exact raw hash remains for audit. Dynamic contextFingerprint additionally binds eligibility/exclusions. Bind both plus model selection policy into the narrative cache key.",
+  "prohibitions": [
+    "No Active or absent-row to healthy/available inference.",
+    "No general ESPN Out to confirmed game Out upgrade.",
+    "No practice or reserve-list status to final game designation conversion.",
+    "No free-text comments, estimated return dates, severity, player contribution, starter assumptions or guaranteed impact.",
+    "No future/stale/unknown/conflicting/wrong-event evidence in eligible observations.",
+    "No arbitrary narrative status claim; only audited exact source observations.",
+    "No HTTP/model calls or deployment in these pure modules."
+  ]
+}

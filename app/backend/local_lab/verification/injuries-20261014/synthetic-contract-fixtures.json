@@ -1,0 +1,694 @@
+{
+  "purpose": "Synthetic parser/contract fixtures, not real events or player statuses",
+  "evaluationClock": "2026-10-14T12:30:00Z",
+  "fixtures": [
+    {
+      "sport": "NFL",
+      "packet": {
+        "contractVersion": "injury-input-v2",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:nfl"
+            ],
+            "state": "partial",
+            "teamID": "espn:nfl:team:1"
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:nfl"
+            ],
+            "state": "missing",
+            "teamID": "espn:nfl:team:2"
+          }
+        ],
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "NFL",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:7d14da607e33c15b411f5001",
+            "identityKind": "provider_id",
+            "playerID": "espn:nfl:player:1234",
+            "playerName": "Example Player",
+            "position": "RB",
+            "reportedStatus": "Questionable",
+            "scope": "general",
+            "sourceID": "espn-injuries:nfl",
+            "statusKind": "questionable",
+            "teamID": "espn:nfl:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "2745882725cfba3777d33970277f40c2a723854e5a0041616e1884eaf9e2e129",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:nfl",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries"
+          }
+        ],
+        "teams": [
+          {
+            "id": "espn:nfl:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:nfl:team:2",
+            "name": "Example Away"
+          }
+        ]
+      },
+      "promptView": {
+        "contractVersion": "injury-model-context-v1",
+        "policyVersion": "injury-model-freshness-v1",
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "NFL",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "teams": [
+          {
+            "id": "espn:nfl:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:nfl:team:2",
+            "name": "Example Away"
+          }
+        ],
+        "injuryFingerprint": "22906930ef68cc5209f885191c38aa5fa953361d7d6a797892c42e0f345b6e4d",
+        "contextFingerprint": "bb96b8736c411acf079dabcb6cea418e23911417b2c882ab930301b3c5b24d1f",
+        "state": "partial",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:nfl"
+            ],
+            "state": "partial",
+            "teamID": "espn:nfl:team:1",
+            "eligibleCount": 1,
+            "excludedObservationCount": 0
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:nfl"
+            ],
+            "state": "missing",
+            "teamID": "espn:nfl:team:2",
+            "eligibleCount": 0,
+            "excludedObservationCount": 0
+          }
+        ],
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:7d14da607e33c15b411f5001",
+            "identityKind": "provider_id",
+            "playerID": "espn:nfl:player:1234",
+            "playerName": "Example Player",
+            "position": "RB",
+            "reportedStatus": "Questionable",
+            "scope": "general",
+            "sourceID": "espn-injuries:nfl",
+            "statusKind": "questionable",
+            "teamID": "espn:nfl:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z",
+            "assertion": "reported_questionable",
+            "eventStatusConfirmed": false,
+            "freshness": "fresh",
+            "claimID": "injury-claim:02a4094e375741c0c46ad4c8"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "2745882725cfba3777d33970277f40c2a723854e5a0041616e1884eaf9e2e129",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:nfl",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries"
+          }
+        ],
+        "exclusions": [
+          {
+            "teamID": "espn:nfl:team:1",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          },
+          {
+            "teamID": "espn:nfl:team:2",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          }
+        ],
+        "interpretation": "General reports are not exact-game designations. Practice is not game status. Missing or excluded data never implies availability. No severity, role contribution, replacement starter, scoring adjustment or guaranteed matchup impact is supplied."
+      }
+    },
+    {
+      "sport": "NBA",
+      "packet": {
+        "contractVersion": "injury-input-v2",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:nba"
+            ],
+            "state": "partial",
+            "teamID": "espn:nba:team:1"
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:nba"
+            ],
+            "state": "missing",
+            "teamID": "espn:nba:team:2"
+          }
+        ],
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "NBA",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:8404c6f0a450678f542c2025",
+            "identityKind": "provider_id",
+            "playerID": "espn:nba:player:1234",
+            "playerName": "Example Player",
+            "position": "G",
+            "reportedStatus": "Day-To-Day",
+            "scope": "general",
+            "sourceID": "espn-injuries:nba",
+            "statusKind": "day_to_day",
+            "teamID": "espn:nba:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "5f3f0f17d6ba214a782e8d2791e87496a09f8830218684eb961b2d368526f13c",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:nba",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries"
+          }
+        ],
+        "teams": [
+          {
+            "id": "espn:nba:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:nba:team:2",
+            "name": "Example Away"
+          }
+        ]
+      },
+      "promptView": {
+        "contractVersion": "injury-model-context-v1",
+        "policyVersion": "injury-model-freshness-v1",
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "NBA",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "teams": [
+          {
+            "id": "espn:nba:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:nba:team:2",
+            "name": "Example Away"
+          }
+        ],
+        "injuryFingerprint": "c7a8252f621d552c0a329947fb44594c0fc73e07f055ce517fea2431af963936",
+        "contextFingerprint": "4ecd3327315693cf6ce508a535673f5e85461f7936548f61ad43c9429056fb7b",
+        "state": "partial",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:nba"
+            ],
+            "state": "partial",
+            "teamID": "espn:nba:team:1",
+            "eligibleCount": 1,
+            "excludedObservationCount": 0
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:nba"
+            ],
+            "state": "missing",
+            "teamID": "espn:nba:team:2",
+            "eligibleCount": 0,
+            "excludedObservationCount": 0
+          }
+        ],
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:8404c6f0a450678f542c2025",
+            "identityKind": "provider_id",
+            "playerID": "espn:nba:player:1234",
+            "playerName": "Example Player",
+            "position": "G",
+            "reportedStatus": "Day-To-Day",
+            "scope": "general",
+            "sourceID": "espn-injuries:nba",
+            "statusKind": "day_to_day",
+            "teamID": "espn:nba:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z",
+            "assertion": "reported_day_to_day",
+            "eventStatusConfirmed": false,
+            "freshness": "fresh",
+            "claimID": "injury-claim:ea333fc9b214885c6d0647a8"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "5f3f0f17d6ba214a782e8d2791e87496a09f8830218684eb961b2d368526f13c",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:nba",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries"
+          }
+        ],
+        "exclusions": [
+          {
+            "teamID": "espn:nba:team:1",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          },
+          {
+            "teamID": "espn:nba:team:2",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          }
+        ],
+        "interpretation": "General reports are not exact-game designations. Practice is not game status. Missing or excluded data never implies availability. No severity, role contribution, replacement starter, scoring adjustment or guaranteed matchup impact is supplied."
+      }
+    },
+    {
+      "sport": "MLB",
+      "packet": {
+        "contractVersion": "injury-input-v2",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:mlb"
+            ],
+            "state": "partial",
+            "teamID": "espn:mlb:team:1"
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:mlb"
+            ],
+            "state": "missing",
+            "teamID": "espn:mlb:team:2"
+          }
+        ],
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "MLB",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:410226aefaa61d426e4775d0",
+            "identityKind": "provider_id",
+            "playerID": "espn:mlb:player:1234",
+            "playerName": "Example Player",
+            "position": "G",
+            "reportedStatus": "15-Day-IL",
+            "scope": "roster",
+            "sourceID": "espn-injuries:mlb",
+            "statusKind": "il_15",
+            "teamID": "espn:mlb:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "b7b7bc072a207c691fbe8f49e8fe042140279d8c4ceb911e129af648e13abe4d",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:mlb",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries"
+          }
+        ],
+        "teams": [
+          {
+            "id": "espn:mlb:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:mlb:team:2",
+            "name": "Example Away"
+          }
+        ]
+      },
+      "promptView": {
+        "contractVersion": "injury-model-context-v1",
+        "policyVersion": "injury-model-freshness-v1",
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "MLB",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "teams": [
+          {
+            "id": "espn:mlb:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:mlb:team:2",
+            "name": "Example Away"
+          }
+        ],
+        "injuryFingerprint": "3f205395c4c91169fb59d81b1feb89d48066988cfa17320b0c65d62b6cd45310",
+        "contextFingerprint": "2c2f4cfd142f59f4b2474823ce347c31b7998b75bdf4d21d545b6a60a939c108",
+        "state": "partial",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:mlb"
+            ],
+            "state": "partial",
+            "teamID": "espn:mlb:team:1",
+            "eligibleCount": 1,
+            "excludedObservationCount": 0
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:mlb"
+            ],
+            "state": "missing",
+            "teamID": "espn:mlb:team:2",
+            "eligibleCount": 0,
+            "excludedObservationCount": 0
+          }
+        ],
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:410226aefaa61d426e4775d0",
+            "identityKind": "provider_id",
+            "playerID": "espn:mlb:player:1234",
+            "playerName": "Example Player",
+            "position": "G",
+            "reportedStatus": "15-Day-IL",
+            "scope": "roster",
+            "sourceID": "espn-injuries:mlb",
+            "statusKind": "il_15",
+            "teamID": "espn:mlb:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z",
+            "assertion": "reported_il_15",
+            "eventStatusConfirmed": false,
+            "freshness": "fresh",
+            "claimID": "injury-claim:6693cd2f6b06288b56f71ee7"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "b7b7bc072a207c691fbe8f49e8fe042140279d8c4ceb911e129af648e13abe4d",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:mlb",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries"
+          }
+        ],
+        "exclusions": [
+          {
+            "teamID": "espn:mlb:team:1",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          },
+          {
+            "teamID": "espn:mlb:team:2",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          }
+        ],
+        "interpretation": "General reports are not exact-game designations. Practice is not game status. Missing or excluded data never implies availability. No severity, role contribution, replacement starter, scoring adjustment or guaranteed matchup impact is supplied."
+      }
+    },
+    {
+      "sport": "NHL",
+      "packet": {
+        "contractVersion": "injury-input-v2",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:nhl"
+            ],
+            "state": "partial",
+            "teamID": "espn:nhl:team:1"
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:nhl"
+            ],
+            "state": "missing",
+            "teamID": "espn:nhl:team:2"
+          }
+        ],
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "NHL",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:3cdbf2748f8ec9e802a19744",
+            "identityKind": "provider_id",
+            "playerID": "espn:nhl:player:1234",
+            "playerName": "Example Player",
+            "position": "G",
+            "reportedStatus": "Injured Reserve",
+            "scope": "roster",
+            "sourceID": "espn-injuries:nhl",
+            "statusKind": "ir",
+            "teamID": "espn:nhl:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "97ae50a2c5b23ed5b3ee03d0dfbd9faa02265681f325b22644809da6f28049db",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:nhl",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries"
+          }
+        ],
+        "teams": [
+          {
+            "id": "espn:nhl:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:nhl:team:2",
+            "name": "Example Away"
+          }
+        ]
+      },
+      "promptView": {
+        "contractVersion": "injury-model-context-v1",
+        "policyVersion": "injury-model-freshness-v1",
+        "event": {
+          "awayTeam": "Example Away",
+          "eventID": "espn:123",
+          "homeTeam": "Example Home",
+          "sport": "NHL",
+          "startISO": "2026-10-15T20:00:00Z"
+        },
+        "teams": [
+          {
+            "id": "espn:nhl:team:1",
+            "name": "Example Home"
+          },
+          {
+            "id": "espn:nhl:team:2",
+            "name": "Example Away"
+          }
+        ],
+        "injuryFingerprint": "a8bd6d73a282323a6bb4c6b61e0efa497e63ddd8e2e29d9dff54b754ba73b128",
+        "contextFingerprint": "3794fe8909bc37b3e7538ad42c8af0e4329955b3237b04919d520200f4e0a727",
+        "state": "partial",
+        "coverage": [
+          {
+            "excludedRows": 0,
+            "reason": "partial_source",
+            "sourceIDs": [
+              "espn-injuries:nhl"
+            ],
+            "state": "partial",
+            "teamID": "espn:nhl:team:1",
+            "eligibleCount": 1,
+            "excludedObservationCount": 0
+          },
+          {
+            "excludedRows": 0,
+            "reason": "team_not_reported",
+            "sourceIDs": [
+              "espn-injuries:nhl"
+            ],
+            "state": "missing",
+            "teamID": "espn:nhl:team:2",
+            "eligibleCount": 0,
+            "excludedObservationCount": 0
+          }
+        ],
+        "observations": [
+          {
+            "estimated": false,
+            "eventID": null,
+            "eventStartISO": null,
+            "id": "injury-observation:3cdbf2748f8ec9e802a19744",
+            "identityKind": "provider_id",
+            "playerID": "espn:nhl:player:1234",
+            "playerName": "Example Player",
+            "position": "G",
+            "reportedStatus": "Injured Reserve",
+            "scope": "roster",
+            "sourceID": "espn-injuries:nhl",
+            "statusKind": "ir",
+            "teamID": "espn:nhl:team:1",
+            "timeBasis": "player_update",
+            "updatedAt": "2026-10-14T12:00:00Z",
+            "assertion": "reported_ir",
+            "eventStatusConfirmed": false,
+            "freshness": "fresh",
+            "claimID": "injury-claim:b0b161a538a71a0ded8f0879"
+          }
+        ],
+        "sources": [
+          {
+            "checkedAt": "2026-10-14T12:00:00Z",
+            "contentSHA256": "97ae50a2c5b23ed5b3ee03d0dfbd9faa02265681f325b22644809da6f28049db",
+            "feedUpdatedAt": "2026-10-14T12:00:00Z",
+            "id": "espn-injuries:nhl",
+            "provider": "ESPN",
+            "retrievedAt": "2026-10-14T12:00:00Z",
+            "sourceIssuedAt": null,
+            "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries"
+          }
+        ],
+        "exclusions": [
+          {
+            "teamID": "espn:nhl:team:1",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          },
+          {
+            "teamID": "espn:nhl:team:2",
+            "reasons": [],
+            "excludedCount": 0,
+            "promptOmittedCount": 0
+          }
+        ],
+        "interpretation": "General reports are not exact-game designations. Practice is not game status. Missing or excluded data never implies availability. No severity, role contribution, replacement starter, scoring adjustment or guaranteed matchup impact is supplied."
+      }
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "contractVersion": "injury-input-v2",
+  "coverage": [
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nba"
+      ],
+      "state": "partial",
+      "teamID": "espn:nba:team:14"
+    },
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:nba"
+      ],
+      "state": "partial",
+      "teamID": "espn:nba:team:17"
+    }
+  ],
+  "event": {
+    "awayTeam": "Brooklyn Nets",
+    "eventID": "espn:401898404",
+    "homeTeam": "Miami Heat",
+    "sport": "NBA",
+    "startISO": "2026-10-14T23:30:00.000Z"
+  },
+  "observations": [
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:04f7e616f6f85af895bebff4",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:3059319",
+      "playerName": "Andrew Wiggins",
+      "position": "F",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-10T22:32Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:084cce986232ba7a27d9cd7f",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:4870564",
+      "playerName": "Joshua Jefferson",
+      "position": "F",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:17",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T15:02Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:44423e54d773f37863b346c2",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:3950760",
+      "playerName": "Kylor Kelley",
+      "position": "C",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-11T02:48Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:6b6b19490da56b0f85e8379c",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:4431786",
+      "playerName": "Keshad Johnson",
+      "position": "F",
+      "reportedStatus": "Out",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "out",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-07T18:04Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:6d80c077931b173e1e1639aa",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:3032977",
+      "playerName": "Giannis Antetokounmpo",
+      "position": "F",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-10T22:31Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:6f2c360d939de10ffa471abf",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:4278053",
+      "playerName": "Davion Mitchell",
+      "position": "G",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-10T22:27Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:7eeea12250b1ebdd7f20b407",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:4066993",
+      "playerName": "Dru Smith",
+      "position": "G",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-01T16:15Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:8be91708dc81da98cf9e5938",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:5101761",
+      "playerName": "Mikel Brown Jr.",
+      "position": "G",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:17",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-12T14:57Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:bd9bee83d3b1260a0b550287",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:4601025",
+      "playerName": "Pelle Larsson",
+      "position": "G",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T17:26Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:d35fc34e470848f5bfdbe33c",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:6475",
+      "playerName": "Klay Thompson",
+      "position": "G",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-10T22:31Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:fc61ed0d0bef9d7d09eff2b7",
+      "identityKind": "provider_id",
+      "playerID": "espn:nba:player:4066261",
+      "playerName": "Bam Adebayo",
+      "position": "C",
+      "reportedStatus": "Day-To-Day",
+      "scope": "general",
+      "sourceID": "espn-injuries:nba",
+      "statusKind": "day_to_day",
+      "teamID": "espn:nba:team:14",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-10T22:35Z"
+    }
+  ],
+  "sources": [
+    {
+      "checkedAt": "2026-10-14T12:19:18.257871+00:00",
+      "contentSHA256": "833048b920f9c8664107d9768679c49102c7db59de362977c790aaa4a58212b5",
+      "feedUpdatedAt": "2026-10-14T12:19:09Z",
+      "id": "espn-injuries:nba",
+      "provider": "ESPN",
+      "retrievedAt": "2026-10-14T12:19:18.257871+00:00",
+      "sourceIssuedAt": null,
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries"
+    }
+  ],
+  "teams": [
+    {
+      "id": "espn:nba:team:14",
+      "name": "Miami Heat"
+    },
+    {
+      "id": "espn:nba:team:17",
+      "name": "Brooklyn Nets"
+    }
+  ]
+}

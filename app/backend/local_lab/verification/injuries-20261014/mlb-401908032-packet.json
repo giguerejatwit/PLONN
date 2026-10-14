@@ -1,0 +1,258 @@
+{
+  "contractVersion": "injury-input-v2",
+  "coverage": [
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:mlb"
+      ],
+      "state": "partial",
+      "teamID": "espn:mlb:team:19"
+    },
+    {
+      "excludedRows": 0,
+      "reason": "partial_source",
+      "sourceIDs": [
+        "espn-injuries:mlb"
+      ],
+      "state": "partial",
+      "teamID": "espn:mlb:team:8"
+    }
+  ],
+  "event": {
+    "awayTeam": "Milwaukee Brewers",
+    "eventID": "espn:401908032",
+    "homeTeam": "Los Angeles Dodgers",
+    "sport": "MLB",
+    "startISO": "2026-10-15T00:00:00.000Z"
+  },
+  "observations": [
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:4879f40caf8470f564e857e2",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:4705673",
+      "playerName": "Angel Zerpa",
+      "position": "RP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:8",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-05-31T17:56Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:51d4132121974585f6a03581",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:42161",
+      "playerName": "Grant Anderson",
+      "position": "RP",
+      "reportedStatus": "15-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_15",
+      "teamID": "espn:mlb:team:8",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-15T16:04Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:5dc8ddbd52dbbc5001e0ac67",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:40965",
+      "playerName": "Brusdar Graterol",
+      "position": "RP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:19",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-06-01T14:38Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:67da3370a04e05d724fbdbf4",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:37515",
+      "playerName": "Brandon Woodruff",
+      "position": "SP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:8",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-13T23:36Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:6a1ef925992d2866d069a55e",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:32185",
+      "playerName": "Blake Treinen",
+      "position": "RP",
+      "reportedStatus": "15-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_15",
+      "teamID": "espn:mlb:team:19",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-10-03T18:34Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:82105b59eee313162da29781",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:4621433",
+      "playerName": "Brian Fitzpatrick",
+      "position": "RP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:8",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-07-05T00:09Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:853a51d08ced62141ca84573",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:39915",
+      "playerName": "Eric Lauer",
+      "position": "SP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:19",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-11T22:04Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:88711bf38777bcce72419778",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:4326800",
+      "playerName": "Ben Casparius",
+      "position": "RP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:19",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-02T18:44Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:89c5a36496a09c7e9c63536e",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:4313163",
+      "playerName": "Will Klein",
+      "position": "RP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:19",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-22T22:13Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:e3d376d3e6b0123617fa7e7f",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:42449",
+      "playerName": "Quinn Priester",
+      "position": "SP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:8",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-06-18T15:25Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:e6edf29c6d6da2de20b05f87",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:4417230",
+      "playerName": "Gavin Stone",
+      "position": "SP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:19",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-10T13:24Z"
+    },
+    {
+      "estimated": false,
+      "eventID": null,
+      "eventStartISO": null,
+      "id": "injury-observation:fadd64c3bdea0d2f651fd6bc",
+      "identityKind": "provider_id",
+      "playerID": "espn:mlb:player:42964",
+      "playerName": "Jake Cousins",
+      "position": "RP",
+      "reportedStatus": "60-Day-IL",
+      "scope": "roster",
+      "sourceID": "espn-injuries:mlb",
+      "statusKind": "il_60",
+      "teamID": "espn:mlb:team:19",
+      "timeBasis": "player_update",
+      "updatedAt": "2026-09-03T13:34Z"
+    }
+  ],
+  "sources": [
+    {
+      "checkedAt": "2026-10-14T12:20:47.553726+00:00",
+      "contentSHA256": "47d14efc7a28f68bfc729eb54095770c2530f3ea064851bd3e5dea96680d181a",
+      "feedUpdatedAt": "2026-10-14T12:20:42Z",
+      "id": "espn-injuries:mlb",
+      "provider": "ESPN",
+      "retrievedAt": "2026-10-14T12:20:47.553726+00:00",
+      "sourceIssuedAt": null,
+      "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries"
+    }
+  ],
+  "teams": [
+    {
+      "id": "espn:mlb:team:19",
+      "name": "Los Angeles Dodgers"
+    },
+    {
+      "id": "espn:mlb:team:8",
+      "name": "Milwaukee Brewers"
+    }
+  ]
+}

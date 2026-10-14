@@ -1,0 +1,55 @@
+{
+  "verifiedAt": "2026-10-14T13:01:43.027Z",
+  "bundleSHA256": "3db2a6d6752f3dc1414ea692fd2302c1ab9caad9f52bcb81dc35d10198bf79f8",
+  "bytes": 220655,
+  "reports": [
+    {
+      "file": "mlb-response.json",
+      "sha256": "016735c7b173bb8f260130aad4f023fb898856d39e95d12bb3aeca20b1cc94e1",
+      "event": {
+        "awayTeam": "Milwaukee Brewers",
+        "eventID": "espn:401908032",
+        "homeTeam": "Los Angeles Dodgers",
+        "sport": "MLB",
+        "startISO": "2026-10-15T00:00:00.000Z"
+      },
+      "generatedAt": "2026-10-14T12:59:51.532Z"
+    },
+    {
+      "file": "nba-response.json",
+      "sha256": "563d217d1ceedab3d0281dc97bab419272e00377a8d6d2c62077e78cf0731f0a",
+      "event": {
+        "awayTeam": "Brooklyn Nets",
+        "eventID": "espn:401898404",
+        "homeTeam": "Miami Heat",
+        "sport": "NBA",
+        "startISO": "2026-10-14T23:30:00.000Z"
+      },
+      "generatedAt": "2026-10-14T12:57:01.189Z"
+    },
+    {
+      "file": "nfl-response.json",
+      "sha256": "1bc09b31423fefc50347ba00810d2a37d1a5412d04bb072f9d7feee0a23adeea",
+      "event": {
+        "awayTeam": "New York Jets",
+        "eventID": "espn:401873001",
+        "homeTeam": "New England Patriots",
+        "sport": "NFL",
+        "startISO": "2026-10-18T17:00:00.000Z"
+      },
+      "generatedAt": "2026-10-14T12:56:19.847Z"
+    },
+    {
+      "file": "nhl-response.json",
+      "sha256": "4252345e3a63ef0f5826db988c034ec33052f5932936a7bbdee3e769a5f9fd65",
+      "event": {
+        "awayTeam": "Montreal Canadiens",
+        "eventID": "espn:401892504",
+        "homeTeam": "Washington Capitals",
+        "sport": "NHL",
+        "startISO": "2026-10-14T23:30:00.000Z"
+      },
+      "generatedAt": "2026-10-14T13:00:40.887Z"
+    }
+  ]
+}

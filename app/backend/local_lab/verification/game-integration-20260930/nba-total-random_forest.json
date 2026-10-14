@@ -1,0 +1,200 @@
+{
+  "setup": {
+    "targetKind": "Team",
+    "league": "NBA",
+    "stat": "Game total",
+    "player": "Los Angeles Lakers",
+    "opponent": "New Orleans Pelicans",
+    "historical_event_id": "401585823",
+    "line": 224.5,
+    "side": "Over",
+    "features": [
+      "recent",
+      "season",
+      "homeAway",
+      "rest"
+    ],
+    "model_type": "random_forest",
+    "book": "DraftKings",
+    "evaluation_mode": "fixed_threshold_retrospective",
+    "training": {
+      "epochs": 200,
+      "learning_rate": 0.05,
+      "l2": 0.001,
+      "validation_fraction": 0.2
+    }
+  },
+  "result": {
+    "status": "ok",
+    "target_kind": "game",
+    "evaluation_mode": "fixed_threshold_retrospective",
+    "market": "total",
+    "line": 224.5,
+    "live_prediction": false,
+    "settlement_rules": {
+      "scope": "completed_standard_regular_season_full_games_only",
+      "score_basis": "ESPN_reported_final_score_including_overtime_extra_innings_and_shootout_award",
+      "total": "home_score + away_score; over/under; equality is push",
+      "spread": "selected_score - opponent_score + line; positive cover, negative not_cover, zero push",
+      "moneyline": "selected final-score win/loss; NFL equality is tie, not loss or push",
+      "NHL": "Includes overtime and the final-score shootout winner goal; never add shootout attempts again; no regulation-only markets.",
+      "NBA": "Includes overtime; excludes Cup championship, play-in and postseason.",
+      "MLB": "Includes extra innings; excludes shortened games below nine reported innings and non-final games; no listed-pitcher or book action rule claim.",
+      "NFL": "Includes overtime; permits regular-season ties; no assumed bookmaker tie settlement.",
+      "publication": "Revised history; actual completion/publication timestamps are unverified. Two UTC date guard is not certified as-of replay."
+    },
+    "message": "Experimental revised-history team model; no as-of publication, archived odds, live readiness or ROI claim.",
+    "model": {
+      "id": "nba_game_total_v1",
+      "model_type": "random_forest",
+      "artifact_sha256": "3c602a31887fd3b4b1d94265bce8aaad9ea10bd0707ef039afb9a07d2ceccccf"
+    },
+    "training": {
+      "status": "ok",
+      "sample_size": 123,
+      "quality_status": "experimental_uncalibrated",
+      "last_training_game_date": "2024-01-28",
+      "holdout_start_date": "2024-01-31",
+      "class_counts": {
+        "over": 85,
+        "under": 38
+      }
+    },
+    "inference": {
+      "status": "ok",
+      "target": {
+        "event_id": "401585823",
+        "league": "NBA",
+        "season": "2024",
+        "date": "2024-04-14",
+        "starts_at": "2024-04-14T19:30:00+00:00",
+        "home_team_id": "3",
+        "away_team_id": "13",
+        "home_team": "NO",
+        "away_team": "LAL",
+        "neutral_site": false,
+        "home_team_name": "New Orleans Pelicans",
+        "away_team_name": "Los Angeles Lakers",
+        "target_kind": "game",
+        "selected_team": "away",
+        "team_id": "13",
+        "team": "LAL",
+        "mode": "retrospective_historical_game_not_live"
+      },
+      "probabilities": {
+        "over": 0.8782424812030075,
+        "under": 0.12175751879699248
+      },
+      "features": {
+        "recent_scored": 121.2,
+        "recent_allowed": 117.8,
+        "season_scored": 117.9,
+        "season_allowed": 117.525,
+        "homeAway": -1.0,
+        "rest": 3
+      },
+      "threshold": 224.5
+    },
+    "validation": {
+      "status": "ok",
+      "mode": "fixed_threshold_retrospective",
+      "sample_size": 32,
+      "metrics": {
+        "sample_size": 32,
+        "multiclass_brier": 0.4054582214688694,
+        "log_loss": 0.6035809936193781,
+        "accuracy": 0.71875,
+        "baseline": {
+          "name": "training_partition_class_frequency",
+          "probabilities": {
+            "over": 0.6910569105691057,
+            "under": 0.3089430894308943
+          },
+          "multiclass_brier": 0.3819485755833169,
+          "model_brier_improvement": -0.023509645885552488
+        },
+        "profit": {
+          "status": "unavailable",
+          "reason": "no_historical_betting_lines_prices_or_book_settlement"
+        }
+      },
+      "exclusions": [
+        {
+          "event_id": "401607495",
+          "reason": "nonstandard_game_unsupported"
+        },
+        {
+          "event_id": "401585805",
+          "reason": "not_before_target_date_guard"
+        },
+        {
+          "event_id": "401585823",
+          "reason": "not_before_target_date_guard"
+        },
+        {
+          "event_id": "401468017",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401468171",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401468192",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401468219",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401468231",
+          "reason": "insufficient_prior_team_games"
+        },
+        {
+          "event_id": "401584689",
+          "reason": "game_season_baseline_unavailable"
+        },
+        {
+          "event_id": "401585290",
+          "reason": "split_date_guard"
+        }
+      ],
+      "historical_quote_coverage": false,
+      "historical_availability_verified": false,
+      "target_observed_outcome": "over"
+    },
+    "provenance": {
+      "provider": "ESPN",
+      "sources": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=401585823",
+          "retrieved_at": "2026-09-30T13:57:40.563304+00:00",
+          "response_sha256": "ba267132fdea47f12f070a353bfd65e5c1452cf6fe80074401bff4425c50a418",
+          "payload_sha256": "867fe6c2596b23e084cc3d3f89507c1a303323f6d35467c85b5e65a132a5bb09"
+        },
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/schedule?season=2023&seasontype=2",
+          "retrieved_at": "2026-09-30T13:59:21.877322+00:00",
+          "response_sha256": "cdc478c77e745c7aacbc390380727177c2959558fdf79761fd91aa974e83ac9d",
+          "payload_sha256": "afa12581509eab7c96b1b12a4759d9af92531824acfd628de6b58d82146f1c0f"
+        },
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/schedule?season=2024&seasontype=2",
+          "retrieved_at": "2026-09-30T13:59:22.563533+00:00",
+          "response_sha256": "12e1db50e508634609409e8b01ea9ab470cf48d13475987cc440da9d524af883",
+          "payload_sha256": "4a426f2dad6f63d3c560f387a63df8504b6500371c8cd72b72bd1398e539988c"
+        }
+      ],
+      "network_requests": 0,
+      "feature_scope": "selected_franchise_history_only_not_opponent_strength",
+      "rest_semantics": "days_since_last_date_guard_eligible_game_minus_one_not_true_schedule_rest",
+      "source_game_count": 164,
+      "date_basis": "UTC",
+      "season_basis": "end_year_NBA_NHL_start_year_NFL_calendar_year_MLB"
+    },
+    "target_prop": "Game total",
+    "requested_book": "DraftKings",
+    "threshold_source": "user_selected_research_line_not_verified_sportsbook_quote"
+  }
+}
