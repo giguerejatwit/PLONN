@@ -18,8 +18,8 @@ final class Build6MatchupContractReproductionTests: XCTestCase {
             ("Seattle Seahawks passing production contrasts with Denver Broncos allowance. These observations describe a limited sample.", true)
         ] {
             let body = try JSONSerialization.data(withJSONObject: [
-                "schema_version": 1, "model": HostedAskPLONNProvider.modelName,
-                "digest": HostedAskPLONNProvider.pinnedDigest,
+                "schema_version": 2, "model": HostedAskPLONNProvider.modelName,
+                "provider": "ollama_cloud",
                 "response": ["supported": true, "evidence_ids": [fact.id], "summary": summary]
             ])
             let provider = HostedAskPLONNProvider(tokenProvider: { "offline.fixture.token" }, transport: { http in
@@ -58,8 +58,8 @@ final class Build6MatchupContractReproductionTests: XCTestCase {
         let fact = AskPLONNEvidence(id: "fixture", kind: .recentForm, title: "Passing", text: "Seattle Seahawks passing production.", source: "Offline fixture")
         let request = AskPLONNRequest(question: "Explain observed matchup.", intent: .recentForm, evidence: [fact],
             researchPurpose: .matchupInsights, matchupTeams: ["Seattle Seahawks", "Denver Broncos"])
-        let data = try JSONSerialization.data(withJSONObject: ["schema_version": 1, "model": HostedAskPLONNProvider.modelName,
-            "digest": HostedAskPLONNProvider.pinnedDigest, "response": ["supported": false, "evidence_ids": [], "summary": ""]])
+        let data = try JSONSerialization.data(withJSONObject: ["schema_version": 2, "model": HostedAskPLONNProvider.modelName,
+            "provider": "ollama_cloud", "response": ["supported": false, "evidence_ids": [], "summary": ""]])
         let provider = HostedAskPLONNProvider(tokenProvider: { "offline.fixture" }, transport: { http in
             (data, HTTPURLResponse(url: http.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         })

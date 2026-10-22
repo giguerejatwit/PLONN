@@ -3,6 +3,19 @@ import XCTest
 
 final class BuilderTests:XCTestCase {
     let now=Date(timeIntervalSince1970:1_800_000_000)
+    func testStakeReturnsIncludeStakeAndSeparateProfit() throws {
+        let estimate=try XCTUnwrap(BuilderLogic.assess([leg("a","first",price:100),leg("b","second",price:100)],now:now).estimate)
+        let payout=try XCTUnwrap(BuilderLogic.returnEstimate(stakeText:"25",estimate:estimate))
+        XCTAssertEqual(payout.totalReturn,100,accuracy:0.00001)
+        XCTAssertEqual(payout.profit,75,accuracy:0.00001)
+        XCTAssertEqual(try XCTUnwrap(BuilderLogic.returnEstimate(stakeText:".50",estimate:estimate)).totalReturn,2)
+        for text in ["", "0", "-5", "NaN", "infinity", "1e6", "2.345", "1,2", "25abc"] {
+            XCTAssertNil(BuilderLogic.returnEstimate(stakeText:text,estimate:estimate),text)
+        }
+        XCTAssertNil(BuilderLogic.returnEstimate(stakeText:"25",estimate:nil))
+        let correlated=BuilderLogic.assess([leg("a","same"),leg("b","same")],now:now)
+        XCTAssertNil(BuilderLogic.returnEstimate(stakeText:"25",estimate:correlated.estimate))
+    }
     func leg(_ id:String,_ event:String,price:Double = -110,book:String = "Fixture book") -> Market {
         Market(id:id,event:event,sport:"NBA",kind:"prop",name:"Fixture player "+id,opponent:"Fixture opponent",label:"Over 20.5 points",aliases:"",p:nil,price:price,market:"player_points",book:book,quotes:[],updated:ISO8601DateFormatter().string(from:now),mode:"live",line:20.5,eventLabel:"Fixture event "+event,side:"Over")
     }

@@ -35,6 +35,7 @@ struct AnalyticsFeedBuildResult: Sendable {
 }
 
 enum AnalyticsFeedCore {
+    static let browsingCapacity = 10_000
     /// Only source-returned ESPN image URLs; no name-based image discovery.
     static func imageURL(_ raw: String?) -> URL? {
         guard let raw, let url = URL(string: raw), url.scheme == "https",
@@ -80,7 +81,7 @@ enum AnalyticsFeedCore {
     static func build(snapshots: [Market], verifiedSubjects: [AnalyticsFeedVerifiedSubject] = [], now: Date = Date(), limit: Int = 12, recordedSnapshot: Bool = false) -> AnalyticsFeedBuildResult {
         guard now.timeIntervalSince1970.isFinite else { return AnalyticsFeedBuildResult(candidates: [], warnings: ["The feed cutoff is invalid."]) }
         // Input ceilings protect the local feed independently of source response limits.
-        guard snapshots.count <= 10_000, verifiedSubjects.count <= 1_000 else { return AnalyticsFeedBuildResult(candidates: [], warnings: ["Feed source capacity exceeded; no partial source was silently selected."]) }
+        guard snapshots.count <= 10_000, verifiedSubjects.count <= browsingCapacity else { return AnalyticsFeedBuildResult(candidates: [], warnings: ["Feed source capacity exceeded; no partial source was silently selected."]) }
         var warnings: [String] = []
         var names: [String: (String, AnalyticsFeedSubject, String, String)] = [:]
         var quotes: [String: [Market]] = [:]
@@ -144,7 +145,7 @@ enum AnalyticsFeedCore {
             guard !conflictingProofs.contains(id), let (sport, subject, name, key) = names[id] else { return nil }
             let subjectID = candidateID(sport: sport, subject: subject, name: name, marketKey: "")
             guard !conflictingSubjects.contains(subjectID) else { return nil }
-            return AnalyticsFeedCandidate(id: id, subject: subject, market: statisticsMarket(sport: sport, subject: subject, name: name, key: key, id: id), quotes: (quotes[id] ?? []).sorted { $0.id < $1.id }, verifiedSubject: proofs[id] ?? subjectProofs[subjectID], recordedSnapshot: recordedSnapshot)
+            return AnalyticsFeedCandidate(id: id, subject: subject, market: statisticsMarket(sport: sport, subject: subject, name: name, key: key, id: id), quotes: ((quotes[id] ?? []) + (subject == .team && key == "h2h" ? (quotes[candidateID(sport: sport, subject: subject, name: name, marketKey: "spreads")] ?? []) : [])).sorted { $0.id < $1.id }, verifiedSubject: proofs[id] ?? subjectProofs[subjectID], recordedSnapshot: recordedSnapshot)
         }
         // Neutral deterministic interleaving preserves both subject types without ranking performance.
         let teams = candidates.filter { $0.subject == .team }, players = candidates.filter { $0.subject == .player }
@@ -153,15 +154,18 @@ enum AnalyticsFeedCore {
             if index < teams.count { mixed.append(teams[index]) }
             if index < players.count { mixed.append(players[index]) }
         }
-        return AnalyticsFeedBuildResult(candidates: Array(mixed.prefix(min(max(limit, 1), recordedSnapshot ? 30_000 : 100))), warnings: Array(Set(warnings)).sorted())
+        return AnalyticsFeedBuildResult(candidates: Array(mixed.prefix(min(max(limit, 1), recordedSnapshot ? 30_000 : browsingCapacity))), warnings: Array(Set(warnings)).sorted())
     }
-    /// League selection is applied before text search or default quote eligibility.
+    /// Public statistics remain visible while history loads or matching odds are unavailable.
+    /// Quote eligibility is checked separately inside each card.
     static func visibleCandidates(_ candidates: [AnalyticsFeedCandidate], sport: String, query: String,
                                   histories: [String: AnalyticsHistoryResult], now: Date) -> [AnalyticsFeedCandidate] {
         guard ["NFL", "NBA", "MLB", "NHL"].contains(sport) else { return [] }
         let league = candidates.filter { $0.market.sport == sport }
         if !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return search(candidates: league, query: query) }
-        return league.filter { !bettingFeedQuotes(candidate: $0, history: histories[$0.id], now: now).isEmpty }
+        return league.filter { candidate in
+            candidate.verifiedSubject.map { validProof($0, now: now) } == true
+        }
     }
     private static func declaredTeams(_ label: String) -> [String] {
         let label = normalized(label)
@@ -209,6 +213,29 @@ enum AnalyticsFeedCore {
             let age = now.timeIntervalSince(updated)
             return age.isFinite && age >= 0 && (candidate.recordedSnapshot || age <= 900)
         }
+    }
+    /// Score difference measures the margin, so show spreads even when discovery
+    /// selected the team's moneyline seed. Quotes themselves are never rewritten.
+    static func cardOdds(candidate: AnalyticsFeedCandidate, history: AnalyticsHistoryResult?, now: Date = Date()) -> [Market] {
+        var request = candidate.market
+        if candidate.subject == .team, request.market == "h2h" { request.market = "spreads" }
+        let scoped = AnalyticsFeedCandidate(id: candidate.id, subject: candidate.subject, market: request,
+            quotes: candidate.quotes, verifiedSubject: candidate.verifiedSubject,
+            recordedSnapshot: candidate.recordedSnapshot, recordedArchive: candidate.recordedArchive)
+        return bettingFeedQuotes(candidate: scoped, history: history, now: now)
+    }
+    static func cardOddsTitle(_ candidate: AnalyticsFeedCandidate) -> String {
+        switch candidate.market.market {
+        case "h2h", "spreads": return "Spread odds"
+        case "totals": return "Game total odds"
+        case "team_totals": return "Team total odds"
+        default: return "Player prop odds"
+        }
+    }
+    static func cardOddsContract(_ quote: Market) -> String {
+        let side = quote.market == "spreads" ? quote.name : (quote.side?.capitalized ?? quote.name)
+        let line = quote.line.map { String(format: quote.market == "spreads" ? "%+g" : "%g", $0) } ?? ""
+        return [side, line].filter { !$0.isEmpty }.joined(separator: " ")
     }
     static func search(candidates: [AnalyticsFeedCandidate], query: String) -> [AnalyticsFeedCandidate] {
         let tokens = normalized(query).split(separator: " ").map(String.init)

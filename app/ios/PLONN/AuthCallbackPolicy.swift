@@ -1,9 +1,9 @@
 import Foundation
 
 enum AccountAIConsentPolicy {
-    static let version = "v1"
+    static let version = "v2_ollama_cloud"
     static let metadataKey = "plonn_ai_consent"
-    static let disclosure = "When you request AI, your question, recent conversation, and selected research are sent to PLONN’s AI service running Gemma4. Player and model attachments are optional. Avoid sensitive personal information. AI runs only when you request it; you can use research without AI."
+    static let disclosure = "When you request AI, your question, recent conversation, and selected research are sent through PLONN to Ollama’s hosted Gemma 4 31B service. Ollama processes these prompts and responses and states that it does not log them or use them to train models. Player and model attachments are optional. Avoid sensitive personal information. AI runs only when you request it; you can use research without AI."
 
     static func preferenceKey(owner: UUID) -> String {
         "plonn.aiConsent.\(version).\(owner.uuidString.lowercased())"
@@ -44,6 +44,29 @@ enum AuthCallbackPresence {
     }
 }
 
+/// Reject incomplete or ambiguous email callbacks before invoking the SDK.
+/// Payload values stay private; only bounded failure categories reach the UI.
+enum EmailAuthCallbackValidation {
+    static func failure(for url: URL, verifierPresent: Bool) -> String? {
+        switch AuthCallbackPresence.category(for: url) {
+        case "callback_error": return nil // Let the SDK verify and classify provider errors.
+        case "callback_code_present": return verifierPresent ? nil : "sign_in_context"
+        default: return "link_incomplete"
+        }
+    }
+}
+
+enum EmailAuthLinkError: Error {
+    case incomplete, missingRequest, storageUnavailable
+    var category: String {
+        switch self {
+        case .incomplete: return "link_incomplete"
+        case .missingRequest: return "sign_in_context"
+        case .storageUnavailable: return "auth_storage"
+        }
+    }
+}
+
 enum AuthFailurePresentation {
     static func category(serverCode: String?, httpStatus: Int?) -> String {
         switch serverCode {
@@ -63,7 +86,15 @@ enum AuthFailurePresentation {
         case "link_expired":
             return "This account link has expired or was already used. Request a new link and open it once on this device."
         case "recovery_context":
-            return "This recovery link does not match the request on this device. Request a new link here and open it in the same app on this device."
+            return "This account link does not match the request on this device. Request a new link here and open it in the same app on this device."
+        case "sign_in_context":
+            return "This link doesn’t match a sign-in request in this app. Request a new link here, then open the newest email on this device."
+        case "link_incomplete":
+            return "This sign-in link is incomplete. Request a new link and open it directly from the newest email."
+        case "auth_storage":
+            return "PLONN couldn’t save your sign-in request securely. Unlock your device, reopen PLONN, and request a new link."
+        case "network":
+            return "Couldn’t reach the account service. Check your connection and try again."
         case "rate_limit":
             return "Too many account requests. Wait before requesting another link or trying again."
         case "credentials":

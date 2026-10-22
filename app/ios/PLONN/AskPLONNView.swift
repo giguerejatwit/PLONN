@@ -5,7 +5,10 @@ import SwiftUI
 struct AskPLONNView: View {
     @EnvironmentObject private var store: Store
     @EnvironmentObject private var account: AccountStore
+    @EnvironmentObject private var purchases: PurchaseStore
     @State private var question = ""
+    @State private var reportQuestion = ""
+    @State private var reportAnswer = ""
     @FocusState private var questionFocused: Bool
     @State private var intent: AskPLONNIntent = .generalChat
     @State private var selectedContext = ""
@@ -28,6 +31,9 @@ struct AskPLONNView: View {
     @State private var didLoad = false
     @State private var sheet: ResearchSheet?
     @State private var conversation = AskPLONNConversation()
+    @State private var modelCreationMode = false
+    @State private var modelDraft: AskPLONNModelDraft?
+    @State private var modelDraftTurns: [AskPLONNQuestionContext] = []
     @State private var automaticContext: AskPLONNContextTarget?
     @State private var automaticChoice: AskPLONNContextTarget?
     @State private var declinedChatOwner: UUID?
@@ -37,7 +43,8 @@ struct AskPLONNView: View {
 
     init(initialMarket: Market? = nil, initialRecipe: LabRecipe? = nil,
          initialModelResult: AskPLONNModelResultSnapshot? = nil,
-         provider: (any AskPLONNProvider)? = nil) {
+         provider: (any AskPLONNProvider)? = nil, startModelBuilder: Bool = false) {
+        _modelCreationMode = State(initialValue: startModelBuilder)
         _initialMarket = State(initialValue: initialMarket)
         _selectedRecipe = State(initialValue: initialRecipe)
         _modelResult = State(initialValue: initialModelResult)
@@ -45,7 +52,7 @@ struct AskPLONNView: View {
         _intent = State(initialValue: initialRecipe != nil || initialModelResult != nil ? .explainModel : (initialMarket != nil ? .recentForm : .generalChat))
         _researchingPlayer = State(initialValue: initialMarket == nil && initialRecipe == nil)
         #if DEBUG && targetEnvironment(simulator)
-        let useLocal = provider == nil && ProcessInfo.processInfo.environment["PLONN_ASK_LOCAL_MODEL_DISABLED"] != "1"
+        let useLocal = provider == nil && ProcessInfo.processInfo.environment["PLONN_ASK_LOCAL_MODEL_ENABLED"] == "1" && ProcessInfo.processInfo.environment["PLONN_ASK_LOCAL_MODEL_DISABLED"] != "1"
         self.initialProvider = provider ?? (useLocal ? LocalAskPLONNProvider() : nil)
         self.localPrototype = useLocal
         #else
@@ -65,7 +72,7 @@ struct AskPLONNView: View {
         var researchLimitations: [AskPLONNEvidence] = []
     }
     private enum ResearchSheet: String, Identifiable {
-        case calculator, models, context, chatConsent, account
+        case calculator, models, context, chatConsent, account, pro, report
         var id: String { rawValue }
     }
     private var hostedChatEligible: Bool {
@@ -113,7 +120,8 @@ struct AskPLONNView: View {
         if researchingPlayer, let player = publicPlayerContext { return player.name + " · " + player.label }
         return recipe?.name ?? market.map { $0.name + " · " + $0.label } ?? "Attach research (optional)"
     }
-    var body: some View {
+    var body:some View {AccountRequiredView(feature:.aiResearch){protectedBody}}
+    private var protectedBody:some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
                 conversationBar
@@ -133,7 +141,7 @@ struct AskPLONNView: View {
         }
             .safeAreaInset(edge: .bottom, spacing: 0) { composer }
             .fontDesign(.default)
-            .navigationTitle("LLM").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Ask PLONN").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: newChat) { Image(systemName: "square.and.pencil") }
@@ -148,8 +156,13 @@ struct AskPLONNView: View {
                 }
             }
             .sheet(item: $sheet) { item in
-                if item == .calculator { BuilderView().environmentObject(store) }
+                if item == .calculator { BuilderView(openAnalytics: {
+                    sheet = nil
+                    NotificationCenter.default.post(name: Notification.Name("PLONNOpenAnalytics"), object: nil)
+                }).environmentObject(store) }
                 else if item == .chatConsent { chatConsentView }
+                else if item == .report { AIContentReportView(question: reportQuestion, answer: reportAnswer) }
+                else if item == .pro { NavigationStack { ProPaywallView().toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { sheet = nil } } } } }
                 else if item == .account {
                     NavigationStack {
                         AccountView().environmentObject(account)
@@ -182,7 +195,7 @@ struct AskPLONNView: View {
                                 }
                             }.padding(20)
                         }
-                        .navigationTitle("Chat context").navigationBarTitleDisplayMode(.inline)
+                        .navigationTitle("Attached research").navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Done") { playerNameFocused = false; sheet = nil }
@@ -224,8 +237,10 @@ struct AskPLONNView: View {
         }
         .onChange(of: activeContextID) { _, _ in
             cancelPending(); conversation = AskPLONNConversation(); automaticContext = nil; automaticChoice = nil
+            modelDraft = nil; modelDraftTurns = []
         }
         .onChange(of: account.user?.id) { _, owner in
+            modelDraft = nil; modelDraftTurns = []; modelCreationMode = false
             declinedChatOwner = nil; consentRequestedOwner = nil
             if sheet == .chatConsent || (sheet == .account && account.user?.isAnonymous == false) { sheet = nil }
             cancelPending(); messages = []; question = ""; selectedContext = ""
@@ -236,27 +251,44 @@ struct AskPLONNView: View {
         .onChange(of: account.user?.isAnonymous) { _, anonymous in
             if sheet == .account, anonymous == false { sheet = nil }
         }
-        .onDisappear { cancelPending(reason: "Research stopped when you left LLM. Ask again to continue.") }
+        .onDisappear { cancelPending(reason: "Research stopped when you left Ask PLONN. Ask again to continue.") }
     }
     private var introduction: some View {
         VStack(alignment: .leading, spacing: 18) {
             Image(systemName: "bubble.left.and.bubble.right").font(.system(size: 30)).padding(.top, 24)
-            Text("What would you like to explore?").font(.system(.title2, design: .default).bold()).accessibilityIdentifier("ask-plonn-welcome")
-            Text("Ask about a game, team, or player in NFL, NBA, NHL, or MLB. I’ll look for matching verified research and ask when the matchup is unclear. Player and saved model attachments are also available.")
-                .font(.system(.body, design: .default)).foregroundStyle(.secondary)
+            Text(modelCreationMode ? "Describe your model" : "Ask about a game, team or player").font(.system(.title2, design: .default).bold()).accessibilityIdentifier("ask-plonn-welcome")
+            if modelCreationMode {
+                Text("Include a player or team, stat and line. Review the draft before testing.")
+                    .font(.body).foregroundStyle(.secondary)
+            }
+            if modelCreationMode {
+                Button("Test an NBA points prop") { question = "Create an NBA model for a player’s points over 25.5"; questionFocused = true }
+                    .plonnGlassButton().accessibilityIdentifier("ask-plonn-model-example")
+            } else {
+            Button("Create a model with AI", systemImage: "sparkles") { modelCreationMode = true; questionFocused = true }
+                .plonnGlassButton().accessibilityIdentifier("ask-plonn-create-model")
             Button("How do odds work?") { question = "How do odds work?"; questionFocused = true }
-                .buttonStyle(.bordered).font(.system(.subheadline, design: .default))
+                .plonnGlassButton().font(.system(.subheadline, design: .default))
                 .accessibilityIdentifier("ask-plonn-start-chat")
             HStack(spacing: 10) {
                 Button("Attach player") { researchingPlayer = true; selectedContext = ""; sheet = .context }
-                    .buttonStyle(.bordered).accessibilityIdentifier("ask-plonn-start-player")
+                    .plonnGlassButton().accessibilityIdentifier("ask-plonn-start-player")
                 Button("Attach model") { researchingPlayer = false; contextExpanded = true; sheet = .context }
-                    .buttonStyle(.bordered).accessibilityIdentifier("ask-plonn-start-model")
+                    .plonnGlassButton().accessibilityIdentifier("ask-plonn-start-model")
             }.font(.system(.subheadline, design: .default))
+            }
         }
     }
     private var conversationBar: some View {
         VStack(alignment: .leading, spacing: 6) {
+            if modelCreationMode {
+                HStack {
+                    Label("Create a model", systemImage: "sparkles").font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Button("Back to chat") { newChat(); modelCreationMode = false }
+                        .font(.caption).accessibilityIdentifier("ask-plonn-exit-model-builder")
+                }
+            } else {
             Button { questionFocused = false; sheet = .context } label: {
                 HStack(spacing: 8) {
                     Image(systemName: activeContextID.isEmpty ? "plus.circle" : "person.crop.circle")
@@ -265,13 +297,14 @@ struct AskPLONNView: View {
                     Image(systemName: "chevron.down").font(.system(.caption, design: .default))
                 }.font(.system(.subheadline, design: .default)).foregroundStyle(.primary)
             }.accessibilityIdentifier("ask-plonn-chat-context")
+            }
             Text(providerStatus)
                 .font(.system(.caption2, design: .default)).foregroundStyle(.secondary)
                 .accessibilityIdentifier("ask-plonn-provider-status")
             if hostedChatEligible, !account.hasChatConsent {
                 Button("Enable AI chat") { requestChatConsent() }.font(.caption)
             } else if initialProvider == nil, CloudConfiguration.servicePolicy.chatAvailable, account.user?.isAnonymous != false {
-                Button("Sign in for Gemma4") { questionFocused = false; playerNameFocused = false; sheet = .account }
+                Button("Sign in for AI research") { questionFocused = false; playerNameFocused = false; sheet = .account }
                     .font(.caption).accessibilityIdentifier("ask-plonn-sign-in")
             }
         }.padding(.horizontal, 20).padding(.vertical, 10)
@@ -371,26 +404,27 @@ struct AskPLONNView: View {
             HStack(spacing: 8) {
                 if !messages.isEmpty {
                     Button("Tell me more") { question = "What does that mean?"; questionFocused = true }
-                        .buttonStyle(.bordered).accessibilityIdentifier("ask-plonn-follow-up")
+                        .plonnGlassButton().accessibilityIdentifier("ask-plonn-follow-up")
                 }
                 ForEach(topics, id: \.rawValue) { topic in
                     Button {
                         intent = topic; question = suggestedQuestion(topic)
                     } label: {
                         Text(title(topic)).font(.system(.caption, design: .default)).padding(.vertical, 2)
-                    }.buttonStyle(.bordered).accessibilityIdentifier(topic == .comparePrices ? "Compare prices" : title(topic))
+                    }.plonnGlassButton().accessibilityIdentifier(topic == .comparePrices ? "Compare prices" : title(topic))
                 }
             }
         }.accessibilityIdentifier("ask-plonn-suggestions")
     }
     private var composer: some View {
             VStack(alignment: .leading, spacing: 8) {
-                if (!activeContextID.isEmpty || !messages.isEmpty) && !working { suggestions }
+                if !modelCreationMode && (!activeContextID.isEmpty || !messages.isEmpty) && !working { suggestions }
                 HStack(alignment: .bottom, spacing: 10) {
-                TextField(messages.isEmpty ? "Message LLM…" : "Ask a follow-up…", text: $question, axis: .vertical)
+                TextField(messages.isEmpty ? (modelCreationMode ? "Describe what you want to test…" : "Ask PLONN…") : "Ask a follow-up…", text: $question, axis: .vertical)
                     .focused($questionFocused)
                     .lineLimit(1...4).font(.system(.body, design: .default))
-                    .padding(12).background(navySurface,in:RoundedRectangle(cornerRadius:12))
+                    .padding(.horizontal,16).padding(.vertical,12).frame(minHeight:48)
+                    .plonnGlassSurface(radius:24,interactive:false)
                     .submitLabel(.send).onSubmit { submit() }.disabled(working)
                     .accessibilityIdentifier("ask-plonn-question")
                 if working {
@@ -403,9 +437,9 @@ struct AskPLONNView: View {
                 }.plonnGlassButton(prominent: true).disabled(!canSend).accessibilityIdentifier("ask-plonn-send")
                     .accessibilityLabel("Send question")
                 }
-                }
+                }.plonnGlassGroup()
                 if question.count > AskPLONNCore.maximumQuestionLength { Text("Keep your question under 1,000 characters.").font(.system(.caption, design: .default)).foregroundStyle(.orange) }
-                Text("General discussion · Attached research uses recorded sources")
+                Text(modelCreationMode ? "Draft first · Review before saving or testing" : "General discussion · Attached research uses recorded sources")
                     .font(.system(.caption2, design: .default)).foregroundStyle(.secondary)
             }
             .padding(.horizontal,20).padding(.vertical,12).background(.regularMaterial)
@@ -425,6 +459,7 @@ struct AskPLONNView: View {
                 SportsbookPriceCard(comparison: comparison)
             }
             if let answer = message.answer {
+                        if let draft = answer.modelDraft { modelDraftCard(draft) }
                         if !message.contextLabel.isEmpty { Text(message.contextLabel).font(.system(.caption, design: .default)).foregroundStyle(.secondary) }
                         if message.priceComparison?.bestQuote != nil {
                             DisclosureGroup("Recorded comparison summary") {
@@ -446,17 +481,20 @@ struct AskPLONNView: View {
                         ForEach(message.researchLimitations + answer.evidence.filter { $0.availability != .available && message.priceComparison == nil && !message.researchLimitations.contains($0) }) { evidence in
                             Text(evidence.text).font(.system(.subheadline, design: .default)).foregroundStyle(.secondary)
                         }
+                        Button("Report answer", systemImage: "flag") {
+                            reportQuestion = message.question; reportAnswer = displayText(answer); sheet = .report
+                        }.font(.caption).accessibilityIdentifier("ask-plonn-report-answer")
                         if answer.requiresResearchContext {
                             Button(activeContextID.isEmpty ? "Attach research (optional)" : "Change research attachment") {
                                 question = message.question; sheet = .context
-                            }.buttonStyle(.bordered).accessibilityIdentifier("ask-plonn-choose-context")
+                            }.plonnGlassButton().accessibilityIdentifier("ask-plonn-choose-context")
                         }
             } else if let guidance = message.guidance {
                 Text(guidance).font(.system(.body, design: .default)).accessibilityIdentifier("ask-plonn-answer")
                 ForEach(message.contextChoices) { choice in
                     Button(choice.label) {
                         automaticChoice = choice; question = message.question; submit()
-                    }.buttonStyle(.bordered).disabled(working)
+                    }.plonnGlassButton().disabled(working)
                         .accessibilityIdentifier("ask-plonn-context-choice")
                 }
             } else if let failure = message.failure {
@@ -471,6 +509,57 @@ struct AskPLONNView: View {
                 }
             }
                 }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+    private func modelDraftCard(_ draft: AskPLONNModelDraft) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Model draft · Not tested", systemImage: "slider.horizontal.3").font(.caption.weight(.semibold))
+            if !draft.title.isEmpty { Text(draft.title).font(.headline) }
+            Text([draft.league, draft.target, draft.thresholdDescription].compactMap { $0 }.joined(separator: " · "))
+                .font(.subheadline)
+            if let opponent = draft.opponent { Text("Requested opponent: " + opponent).font(.caption) }
+            if let preset = draft.scoringPreset { Text(preset == "draftkings_classic" ? "DraftKings scoring" : "FanDuel scoring").font(.caption) }
+            if let method = draft.firstBasketMethod { Text(method.replacingOccurrences(of: "_", with: " ").capitalized).font(.caption) }
+            if draft.line != nil { Text("Research threshold · No sportsbook price attached").font(.caption2).foregroundStyle(.secondary) }
+            if draft.canReview {
+                Text("The builder selects supported inputs and checks available history.").font(.caption).foregroundStyle(.secondary)
+                NavigationLink { AILabView(initialDraft: draft) } label: {
+                    Label("Review model", systemImage: "arrow.right")
+                }.plonnGlassButton(prominent:true).accessibilityIdentifier("ask-plonn-review-model")
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(16)
+            .background(navySurface, in: RoundedRectangle(cornerRadius: 16))
+            .accessibilityIdentifier("ask-plonn-model-draft")
+    }
+    @MainActor private func submitModelDraft(_ text: String) {
+        let owner = account.user?.id, token = UUID(), selectedProvider = provider
+        let request = AskPLONNRequest(question: text, intent: .generalChat, evidence: [], ownerID: owner?.uuidString,
+            priorTurns: modelDraftTurns, researchPurpose: .modelCreation, modelDraft: modelDraft)
+        generation = token; question = ""; questionFocused = false; playerNameFocused = false; working = true
+        let message = Message(question: text, contextLabel: "Model creation")
+        messages.append(message)
+        if messages.count > 20 { messages.removeFirst(messages.count - 20) }
+        task = Task { @MainActor in
+            defer { if generation == token { working = false; task = nil } }
+            do {
+                guard let selectedProvider else { throw AskPLONNError.providerUnavailable }
+                let answer = try AskPLONNCore.validateProviderAnswer(await selectedProvider.answer(request), for: request)
+                try Task.checkCancellation()
+                guard generation == token, account.user?.id == owner, account.hasSignedInAccount,
+                      let index = messages.firstIndex(where: { $0.id == message.id }) else { return }
+                modelDraft = answer.modelDraft
+                modelDraftTurns.append(AskPLONNQuestionContext(question: text, intent: .generalChat))
+                while modelDraftTurns.count > 6 || modelDraftTurns.reduce(0, { $0 + $1.question.count }) > 3000 { modelDraftTurns.removeFirst() }
+                messages[index].answer = answer
+            } catch {
+                guard generation == token, account.user?.id == owner,
+                      let index = messages.firstIndex(where: { $0.id == message.id }) else { return }
+                if let hosted = error as? HostedAskPLONNError {
+                    messages[index].failure = hosted.userFacingMessage + " You can also create a model manually in Models."
+                } else {
+                    messages[index].failure = "AI couldn’t prepare this draft. Try again with the sport, player or team, stat and line. You can also create a model manually in Models."
+                }
             }
         }
     }
@@ -489,6 +578,7 @@ struct AskPLONNView: View {
     }
     private func newChat() {
         cancelPending(); messages = []; question = ""; conversation = AskPLONNConversation(); automaticContext = nil; automaticChoice = nil
+        modelDraft = nil; modelDraftTurns = []
         intent = activeContextID.isEmpty ? .generalChat : (researchingPlayer || recipe == nil ? .recentForm : .explainModel)
         questionFocused = false
     }
@@ -517,11 +607,18 @@ struct AskPLONNView: View {
         }
     }
     @MainActor private func submit() {
+        guard account.hasSignedInAccount else {account.access.present(feature:.aiResearch);return}
+        guard purchases.mayUseProFeatures else { sheet = .pro; return }
         guard canSend else { return }
         if hostedChatEligible, !account.hasChatConsent, declinedChatOwner != account.user?.id {
             requestChatConsent(); return
         }
         let text = effectiveQuestion
+        if modelCreationMode || AskPLONNModelDraft.isCreationRequest(text) {
+            modelCreationMode = true
+            submitModelDraft(text)
+            return
+        }
         let chosenAutomatic = automaticChoice; automaticChoice = nil
         let discoverContext = activeContextID.isEmpty && (chosenAutomatic != nil || AskPLONNContextResolver.shouldDiscover(text, previous: automaticContext, markets: markets))
         let previousAutomatic = automaticContext
@@ -623,7 +720,7 @@ struct AskPLONNView: View {
             } catch {
                 guard !Task.isCancelled, generation == token, account.user?.id.uuidString == owner else { return }
                 if let index = messages.firstIndex(where: { $0.id == message.id }) {
-                    messages[index].failure = "The explanation is unavailable. Try your question again."
+                    messages[index].failure = (error as? HostedAskPLONNError)?.userFacingMessage ?? "The explanation could not be verified. Please try your question again."
                 }
             }
             if generation == token { working = false; task = nil }
@@ -646,7 +743,7 @@ struct SportsbookPriceCard: View {
         let expired = comparison.expiresAt.map { now > $0 } ?? false
         let best = expired ? nil : comparison.bestQuote
         return VStack(alignment: .leading, spacing: 14) {
-            Text("Best price & model edge").font(.system(.headline, design: .default)).accessibilityIdentifier("sportsbook-price-card")
+            Text("Odds comparison").font(.system(.headline, design: .default)).accessibilityIdentifier("sportsbook-price-card")
             if let best {
                 HStack(alignment: .top, spacing: 18) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -717,5 +814,46 @@ struct SportsbookPriceCard: View {
     }
     private func percent(_ value: Double) -> String {
         String(format: "%.2f%%", locale: Locale(identifier: "en_US_POSIX"), value * 100)
+    }
+}
+
+
+private struct AIContentReportView: View {
+    @EnvironmentObject private var account: AccountStore
+    @Environment(\.dismiss) private var dismiss
+    let question: String
+    let answer: String
+    @State private var reason = "Incorrect information"
+    @State private var sending = false
+    @State private var sent = false
+    @State private var message = ""
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Text(sent ? "Thanks. Your report was received." : "Send this question, answer, and reason to PLONN for review. The rest of your conversation stays private.")
+                    if !sent {
+                        Picker("Reason", selection: $reason) {
+                            ForEach(["Incorrect information", "Harmful or inappropriate", "Other"], id: \.self) { Text($0) }
+                        }
+                        DisclosureGroup("Content included") { Text(question); Text(answer) }
+                        Button(sending ? "Sending…" : "Send report") { Task { await send() } }.disabled(sending)
+                    }
+                    if !message.isEmpty { Text(message).font(.caption) }
+                }
+            }.navigationTitle("Report answer").navigationBarTitleDisplayMode(.inline)
+                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+        }
+    }
+    @MainActor private func send() async {
+        guard !sending, account.hasSignedInAccount, let owner = account.user?.id else { return }
+        sending = true; message = ""
+        defer { sending = false }
+        struct Report: Encodable { let p_question: String; let p_answer: String; let p_reason: String }
+        do {
+            try await account.client.rpc("report_ai_content", params: Report(p_question: String(question.prefix(4000)), p_answer: String(answer.prefix(16000)), p_reason: reason)).execute()
+            guard account.user?.id == owner else { return }
+            sent = true
+        } catch { message = "We couldn’t send this report. Please try again, or use Get help in Account. Up to 5 reports can be sent per day." }
     }
 }

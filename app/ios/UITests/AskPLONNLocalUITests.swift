@@ -129,15 +129,15 @@ final class AskPLONNLocalUITests: XCTestCase {
         if let marketFixture { app.launchEnvironment["PLONN_ASK_MARKETS_FIXTURE"] = marketFixture }
         app.launchArguments = ["-backendURL", "https://127.0.0.1:9", "-appearanceMode", "light"]
         app.launch()
-        let tab = app.tabBars.buttons["LLM"]
+        let tab = app.tabBars.buttons["Ask PLONN"]
         XCTAssertTrue(tab.waitForExistence(timeout: 30))
         let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: tab)
         XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 30), .completed)
         tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        if !app.staticTexts["LLM"].waitForExistence(timeout: 3) {
+        if !app.staticTexts["Ask PLONN"].waitForExistence(timeout: 3) {
             tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
-        XCTAssertTrue(app.staticTexts["LLM"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Ask PLONN"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["ask-plonn-provider-status"].label.contains("Local prototype"))
         return app
     }
@@ -415,10 +415,10 @@ final class AskPLONNLocalUITests: XCTestCase {
         tap(app.buttons["ask-plonn-send"],in:app)
         XCTAssertTrue(app.buttons["ask-plonn-stop"].waitForExistence(timeout:5))
         app.tabBars.buttons["Games"].tap()
-        app.tabBars.buttons["LLM"].tap()
+        app.tabBars.buttons["Ask PLONN"].tap()
         let answer=app.staticTexts["ask-plonn-answer"].firstMatch
         XCTAssertTrue(answer.waitForExistence(timeout:5),app.debugDescription)
-        XCTAssertTrue(answer.label.contains("left LLM"),answer.label)
+        XCTAssertTrue(answer.label.contains("left Ask PLONN"),answer.label)
         XCTAssertFalse(app.buttons["ask-plonn-stop"].exists)
         tap(app.buttons["ask-plonn-retry"].firstMatch,in:app)
         XCTAssertTrue(app.buttons["ask-plonn-send"].isEnabled)

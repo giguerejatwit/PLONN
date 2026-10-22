@@ -30,7 +30,14 @@ headers = '\n'.join(line for line in source.splitlines() if line.startswith(('st
 stubs = '''
 import SwiftUI
 import Combine
-struct TestUser { let id: UUID }
+struct TestUser { let id: UUID; var isAnonymous=false }
+// Only the retained snapshot's value type is needed by the verbatim Store adapter.
+enum AnalyticsFeedService {
+ struct RecordedSnapshot {
+  let markets:[Market]; let events:[RecordedEventMetadata]; let cacheOnly:Bool
+  let fetchedAt:String?; let servedAt:String?; let recordedArchive:Bool
+ }
+}
 enum FunctionsError: Error { case httpError(Int, Data) }
 struct TestOptions {
  var body: [String:String]

@@ -3,7 +3,7 @@ import Foundation
 enum AskPLONNIntent: String, CaseIterable, Codable, Sendable {
     case recentForm, opponentHistory, comparePrices, explainModel, generalChat
 }
-enum AskPLONNResearchPurpose: String, Codable, Sendable { case matchupInsights }
+enum AskPLONNResearchPurpose: String, Codable, Sendable { case matchupInsights, modelCreation }
 enum AskPLONNAvailability: String, Codable, Sendable { case available, stale, unavailable }
 enum AskPLONNAnswerMode: String, Codable, Sendable { case localResearch, provider, generalExplanation }
 enum AskPLONNGeneralResponseKind: String, CaseIterable, Codable, Sendable { case explanation, needs_research, unsupported }
@@ -25,9 +25,10 @@ struct AskPLONNAnswer: Codable, Sendable {
     var providerLabel: String? = nil
     var requiresResearchContext = false
     var matchupSummary: String? = nil
+    var modelDraft: AskPLONNModelDraft? = nil
 }
 extension AskPLONNAnswer {
-    private enum CodingKeys: String, CodingKey { case text, evidence, mode, providerLabel, requiresResearchContext, matchupSummary }
+    private enum CodingKeys: String, CodingKey { case text, evidence, mode, providerLabel, requiresResearchContext, matchupSummary, modelDraft }
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         text = try values.decode(String.self, forKey: .text)
@@ -36,6 +37,7 @@ extension AskPLONNAnswer {
         providerLabel = try values.decodeIfPresent(String.self, forKey: .providerLabel)
         requiresResearchContext = try values.decodeIfPresent(Bool.self, forKey: .requiresResearchContext) ?? false
         matchupSummary = try values.decodeIfPresent(String.self, forKey: .matchupSummary)
+        modelDraft = try values.decodeIfPresent(AskPLONNModelDraft.self, forKey: .modelDraft)
     }
 }
 /// Research retains questions/topics only; current evidence supplies its facts.
@@ -54,6 +56,7 @@ struct AskPLONNRequest: Codable, Sendable {
     var priorTurns: [AskPLONNQuestionContext]? = nil
     var researchPurpose: AskPLONNResearchPurpose? = nil
     var matchupTeams: [String]? = nil
+    var modelDraft: AskPLONNModelDraft? = nil
 }
 protocol AskPLONNProvider: Sendable {
     var displayName: String { get }
@@ -127,11 +130,7 @@ enum AskPLONNCore {
     }
 
     static func generalFallback(_ request: AskPLONNRequest) -> AskPLONNAnswer {
-        #if DEBUG
-        let disclosure = "The local chat model is unavailable. "
-        #else
         let disclosure = "AI chat is unavailable. "
-        #endif
         if isUnsupportedGeneralQuestion(request.question) {
             return AskPLONNAnswer(text: disclosure + "I can explain how odds and uncertainty work, but I can’t recommend bets, guarantee outcomes, or predict a player's result from team averages. What concept would you like to explore?", evidence: [], mode: .generalExplanation)
         }
@@ -177,6 +176,10 @@ enum AskPLONNCore {
 
     static func boundedRequest(_ request: AskPLONNRequest) throws -> AskPLONNRequest {
         guard request.question.count <= maximumQuestionLength else { throw AskPLONNError.questionTooLong }
+        if request.researchPurpose == .modelCreation {
+            guard request.intent == .generalChat, request.evidence.isEmpty, request.matchupTeams == nil,
+                  request.modelDraft?.isValid != false else { throw AskPLONNError.invalidEvidence }
+        } else if request.modelDraft != nil { throw AskPLONNError.invalidEvidence }
         let priorTurns = request.priorTurns ?? []
         if request.researchPurpose == .matchupInsights {
             guard request.intent == .recentForm, priorTurns.isEmpty,
@@ -238,6 +241,13 @@ enum AskPLONNCore {
     /// General education is separately labeled and never carries evidence.
     static func validateProviderAnswer(_ answer: AskPLONNAnswer, for request: AskPLONNRequest) throws -> AskPLONNAnswer {
         _ = try boundedRequest(request)
+        if request.researchPurpose == .modelCreation {
+            guard let draft = answer.modelDraft, draft.isValid, answer.text == draft.guidance,
+                  answer.mode == .generalExplanation, answer.evidence.isEmpty, answer.matchupSummary == nil,
+                  !answer.requiresResearchContext, answer.providerLabel?.count ?? 0 <= 200 else { throw AskPLONNError.unsupportedAnswer }
+            return answer
+        }
+        guard answer.modelDraft == nil else { throw AskPLONNError.unsupportedAnswer }
         if request.researchPurpose == nil, answer.matchupSummary != nil { throw AskPLONNError.unsupportedAnswer }
         if request.intent == .generalChat {
             guard answer.mode == .generalExplanation, answer.evidence.isEmpty,
@@ -439,7 +449,10 @@ actor AskPLONNConversation {
                 }
             }
             catch {
-                if intent == .generalChat { answer = AskPLONNCore.generalFallback(request) }
+                try Task.checkCancellation()
+                guard token == generation, self.ownerID == ownerID, self.contextID == contextID else { throw AskPLONNError.superseded }
+                AskPLONNFailureDiagnostic.recordMatchupFailure(error)
+                if intent == .generalChat { throw error }
                 else {
                     let local = AskPLONNCore.localAnswer(request)
                     answer = AskPLONNAnswer(text: local.text + "\n\nThe provider response was unavailable or could not be verified. Showing verified local data.", evidence: local.evidence)

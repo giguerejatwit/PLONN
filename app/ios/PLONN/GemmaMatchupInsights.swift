@@ -221,8 +221,8 @@ enum MatchupOfflineFixture {
         let invalid = mode == "invalid"
         return HostedAskPLONNProvider(tokenProvider: { "offline-fixture-not-a-credential" }, transport: { request in
             // Inject the response below the hosted wire parser; no URLSession or upstream service is called.
-            let response: [String: Any] = ["schema_version": 1, "model": HostedAskPLONNProvider.modelName,
-                "digest": HostedAskPLONNProvider.pinnedDigest,
+            let response: [String: Any] = ["schema_version": 2, "model": HostedAskPLONNProvider.modelName,
+                "provider": "ollama_cloud",
                 "response": ["supported": true, "evidence_ids": ["offline-passing"],
                              "summary": invalid ? "Seattle Seahawks will score 99 points." : summary]]
             return (try JSONSerialization.data(withJSONObject: response),

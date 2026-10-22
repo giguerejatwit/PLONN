@@ -68,10 +68,10 @@ enum MatchupInsightSources {
         }
     }
 
-    static func espn(team: String, sport: String, requestedYear: Int, payload: [String: Any]) -> InsightTeamProfile? {
+    static func espn(team: String, sport: String, requestedYear: Int, payload: [String: Any], seasonType: Int = 2) -> InsightTeamProfile? {
         guard ["NBA", "NFL", "NHL"].contains(sport),
               let period = payload["requestedSeason"] as? [String: Any],
-              number(period["year"]) == Double(requestedYear), number(period["type"]) == 2,
+              [1,2].contains(seasonType), number(period["year"]) == Double(requestedYear), number(period["type"]) == Double(seasonType),
               let results = payload["results"] as? [String: Any],
               let stats = results["stats"] as? [String: Any] else { return nil }
         let own = metrics(stats["categories"])
@@ -84,12 +84,16 @@ enum MatchupInsightSources {
         var offense: [String: Double] = [:], allowed: [String: Double] = [:]
         switch sport {
         case "NFL":
-            for key in ["rushingYardsPerGame", "passingYardsPerGame"] {
+            for key in ["rushingYardsPerGame", "passingYardsPerGame", "totalPointsPerGame"] {
                 offense[key] = own[key]
                 if opponent["teamGamesPlayed"] == games { allowed[key] = opponent[key] }
             }
             offense["rushingAttemptsPerGame"] = own["rushingAttempts"].map { $0 / games }
             offense["passingAttemptsPerGame"] = own["passingAttempts"].map { $0 / games }
+            if opponent["teamGamesPlayed"] == games {
+                allowed["rushingAttemptsPerGame"] = opponent["rushingAttempts"].map { $0 / games }
+                allowed["passingAttemptsPerGame"] = opponent["passingAttempts"].map { $0 / games }
+            }
         case "NBA":
             for key in ["avgPoints", "avgAssists", "avgRebounds", "avgThreePointFieldGoalsMade"] {
                 offense[key] = own[key]; allowed[key] = opponent[key]
@@ -105,7 +109,7 @@ enum MatchupInsightSources {
         let display = (period["displayName"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
         return InsightTeamProfile(team: team, sample: Int(games), offense: offense, allowed: allowed,
             source: "\((display?.isEmpty == false ? display : nil) ?? String(requestedYear)) ESPN team statistics",
-            periodKey: "\(sport)|\(requestedYear)|regular")
+            periodKey: "\(sport)|\(requestedYear)|\(seasonType == 1 ? "preseason":"regular")")
     }
 
     /// Each dictionary is the MLB Stats API season split `stat`, plus `season` from its split.
@@ -121,6 +125,9 @@ enum MatchupInsightSources {
             var values: [String: Double] = [:]
             for key in ["avg", "slg"] { values[key] = number(stats[key]) }
             values["homeRunsPerGame"] = number(stats["homeRuns"]).map { $0 / sample }
+            for (input,output) in [("runs","runsPerGame"),("hits","hitsPerGame"),("strikeOuts","strikeoutsPerGame")] {
+                values[output] = number(stats[input]).map { $0 / sample }
+            }
             return values
         }
         let offense = rates(batting), allowed = rates(pitching)

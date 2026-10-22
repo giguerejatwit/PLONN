@@ -37,11 +37,10 @@ struct StatisticalLabView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 HStack { Brand(); Spacer(); Image(systemName: "sparkles").foregroundStyle(charcoalAccent) }
-                Text("Build your own forecast").font(.system(.title2, design: .monospaced).bold())
-                Text("Choose a method, add observations, and compare estimates.").foregroundStyle(.secondary)
+                Text("Compare models").font(.system(.title2, design: .monospaced).bold())
                 Panel {
                     VStack(alignment: .leading, spacing: 14) {
-                        Text("01  RESEARCH INPUTS").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+                        Text("Inputs").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
                         Picker("Sport", selection: $sport) { Text("NBA").tag("NBA"); Text("MLB").tag("MLB") }.pickerStyle(.segmented)
                         TextField("Player or team name", text: $subject).textFieldStyle(.roundedBorder)
                         TextField("Stat, e.g. points or strikeouts", text: $stat).textFieldStyle(.roundedBorder)
@@ -53,7 +52,7 @@ struct StatisticalLabView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("02  COMPARE MODELS").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+                    Text("Methods").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
                     ForEach(LabModel.allCases) { model in
                         Button {
                             if selected.contains(model) { selected.remove(model) } else { selected.insert(model) }
@@ -62,11 +61,11 @@ struct StatisticalLabView: View {
                                 Image(systemName: selected.contains(model) ? "checkmark.circle.fill" : "circle").foregroundStyle(selected.contains(model) ? Color.white : .secondary)
                                 VStack(alignment: .leading, spacing: 5) { Text(model.rawValue).font(.system(.headline, design: .monospaced)).foregroundStyle(.primary); Text(model.detail).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary) }
                                 Spacer()
-                            }.padding(16).background(Color.black.opacity(0.04)).clipShape(RoundedRectangle(cornerRadius: 14))
+                            }.padding(16).plonnGlassSurface(selected:selected.contains(model),radius:14)
                         }.buttonStyle(.plain).accessibilityLabel(model.rawValue).accessibilityValue(selected.contains(model) ? "Selected" : "Not selected")
                     }
                 }
-                Button(action: run) { Label("Run comparison", systemImage: "sparkles").font(.system(.headline, design: .monospaced)).frame(maxWidth: .infinity).padding(.vertical, 8) }.plonnGlassButton(prominent:true).foregroundStyle(Color.white).foregroundStyle(navy)
+                Button(action: run) { Label("Run comparison", systemImage: "sparkles").font(.system(.headline, design: .monospaced)).frame(maxWidth: .infinity).padding(.vertical, 8) }.plonnGlassButton(prominent:true)
                 if !error.isEmpty { Text(error).foregroundStyle(.orange).accessibilityIdentifier("lab-error") }
                 if !results.isEmpty {
                     Text("Comparison").font(.system(.title2, design: .monospaced).bold())
@@ -83,9 +82,9 @@ struct StatisticalLabView: View {
                     }
                     Text("*Fair odds condition on a decisive result when pushes are possible. These are unvalidated statistical baselines fitted to your inputs, not trained PLONN AI predictions. Small samples, opponents, injuries and changes in playing time can materially affect results.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
                 }
-                Panel { VStack(alignment: .leading, spacing: 10) { Label("PLONN trained models", systemImage: "cpu").font(.system(.headline, design: .monospaced)); Text("NBA totals · MLB strikeouts"); Text("Not connected. Training artifacts need a versioned inference service, verified feature inputs and out-of-sample calibration before users can run them.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary) } }
+                Panel { VStack(alignment: .leading, spacing: 10) { Label("PLONN trained models", systemImage: "cpu").font(.system(.headline, design: .monospaced)); Text("NBA totals · MLB strikeouts"); Text("These models aren’t available yet.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary) } }
             }.padding(20)
-        }.background(navy).navigationTitle("Models").navigationBarTitleDisplayMode(.inline)
+        }.background(PLONNBrandBackdrop()).navigationTitle("Models").navigationBarTitleDisplayMode(.inline)
         .onChange(of: inputSignature) { _, _ in results = []; error = "" }
     }
     private func run() {
@@ -134,12 +133,17 @@ struct AILabView: View {
     @StateObject private var players=SportsDirectory()
     @StateObject private var schedule=SportsDirectory()
     @StateObject private var marketStore=Store()
+    @StateObject private var modelLibrary=ModelLibraryStore()
     @State private var matchedPlayer=""
+    @FocusState private var nameFocused:Bool
     @State private var lookupMessage=""
     @State private var resolving=false
     @State private var marketSource=""
     @State private var playerTeam=""
-    private var suggestions:[SportsItem] {player.count<2 || player==matchedPlayer ? []:Array(players.items.filter{$0.name.localizedCaseInsensitiveContains(player)}.prefix(6))}
+    private var suggestions:[SportsItem] {
+        guard nameFocused,player.trimmingCharacters(in:.whitespacesAndNewlines).count>=2 else{return []}
+        return Array(players.items.filter {LabNameSearch.matches(query:player,name:$0.name,detail:$0.subtitle)}.sorted {LabNameSearch.rank(query:player,name:$0.name)<LabNameSearch.rank(query:player,name:$1.name)}.prefix(8))
+    }
     @State private var selectedQuote:Market?
     @State private var sourceContext=""
     @State private var marketLookupContext=""
@@ -167,7 +171,9 @@ struct AILabView: View {
             Text(lineSourceLabel(now:context.date)).font(.system(.caption2,design:.monospaced)).foregroundStyle(.secondary)
         }
     }
-    @AppStorage("preferredSportsbook") private var preferredBook="Ask each time"
+    @State private var preferredBook="Research"
+    @State private var scoringPreset="draftkings_classic"
+    @State private var firstBasketMethod="two_pointer"
     @AppStorage("labFeatureRecipes") private var savedRecipes="[]"
     @State private var showAdvancedAccess=false
     private let basicFeatureIDs=LabPropCatalog.basicFeatureIDs
@@ -175,18 +181,28 @@ struct AILabView: View {
     @State private var training=LabTrainingSettings()
     @State private var modelType="logistic_regression"
     @State private var capabilities:LabCapabilities?
-    @State private var capabilityMessage="Checking local model availability…"
+    @State private var capabilityMessage="Checking model testing…"
+    @State private var checkingCapabilities=true
+    @State private var creating=false
+    @State private var creationMessage=""
+    @State private var hasRestoredRecipe=false
+    @State private var customizedInputs=false
     @State private var loadedVersion:AccountModelVersion?
     @State private var didRestoreInitialVersion=false
     @State private var resultContext=""
     private let initialVersion:AccountModelVersion?
-    init(initialVersion:AccountModelVersion? = nil) {self.initialVersion=initialVersion}
+    private let initialDraft:AskPLONNModelDraft?
+    init(initialVersion:AccountModelVersion? = nil, initialDraft:AskPLONNModelDraft? = nil) {
+        self.initialVersion=initialVersion;self.initialDraft=initialDraft
+    }
     private var supportedSetup:LabCapabilities.Support? {capabilities?.match(league:league,stat:statName,target:targetKind)}
     private var retainedSupport:LabCapabilities.Support? {capabilities?.matchRetained(league:league,stat:statName,target:targetKind)}
     private var gameMarket:String? {LabServiceContract.gameMarket(target:targetKind,stat:statName)}
     private var isGame:Bool {gameMarket != nil}
     private var isMoneyline:Bool {gameMarket == "moneyline"}
-    private var requiresHistoricalEvent:Bool { isGame || (supportedSetup ?? retainedSupport)?.historical_event_required == true || league == "NFL" }
+    private var isYesNoProp:Bool {targetKind == "Player" && LabPropCatalog.isYesNo(statName)}
+    private var effectiveLine:Double? {isMoneyline ? 0:isYesNoProp ? 0.5:Double(targetLine)}
+    private var requiresHistoricalEvent:Bool { !hasRestoredRecipe || isGame || (supportedSetup ?? retainedSupport)?.historical_event_required == true || league == "NFL" }
     private var trainingCoverageMessage:String {
         guard capabilities != nil else{return "Training coverage is unverified. This setup can be saved, but the service has not confirmed support."}
         guard let support=supportedSetup else{return "Training is unavailable for this target. The catalog offers a configuration only."}
@@ -196,15 +212,20 @@ struct AILabView: View {
         return "History and matchup eligibility are checked when you run. Results require enough verified data for this setup."
     }
     private var canRun:Bool {
-        guard let support=supportedSetup else{return false}
+        guard creationAvailability == .ready,let support=supportedSetup else{return false}
         return support.supports(modelType) && !selected.isEmpty && selected.isSubset(of:Set(support.features))
     }
     private var canReuse:Bool {
         guard let support=retainedSupport else{return false}
         return support.supports(modelType) && !selected.isEmpty && selected.isSubset(of:Set(support.features))
     }
+    private var selectedPropOptions:[String:String]? {
+        if LabPropCatalog.isFantasy(statName) {return ["scoring_preset":scoringPreset]}
+        if statName == "Method of first basket" {return ["first_basket_method":firstBasketMethod]}
+        return nil
+    }
     private var currentRecipe:LabRecipe {
-        LabRecipe(id:UUID(),name:name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ? player+" · "+statName:name.trimmingCharacters(in:.whitespacesAndNewlines),player:player,quarterback:quarterback,opponent:opponent,features:selected.sorted(),created:Date(),line:isMoneyline ? 0:Double(targetLine),side:gameMarket == "spread" || isMoneyline ? "Over":side,sport:league,stat:statName,targetKind:targetKind,advanced:advanced,training:training,modelType:modelType,book:preferredBook,historicalEventID:historicalEventID.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ? nil:historicalEventID)
+        LabRecipe(id:UUID(),name:name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ? player+" · "+statName:name.trimmingCharacters(in:.whitespacesAndNewlines),player:player,quarterback:quarterback,opponent:opponent,features:selected.sorted(),created:Date(),line:effectiveLine,side:gameMarket == "spread" || isMoneyline ? "Over":side,sport:league,stat:statName,targetKind:targetKind,advanced:advanced,training:training,modelType:modelType,book:preferredBook,historicalEventID:historicalEventID.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ? nil:historicalEventID,propOptions:selectedPropOptions)
     }
     private var versionContext:String {
         if let version=loadedVersion,version.user_id==account.user?.id,
@@ -214,7 +235,8 @@ struct AILabView: View {
         return "Unsaved setup"
     }
     @MainActor private func loadCapabilities() async {
-        capabilities=nil
+        checkingCapabilities=true;capabilities=nil
+        defer {checkingCapabilities=false;applyRecommendations()}
         #if DEBUG
         // Simulator UI tests can exercise capability gating without hosted jobs or accounts.
         if let fixture=ProcessInfo.processInfo.environment["PLONN_LAB_CAPABILITIES_FIXTURE"],
@@ -227,7 +249,7 @@ struct AILabView: View {
             let(data,response)=try await URLSession.shared.data(for:request)
             guard (response as? HTTPURLResponse)?.statusCode==200 else{throw URLError(.badServerResponse)}
             capabilities=try JSONDecoder().decode(LabCapabilities.self,from:data)
-            capabilityMessage="Connected to PLONN."
+            capabilityMessage="Ready to check your model."
         } catch {capabilityMessage="Models are temporarily unavailable. Try again."}
     }
     private var modelTypeGrid:some View {
@@ -236,37 +258,45 @@ struct AILabView: View {
             LazyVGrid(columns:[GridItem(.flexible()),GridItem(.flexible())],spacing:8) {
                 ForEach(SavedModelType.allCases) { option in
                     let available=supportedSetup?.supports(option.rawValue) == true
-                    Button {modelType=option.rawValue} label: {
+                    Button {customizedInputs=true;modelType=option.rawValue} label: {
                         VStack(alignment:.leading,spacing:5) {
                             HStack {Image(systemName:modelType == option.rawValue ? "checkmark.circle.fill":"circle").foregroundStyle(modelType == option.rawValue ? Color.white:Color.secondary);Spacer()}
                             Text(option.title).font(.system(.subheadline, design: .monospaced).weight(.semibold))
                         }.frame(maxWidth:.infinity,alignment:.leading).padding(12)
-                         .plonnGlassSurface()
+                         .plonnGlassSurface(selected:modelType == option.rawValue)
                          .overlay(RoundedRectangle(cornerRadius:12).strokeBorder(modelType == option.rawValue ? Color.white.opacity(0.65):Color.clear,lineWidth:1))
                          .contentShape(Rectangle())
                     }.buttonStyle(.plain).disabled(!available)
                      .accessibilityAddTraits(modelType == option.rawValue ? .isSelected:[])
                 }
-            }
+            }.plonnGlassGroup()
             if let support=supportedSetup,!selected.isSubset(of:Set(support.features)) {
                 Text("This target supports: \(support.features.joined(separator:", ")). Adjust the selected features before running.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
             }
         }
     }
-    @State private var targetKind="Player"
+    @State private var targetKind="Team"
     @State private var featureSearch=""
     @State private var step=0
     @State private var player=""
     @State private var quarterback=""
     @State private var historicalEventID=""
+    @State private var historicalGame:LabHistoricalGame?
+    @State private var historicalTeam:LabHistoricalGame.Team?
+    @State private var showGamePicker=false
+    @State private var showPropPicker=false
+    @State private var showPro=false
+    private var historicalSource:LabHistoricalGames.Source { .source(league:league,fullGame:isGame,propSource:supportedSetup?.historical_event_source) }
+    private var usesHistoricalMatchup:Bool {requiresHistoricalEvent || !historicalEventID.isEmpty}
+    private var opponentLabel:String {historicalGame.flatMap {game in historicalTeam.flatMap {game.opponent(for:$0)?.name}} ?? opponent}
     @State private var opponent=""
     @State private var name=""
     @State private var league="NFL"
-    @State private var targetStat="Rec Yds"
+    @State private var targetStat="Spread"
     @State private var customStat=""
     @State private var targetLine=""
     @State private var side="Over"
-    @State private var selected:Set<String>=LabServiceContract.defaultFeatures(nil)
+    @State private var selected:Set<String>=["recent","season","homeAway"]
     @State private var restoringRecipe=false
     @State private var saved=false
     @State private var running=false
@@ -330,25 +360,33 @@ struct AILabView: View {
     }
     private var recipes:[LabRecipe] { (try? JSONDecoder().decode([LabRecipe].self,from:Data(savedRecipes.utf8))) ?? [] }
     private var trainingSignature:String {"\(advanced)|\(training.epochs)|\(training.learningRate)|\(training.regularization)|\(training.validationShare)"}
-    private var setupSignature:String { [account.user?.id.uuidString ?? "guest",preferredBook,historicalEventID,modelType,targetKind,trainingSignature,league,targetStat,customStat,player,quarterback,opponent,name,targetLine,side,selected.sorted().joined()].joined(separator:"|") }
-    private var validTarget:Bool { (!requiresHistoricalEvent || !historicalEventID.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty) && LabServiceContract.validLine(isMoneyline ? 0:Double(targetLine),target:targetKind,stat:statName) && !player.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && !statName.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && !opponent.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty }
-    var body:some View {
+    private var setupSignature:String { [account.user?.id.uuidString ?? "guest",preferredBook,historicalEventID,modelType,targetKind,trainingSignature,league,targetStat,customStat,player,quarterback,opponent,name,targetLine,side,scoringPreset,firstBasketMethod,selected.sorted().joined()].joined(separator:"|") }
+    private var validTarget:Bool { (!requiresHistoricalEvent || !historicalEventID.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty) && LabPropCatalog.configurationLimitation(statName)==nil && LabServiceContract.validLine(effectiveLine,target:targetKind,stat:statName) && !player.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && !statName.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && !opponent.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty }
+    var body:some View {AccountRequiredView(feature:.privateModels){protectedBody}
+        .sheet(isPresented:$showPro){NavigationStack{ProPaywallView().toolbar{ToolbarItem(placement:.confirmationAction){Button("Done"){showPro=false}}}}}}
+    private var protectedBody:some View {
         Group {
-            if initialVersion != nil { propBody }
+            if initialVersion != nil || initialDraft != nil { propBody }
             else {
                 ScrollView {
                     VStack(spacing:16) {
                         Text("Models").font(.system(.title2,design:.monospaced).bold()).frame(maxWidth:.infinity,alignment:.leading)
+                        NavigationLink { UpcomingGamesView() } label: {
+                            modelEntry("Upcoming game", icon:"bolt.fill", prominent:true)
+                        }.accessibilityIdentifier("lab-one-click")
+                        NavigationLink { AskPLONNView(startModelBuilder:true) } label: {
+                            modelEntry("Create with AI", icon:"sparkles")
+                        }.accessibilityIdentifier("lab-create-with-ai")
                         NavigationLink { propBody } label: {
-                            modelEntry("Create a model", subtitle:"Choose your stats. Build your approach.", icon:"plus", prominent:true)
+                            modelEntry("Custom model", icon:"plus")
                         }
                         NavigationLink { MyModelsView() } label: {
-                            modelEntry("My Models", subtitle:"Your saved models and results", icon:"square.stack.3d.up")
+                            modelEntry("My Models", icon:"square.stack.3d.up")
                         }
                         if LaunchSports.includes("Soccer") {
                         NavigationLink { NationalTeamModelView() } label: {
                             HStack(spacing:12) {
-                                Image(systemName:"soccerball").foregroundStyle(brandFuchsia)
+                                Image(systemName:"soccerball").foregroundStyle(brandAccent)
                                 Text("Soccer Elo").font(.system(.subheadline, design: .monospaced).weight(.semibold))
                                 Spacer()
                                 Image(systemName:"chevron.right").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
@@ -360,167 +398,287 @@ struct AILabView: View {
             }
         }
     }
-    private func modelEntry(_ title:String, subtitle:String, icon:String, prominent:Bool=false)->some View {
+    private func modelEntry(_ title:String, icon:String, prominent:Bool=false)->some View {
         HStack(spacing:16) {
-            Image(systemName:icon).font(.system(.title2, design: .monospaced)).foregroundStyle(brandFuchsia).frame(width:32)
+            Image(systemName:icon).font(.system(.title2, design: .monospaced)).foregroundStyle(brandAccent).frame(width:32)
             VStack(alignment:.leading,spacing:8) {
                 Text(title).font(.system(.headline, design: .monospaced))
-                Text(subtitle).font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
             }
             Spacer(minLength:0)
             Image(systemName:"chevron.right").font(.system(.caption, design: .monospaced).weight(.semibold)).foregroundStyle(.secondary)
         }.padding(22).frame(maxWidth:.infinity,alignment:.leading)
             .background(navySurface,in:RoundedRectangle(cornerRadius:18))
-            .overlay(RoundedRectangle(cornerRadius:18).strokeBorder(brandFuchsia.opacity(prominent ? 0.4:0),lineWidth:1))
+            .overlay(RoundedRectangle(cornerRadius:18).strokeBorder(brandAccent.opacity(prominent ? 0.4:0),lineWidth:1))
+    }
+    private var creationAvailability:LabCreationPolicy.Availability {
+        let status=LabCreationPolicy.availability(capabilities,loading:checkingCapabilities,support:supportedSetup)
+        if status == .ready,let support=supportedSetup,
+           (!support.supports(modelType) || selected.isEmpty || !selected.isSubset(of:Set(support.features))) {return .unsupported}
+        return status
+    }
+    private var questionOptions:[String] {LabCreationPolicy.questions(league:league,target:targetKind,capabilities:capabilities)}
+    private var savedMatchesCurrent:Bool {
+        guard let version=loadedVersion,version.user_id==account.user?.id else{return false}
+        return version.configuration.configurationFingerprint == currentRecipe.configurationFingerprint
+    }
+    private var primaryTitle:String {
+        if creating {return "Saving your model…"}
+        if running {return "Testing your model…"}
+        if !savedMatchesCurrent {return loadedVersion == nil ? (canRun ? "Create model":"Save setup"):"Save changes"}
+        return canRun || canReuse ? (runProbability == nil ? "Test model":"Refresh result"):"Saved to My Models"
+    }
+    private var availabilityCard:some View {
+        VStack(alignment:.leading,spacing:6) {
+            Label(creationAvailability.title,systemImage:creationAvailability == .ready ? "checkmark.circle":"info.circle")
+                .font(.subheadline.weight(.semibold))
+            if creationAvailability != .ready {Text(creationAvailability.detail).font(.caption).foregroundStyle(.secondary)}
+            if creationAvailability != .ready && !checkingCapabilities {
+                Button("Check again") {Task {await loadCapabilities()}}.font(.caption)
+            }
+        }.frame(maxWidth:.infinity,alignment:.leading).padding(14)
+            .background(navySurface,in:RoundedRectangle(cornerRadius:14)).accessibilityIdentifier("lab-availability")
     }
     private var propBody:some View {
-        ScrollView {
-            VStack(alignment:.leading,spacing:20) {
-                HStack(spacing:8) {
-                    ForEach(Array(["Target","Features","Review"].enumerated()),id:\.offset) { index,title in
-                        Button {if index<=max(step,1) {step=index}} label: {
-                            HStack(spacing:6) {Text("\(index+1)").font(.system(.caption, design: .monospaced).weight(.semibold)).frame(width:24,height:24).background(step==index ? Color.primary:Color.secondary.opacity(0.15),in:Circle()).foregroundStyle(step==index ? navy:Color.primary);Text(title).font(.system(.subheadline, design: .monospaced).weight(.semibold))}.frame(maxWidth:.infinity)
-                        }.buttonStyle(.plain).accessibilityAddTraits(step==index ? .isSelected:[])
-                    }
-                }
-                if step == 1 { modelTypeGrid }
-                if step==0 { targetCard }
-                if step==1 { featureCards }
-                if step==2 { reviewCard }
-                if step<2 {
-                    Button {withAnimation {step+=1}} label: {Text(step==0 ? "Choose features":"Review setup").font(.system(.headline, design: .monospaced)).frame(maxWidth:.infinity).padding(.vertical,8)}.plonnGlassButton(prominent:true).foregroundStyle(.primary).disabled(step==0 ? !validTarget:selected.isEmpty)
-                }
-                if !recipes.isEmpty {
-                    Text("Device-only setups").font(.system(.headline, design: .monospaced))
-                    ForEach(recipes) { recipe in
-                        Button {
-                            restore(recipe)
-                        } label: {
-                            HStack { VStack(alignment:.leading,spacing:5) {Text(recipe.name).font(.system(.subheadline, design: .monospaced).weight(.semibold));Text("\(recipe.player) · \(recipe.stat ?? "Rec Yds") · \(recipe.features.count) features").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)};Spacer();Image(systemName:"chevron.right").font(.system(.caption, design: .monospaced))}.padding(16).background(navySurface,in:RoundedRectangle(cornerRadius:14))
-                        }.buttonStyle(.plain).disabled(!LaunchSports.includes(recipe.sport ?? "NFL"))
-                        if !LaunchSports.includes(recipe.sport ?? "NFL") {
-                            Text("Archived sport · Saved setup preserved").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment:.leading,spacing:20) {
+                    HStack(spacing:8) {
+                        ForEach(Array(["Question","Game","Review"].enumerated()),id:\.offset) { index,title in
+                            Button {if index<step {step=index}} label: {
+                                HStack(spacing:5) {
+                                    Text("\(index+1)").font(.caption.weight(.semibold)).frame(width:24,height:24)
+                                        .background(step==index ? Color.primary:Color.secondary.opacity(0.15),in:Circle())
+                                        .foregroundStyle(step==index ? navy:Color.primary)
+                                    Text(title).font(.subheadline.weight(.semibold))
+                                }.frame(maxWidth:.infinity,minHeight:44).plonnGlassSurface(selected:step==index,radius:12)
+                            }.buttonStyle(.plain).accessibilityAddTraits(step==index ? .isSelected:[])
                         }
+                    }.plonnGlassGroup().id("lab-step-top")
+                    if step==0 {availabilityCard;questionCard}
+                    if step==1 {targetCard}
+                    if step==2 {reviewCard}
+                }.padding(20).disabled(creating || running)
+            }
+            .safeAreaInset(edge:.bottom) {
+                VStack(spacing:7) {
+                    if step<2 {
+                        Button {withAnimation {step+=1}} label: {
+                            Text(step==0 ? "Choose game":"Review model").font(.headline).frame(maxWidth:.infinity).padding(.vertical,9)
+                        }.plonnGlassButton(prominent:true).disabled(step==0 ? !questionOptions.contains(statName):!validTarget)
+                    } else {
+                        Button {Task {await createModel()}} label: {
+                            HStack {if creating || running {ProgressView()};Text(primaryTitle).font(.headline)}
+                                .frame(maxWidth:.infinity).padding(.vertical,9)
+                        }.plonnGlassButton(prominent:true)
+                            .disabled(creating || running || !validTarget || selected.isEmpty || (savedMatchesCurrent && !canRun && !canReuse))
+                            .accessibilityIdentifier("lab-create-model")
+                        Text(savedMatchesCurrent ? "Your model is saved privately.":canRun ? "Saves privately and starts a historical test.":"Saves privately. Testing can be started later.")
+                            .font(.caption2).foregroundStyle(.secondary)
                     }
+                }.padding(.horizontal,20).padding(.vertical,12).background(.ultraThinMaterial)
+            }
+            .onChange(of:step) {_,_ in withAnimation {proxy.scrollTo("lab-step-top",anchor:.top)}}
+            .onChange(of:running) {wasRunning,isRunning in
+                if wasRunning && !isRunning && step==2 {withAnimation {proxy.scrollTo("lab-result",anchor:.top)}}
+            }
+            .onChange(of:creating) {wasCreating,isCreating in
+                if wasCreating && !isCreating && !running && !creationMessage.isEmpty && step==2 {
+                    withAnimation {proxy.scrollTo("lab-result",anchor:.top)}
                 }
-                NavigationLink {StatisticalLabView()} label: {Label("Advanced statistical tools",systemImage:"function").font(.system(.subheadline, design: .monospaced).weight(.semibold))}.padding(.top,8)
-            }.padding(20)
-        }.background(ModelAurora()).background(LeagueBackdrop(league:league)).navigationTitle("Create a model").navigationBarTitleDisplayMode(.inline)
+            }
+        }.background(ModelAurora()).background(LeagueBackdrop(league:league))
+        .navigationTitle(initialVersion == nil ? "Create a model":"Your model").navigationBarTitleDisplayMode(.inline)
         .task {
             if !didRestoreInitialVersion {
                 didRestoreInitialVersion=true
                 if let version=initialVersion,version.user_id==account.user?.id {loadVersion(version)}
+                else if let draft=initialDraft {applyDraft(draft)}
             }
             await loadCapabilities()
             if initialVersion != nil {await runLocal(resolveOnly:true)}
         }
-        .task(id:league+targetKind) {await players.load(sport:league,view:targetKind == "Player" ? "Players":"Teams",date:Date())}
-        .onChange(of:targetKind) {_,_ in guard !restoringRecipe else{return};targetStat=propOptions.first ?? "Custom stat";player="";matchedPlayer="";opponent="";targetLine="";historicalEventID="";selected=isGame ? ["recent","season"]:LabServiceContract.defaultFeatures(nil)}
-        .onChange(of:player) {_,value in if !restoringRecipe && value != matchedPlayer {opponent="";targetLine="";marketSource="";matchedPlayer="";marketStore.live=[];lookupMessage=""}}
-        .onChange(of:league) {_,_ in if !restoringRecipe {targetStat=propOptions.first ?? "Custom stat";historicalEventID="";selected=isGame ? ["recent","season"]:LabServiceContract.defaultFeatures(nil);step=0;player="";matchedPlayer="";opponent="";targetLine="";marketSource="";marketStore.live=[];lookupMessage=""}}
-        .onChange(of:targetStat) {_,_ in guard !restoringRecipe else{return};selected=selected.intersection(Set(features.map(\.id)));if isMoneyline {targetLine=""};if isGame && selected.isEmpty {selected=["recent","season"]};if isGame && gameMarket != "total" {side="Over"}}
-        .onChange(of:account.user?.id) {_,owner in
-            if let version=loadedVersion,version.user_id != owner {
-                loadedVersion=nil;player="";matchedPlayer="";opponent="";name="";targetLine="";quarterback=""
-                marketStore.live=[];step=0
+        .sheet(isPresented:$showGamePicker) {
+            LabGamePicker(league:league,source:historicalSource,initialDate:historicalGame?.date) {game,team in selectHistoricalGame(game,team:team)}
+        }
+        .sheet(isPresented:$showPropPicker) {
+            LabPlayerPropPicker(league:league,selection:targetStat,capabilities:capabilities) {targetStat=$0}
+        }
+        .onChange(of:historicalSource) {_,_ in guard !restoringRecipe else{return};clearHistoricalGame()}
+        .task(id:league+targetKind) {if targetKind == "Player" {await players.load(sport:league,view:"Players",date:Date())}}
+        .onChange(of:targetKind) {_,_ in guard !restoringRecipe else{return};resetQuestion()}
+        .onChange(of:league) {_,_ in guard !restoringRecipe else{return};resetQuestion()}
+        .onChange(of:player) {_,value in
+            if !restoringRecipe && value != matchedPlayer {
+                if historicalGame == nil {opponent=""}
+                targetLine="";marketSource="";matchedPlayer="";marketStore.live=[];lookupMessage=""
             }
         }
-        .onChange(of:setupSignature) {_,_ in saved=false;runProbability=nil;askModelContext=nil;runMessage="";resultContext="";validationCount=nil;validationSummary="";brierScore=nil;pushProbability=nil;tieProbability=nil;baselineScore=nil}
+        .onChange(of:targetStat) {_,_ in
+            guard !restoringRecipe else{return}
+            customizedInputs=false;applyRecommendations(force:true);targetLine="";side="Over"
+        }
+        .onChange(of:account.user?.id) {_,_ in
+            loadedVersion=nil;clearHistoricalGame();player="";matchedPlayer="";opponent="";name="";targetLine="";quarterback=""
+            marketStore.live=[];step=0;creationMessage=""
+        }
+        .onChange(of:setupSignature) {_,_ in
+            saved=false;runProbability=nil;askModelContext=nil;runMessage="";resultContext="";validationCount=nil;validationSummary="";brierScore=nil;pushProbability=nil;tieProbability=nil;baselineScore=nil;creationMessage=""
+        }
+    }
+    private var questionCard:some View {
+        VStack(alignment:.leading,spacing:18) {
+            Text("Market").font(.title2.bold())
+            Picker("League",selection:$league) {ForEach(LabPropCatalog.leagues,id:\.self) {Text($0)}}.pickerStyle(.segmented)
+            Picker("Analyze",selection:$targetKind) {Text("A team").tag("Team");Text("A player").tag("Player")}.pickerStyle(.segmented)
+            if targetKind == "Player" {
+                Button {showPropPicker=true} label: {
+                    HStack(spacing:12) {
+                        VStack(alignment:.leading,spacing:6) {
+                            Text("Player prop").font(.caption).foregroundStyle(.secondary)
+                            Text(LabPropCatalog.displayName(statName)).font(.headline)
+                            Text(LabPropCatalog.testingStatus(league:league,stat:statName,capabilities:capabilities)).font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName:"chevron.down")
+                    }.padding(16).frame(maxWidth:.infinity,alignment:.leading).plonnGlassSurface(radius:16)
+                }.buttonStyle(.plain).accessibilityIdentifier("lab-player-prop-picker")
+                Text("Props marked ‘Save setup only’ can be saved privately, but model testing isn’t connected for them.").font(.caption).foregroundStyle(.secondary)
+            } else {
+            if questionOptions.isEmpty {
+                Text("No connected questions for this sport yet. Choose another sport or check again.").foregroundStyle(.secondary)
+            }
+            ForEach(questionOptions,id:\.self) { option in
+                Button {targetStat=option} label: {
+                    HStack(spacing:12) {
+                        Image(systemName:targetStat==option ? "checkmark.circle.fill":"circle").foregroundStyle(targetStat==option ? brandAccent:Color.secondary)
+                        VStack(alignment:.leading,spacing:5) {
+                            Text(LabCreationPolicy.question(option,target:targetKind)).font(.headline)
+                            if targetKind == "Team" {Text(option == "Moneyline" ? "Win or lose":option == "Spread" ? "Against a spread you choose":"Combined score against a line you choose").font(.caption).foregroundStyle(.secondary)}
+                            if league == "NFL" && option == "Moneyline" {Text("Needs enough historical wins, losses and ties.").font(.caption).foregroundStyle(.secondary)}
+                        }
+                        Spacer(minLength:0)
+                    }.padding(16).frame(maxWidth:.infinity,alignment:.leading).plonnGlassSurface(selected:targetStat==option,radius:16)
+                }.buttonStyle(.plain).accessibilityAddTraits(targetStat==option ? .isSelected:[])
+            }
+            }
+            DisclosureGroup("More options") {
+                NavigationLink("Advanced statistical tools") {StatisticalLabView()}.padding(.vertical,8)
+                if !recipes.isEmpty {
+                    Text("Previously saved on this device").font(.caption).foregroundStyle(.secondary)
+                    ForEach(recipes) {recipe in Button(recipe.name) {restore(recipe)}.disabled(!LaunchSports.includes(recipe.sport ?? "NFL"))}
+                }
+            }.font(.subheadline)
+        }
     }
     private var targetCard:some View {
-        Panel {VStack(alignment:.leading,spacing:16) {
-            Picker("League",selection:$league) {ForEach(LabPropCatalog.leagues,id:\.self) {Text($0)}}.pickerStyle(.segmented)
-            Picker("Target",selection:$targetKind) {Text("Player props").tag("Player");Text("Team / full game").tag("Team")}.pickerStyle(.segmented)
-            Text("What would you like to analyze?").font(.system(.headline, design: .monospaced))
-            LazyVGrid(columns:Array(repeating:GridItem(.flexible(),spacing:8),count:2),spacing:6) {
-                ForEach(propOptions,id:\.self) { option in
-                    Button {targetStat=option;targetLine="";marketSource=""} label: {
-                        VStack(alignment:.leading,spacing:4) {
-                            Text(option == "Custom stat" ? "Custom" : option).font(.system(.subheadline, design: .monospaced).weight(.semibold)).lineLimit(1).minimumScaleFactor(0.9)
-                            Spacer(minLength:0)
-                            if targetStat==option {Image(systemName:"checkmark.circle.fill").font(.system(.caption, design: .monospaced)).foregroundStyle(.white)}
-                        }.frame(maxWidth:.infinity,minHeight:52,alignment:.leading).padding(6)
-                            .foregroundStyle(Color.primary)
-                            .plonnGlassSurface()
-                            .overlay(RoundedRectangle(cornerRadius:12).strokeBorder(targetStat==option ? Color.white.opacity(0.65):Color.clear,lineWidth:1))
-                            .contentShape(Rectangle())
-                    }.buttonStyle(.plain).accessibilityAddTraits(targetStat==option ? .isSelected:[])
+        VStack(alignment:.leading,spacing:18) {
+            Text("Matchup").font(.title2.bold())
+            Text(LabCreationPolicy.question(statName,target:targetKind)).font(.subheadline).foregroundStyle(.secondary)
+            Panel {VStack(alignment:.leading,spacing:10) {
+                Label("Completed game",systemImage:"calendar").font(.headline)
+                if let game=historicalGame {
+                    Text(game.title).font(.headline)
+                    Text(LabHistoricalGames.displayDate(game.date)).font(.subheadline).foregroundStyle(.secondary)
+                    if let team=historicalTeam {Text((isGame ? "Your team: ":"Player’s team: ")+team.name).font(.subheadline)}
+                } else if !historicalEventID.isEmpty {
+                    Text("\(player) vs \(opponentLabel)").font(.headline)
+                    Text("Saved matchup").font(.caption).foregroundStyle(.secondary)
+                }
+                Button {showGamePicker=true} label: {Label(historicalEventID.isEmpty ? "Choose completed game":"Change game or team",systemImage:"calendar")}
+                    .accessibilityIdentifier("lab-choose-game")
+                Text(targetKind == "Player" ? "Choose the team your player was on in this game.":"Choose the team you want to analyze. We’ll fill in its opponent.").font(.caption).foregroundStyle(.secondary)
+            }}
+            if !isGame {
+                VStack(alignment:.leading,spacing:0) {
+                    Text("Player").font(.caption.weight(.semibold)).foregroundStyle(.secondary).padding(.bottom,7)
+                    HStack {
+                        Image(systemName:"magnifyingglass").foregroundStyle(.secondary)
+                        TextField("Search player name or team",text:$player).focused($nameFocused)
+                            .autocorrectionDisabled().submitLabel(.done).onSubmit {nameFocused=false}
+                            .accessibilityIdentifier("lab-player-search")
+                        if !player.isEmpty {Button {player="";nameFocused=true} label:{Image(systemName:"xmark.circle.fill")}.accessibilityLabel("Clear player search")}
+                    }.padding(12).background(navySurface,in:RoundedRectangle(cornerRadius:10))
+                    if nameFocused,player.trimmingCharacters(in:.whitespacesAndNewlines).count>=2 {
+                        VStack(alignment:.leading,spacing:0) {
+                            ForEach(suggestions) {item in
+                                Button {matchedPlayer=item.name;player=item.name;nameFocused=false} label: {
+                                    HStack {
+                                        VStack(alignment:.leading,spacing:3) {Text(item.name).font(.subheadline.weight(.semibold));Text(item.subtitle).font(.caption).foregroundStyle(.secondary)}
+                                        Spacer();Image(systemName:"arrow.up.left").font(.caption).foregroundStyle(.secondary)
+                                    }.padding(12).contentShape(Rectangle())
+                                }.plonnGlassButton().accessibilityIdentifier("lab-player-suggestion-"+item.id)
+                                if item.id != suggestions.last?.id {Divider().padding(.horizontal,12)}
+                            }
+                            if players.loading {ProgressView("Loading players…").font(.caption).padding(12)}
+                            else if suggestions.isEmpty {Text("No matching names in the current directory. You can enter a former player’s full name for historical testing.").font(.caption).foregroundStyle(.secondary).padding(12)}
+                        }.background(navySurface,in:RoundedRectangle(cornerRadius:10))
+                         .overlay(RoundedRectangle(cornerRadius:10).stroke(Color.secondary.opacity(0.25)))
+                         .padding(.top,4).accessibilityIdentifier("lab-player-dropdown")
+                    }
                 }
             }
-            if targetStat == "Custom stat" {entry("Stat name & units",placeholder:"Name the player statistic",text:$customStat)}
-            entry(targetKind,placeholder:targetKind == "Player" ? "Search player name":"Search team name",text:$player)
-            if requiresHistoricalEvent || league == "MLB" {
-                entry(requiresHistoricalEvent ? "Completed game ID":"Completed game ID (optional)",placeholder:"Enter the exact historical game ID",text:$historicalEventID)
-                Text(isGame ? "Historical research · Enter the selected team, its opponent and an ESPN completed-game ID.":"Historical research · Use the recorded player name and opponent.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-                if isGame {
-                    Link("Find completed games on ESPN",destination:URL(string:"https://www.espn.com/"+league.lowercased()+"/scoreboard")!)
-                    Button("Use a completed-game example") {useGameExample()}.font(.system(.caption,design:.monospaced))
-                } else if league == "NFL" {
-                    Link("Find game IDs",destination:URL(string:"https://github.com/nflverse/nfldata/blob/master/data/games.csv")!)
+            if LabPropCatalog.isFantasy(statName) {
+                Text("Fantasy scoring").font(.headline)
+                Picker("Fantasy scoring",selection:$scoringPreset) {
+                    Text("DraftKings").tag("draftkings_classic")
+                    Text("FanDuel").tag("fanduel_classic")
+                }.pickerStyle(.segmented)
+                Text("Classic fantasy scoring, without captain multipliers. Your selected rules are saved with the model.").font(.caption).foregroundStyle(.secondary)
+            }
+            if statName == "Method of first basket" {
+                Picker("First score method",selection:$firstBasketMethod) {
+                    Text("Two-pointer").tag("two_pointer")
+                    Text("Three-pointer").tag("three_pointer")
+                    Text("Free throw").tag("free_throw")
                 }
             }
-            if !requiresHistoricalEvent, players.loading {PLONNLoader("Loading player directory…").font(.system(.caption, design: .monospaced))}
-            ForEach(requiresHistoricalEvent ? []:suggestions) {item in
-                Button {Task {await resolve(item)}} label: {VStack(alignment:.leading,spacing:3) {Text(item.name).font(.system(.subheadline, design: .monospaced).weight(.semibold));Text(item.subtitle).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}.frame(maxWidth:.infinity,alignment:.leading)}
-            }
-            if !requiresHistoricalEvent, resolving {PLONNLoader("Finding matchup and props…")}
-            if !lookupMessage.isEmpty {Text(lookupMessage).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-            SportsbookSelector(selection:$preferredBook,options:["Ask each time","DraftKings","FanDuel","Hard Rock Bet","BetMGM","Caesars","Fanatics","BetRivers"])
-            NavigationLink {ExploreView(initialSport:league,live:true)} label: {
-                Label("Browse \(league) sportsbook odds",systemImage:"chart.line.uptrend.xyaxis")
-            }
-            if requiresHistoricalEvent {
-                Text("Current odds are separate from this historical setup. Its saved line is a research threshold, not a current quote.").font(.system(.caption2,design:.monospaced)).foregroundStyle(.secondary)
-            } else if let item=players.items.first(where:{$0.name.caseInsensitiveCompare(player) == .orderedSame}) {
-                Button {Task {await resolve(item,preservingThreshold:true)}} label: {Label("Refresh matchup & sportsbook snapshots",systemImage:"arrow.clockwise")}
-                    .disabled(resolving)
-            }
-            if !requiresHistoricalEvent, !offeredProps.isEmpty {
-                Menu("Choose available prop & line") {
-                    ForEach(offeredProps) {market in Button("\(compactPropLabel(market)) · \(odds(market.price)) · \(market.book) · \(BuilderLogic.quoteAge(market).label)") {apply(market)}.disabled(!LabQuoteSelection.canUsePregameQuote(market))}
-                }.font(.system(.subheadline, design: .monospaced).weight(.semibold))
-            }
-            if !isGame || gameMarket == "total" {
-                Picker("Side",selection:$side) {Text("Over").tag("Over");Text("Under").tag("Under")}.pickerStyle(.segmented)
-            }
-            if isMoneyline {
-                Text("Moneyline · Selected team to win. No line required.").font(.system(.subheadline,design:.monospaced))
-                if league == "NFL" {Text("Final ties are reported separately, not counted as losses or assumed sportsbook pushes.").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)}
-            } else {
-                entry(gameMarket == "spread" ? "Selected-team handicap":gameMarket == "total" ? "Combined-score total":"Prop line · \(statName)",placeholder:gameMarket == "spread" ? "e.g. -1.5 or +1.5":"e.g. 65.5",text:Binding(get:{targetLine},set:{targetLine=$0;marketSource="";selectedQuote=nil})).keyboardType(gameMarket == "spread" ? .numbersAndPunctuation:.decimalPad)
-                if isGame {
-                    Text(gameMarket == "spread" ? "Added to your team's final score margin. Equality is a push.":"Both teams' final scores combined. Equality is a push.").font(.system(.caption2,design:.monospaced)).foregroundStyle(.secondary)
+            if league == "MLB",historicalSource == .espn,["Pitcher strikeouts","Pitcher outs","Earned runs","Hits allowed","Walks allowed","Pitcher win"].contains(statName) {Text("History includes starting and relief pitching appearances.").font(.caption).foregroundStyle(.secondary)}
+            if let note=LabPropCatalog.propNote(statName) {Text(note).font(.caption).foregroundStyle(.secondary)}
+            if isYesNoProp {
+                Text(LabPropCatalog.displayName(statName)).font(.headline)
+                Picker("Outcome",selection:$side) {Text("Yes").tag("Over");Text("No").tag("Under")}.pickerStyle(.segmented)
+                Text("Choose whether this outcome happens in the selected game.").font(.caption).foregroundStyle(.secondary)
+            } else if !isMoneyline {
+                if gameMarket != "spread" {
+                    Picker("Direction",selection:$side) {Text("Over").tag("Over");Text("Under").tag("Under")}.pickerStyle(.segmented)
                 }
-                lineSource
+                entry(gameMarket == "spread" ? "Spread for \(player.isEmpty ? "your team":player)":gameMarket == "total" ? "Combined-score line":"\(LabPropCatalog.displayName(statName)) line",placeholder:gameMarket == "spread" ? "e.g. -2.5":"Enter the line to test",text:$targetLine)
+                    .keyboardType(gameMarket == "spread" ? .numbersAndPunctuation:.decimalPad)
+                Text(gameMarket == "spread" ? "A positive spread gives your team points; a negative spread gives points away.":"Choose the line you want to test against past results.").font(.caption).foregroundStyle(.secondary)
             }
-
-            entry("Opponent",placeholder:league == "NFL" && !isGame ? "nflverse opponent abbreviation":"Opponent team",text:$opponent)
-            Text(isGame ? "Completed regular-season games only. Selected team and opponent must match the game. No live prediction.":"Choose the matchup context first. Player and matchup verification will be required before prediction.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-        }}
+            if !opponentLabel.isEmpty {LabeledContent("Opponent",value:opponentLabel).font(.subheadline)}
+            Text("Historical testing only. This won’t place a bet or predict an upcoming game.").font(.caption).foregroundStyle(.secondary)
+        }
     }
-    @ViewBuilder private var featureCards:some View {
-        HStack {Text("Choose your stats").font(.system(.title3, design: .monospaced).weight(.semibold));Spacer();Text("\(selected.count)/5 · Basic").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-        Text("Tap the stats you want your model to use. Training and validation settings are handled automatically.").font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
-        Text("Basic stats").font(.system(.headline, design: .monospaced))
-        featureGrid(features.filter{basicFeatureIDs.contains($0.id)},locked:false)
-        if !isGame {
-        HStack {Text("Advanced stats").font(.system(.headline, design: .monospaced));Spacer();Label("Data required",systemImage:"lock.fill").font(.system(.caption, design: .monospaced).weight(.semibold))}
-        TextField("Search specific stats",text:$featureSearch).textFieldStyle(.roundedBorder)
-        Text("Individual columns · Data connection pending").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-        ForEach([targetKind,"Opponent team"],id:\.self) {scope in
-            Text(scope).font(.system(.subheadline, design: .monospaced).weight(.semibold))
-            featureGrid(features.filter{!basicFeatureIDs.contains($0.id) && $0.group == scope && (featureSearch.isEmpty || $0.title.localizedCaseInsensitiveContains(featureSearch))},locked:true)
+    private var featureCards:some View {
+        VStack(alignment:.leading,spacing:12) {
+            Text("Model inputs").font(.headline)
+            ForEach(features.filter{selected.contains($0.id)}) {feature in
+                HStack(alignment:.top,spacing:10) {
+                    Image(systemName:"checkmark.circle.fill").foregroundStyle(brandAccent)
+                    VStack(alignment:.leading,spacing:3) {Text(feature.title).font(.subheadline.weight(.semibold));Text(feature.detail).font(.caption).foregroundStyle(.secondary)}
+                }
+            }
+            DisclosureGroup("Advanced") {
+                VStack(alignment:.leading,spacing:18) {
+                    modelTypeGrid
+                    Text("Inputs (up to 5)").font(.headline)
+                    featureGrid(features.filter{supportedSetup?.features.contains($0.id) ?? basicFeatureIDs.contains($0.id)},locked:false)
+                    Button("Use recommended settings") {customizedInputs=false;applyRecommendations(force:true)}
+                    SportsbookSelector(selection:$preferredBook,options:["Research","DraftKings","FanDuel","Hard Rock Bet","BetMGM","Caesars","Fanatics","BetRivers"])
+                    Text("Research uses your chosen line without claiming a sportsbook quote.").font(.caption).foregroundStyle(.secondary)
+                }.padding(.top,12)
+            }.font(.subheadline).accessibilityIdentifier("lab-advanced")
         }
-        }
-        Text("Basic includes up to 5 features per model. Additional features require connected data and supported training.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
     }
     private func featureGrid(_ entries:[LabFeature],locked:Bool)->some View {
-        LazyVGrid(columns:Array(repeating:GridItem(.flexible(),spacing:6),count:4),spacing:6) {
+        LazyVGrid(columns:Array(repeating:GridItem(.flexible(),spacing:10),count:2),spacing:6) {
             ForEach(entries) {feature in
                 let available = supportedSetup.map { $0.features.contains(feature.id) } ?? !locked
                 let access = purchases.hasAccess && purchases.owner == account.user?.id
                 let blocked = !available || (locked && !access)
                 Button {
+                    customizedInputs=true
                     if selected.contains(feature.id) {selected.remove(feature.id)}
                     else if !blocked && (selected.count<5 || access) {selected.insert(feature.id)}
                     else {showAdvancedAccess=true}
@@ -530,72 +688,111 @@ struct AILabView: View {
                         Text(feature.title).font(.system(.caption, design: .monospaced).weight(.semibold)).multilineTextAlignment(.leading).fixedSize(horizontal:false,vertical:true)
                     }.frame(maxWidth:.infinity,minHeight:76,alignment:.topLeading).padding(7)
                         .foregroundStyle(Color.primary)
-                        .plonnGlassSurface(radius:14)
+                        .plonnGlassSurface(selected:!blocked && selected.contains(feature.id),radius:14)
                         .overlay(RoundedRectangle(cornerRadius:14).strokeBorder(!blocked && selected.contains(feature.id) ? Color.white.opacity(0.65):Color.clear,lineWidth:1))
                         .contentShape(Rectangle())
                 }.buttonStyle(.plain).help(feature.detail).accessibilityHint(feature.detail).accessibilityValue(blocked ? "Unavailable":selected.contains(feature.id) ? "Selected":"Not selected")
             }
-        }.sheet(isPresented:$showAdvancedAccess) {
+        }.plonnGlassGroup().sheet(isPresented:$showAdvancedAccess) {
             NavigationStack {
                 VStack(alignment:.leading,spacing:16) {
-                    Text("Additional features").font(.system(.title2, design: .monospaced).weight(.semibold))
-                    Text("Advanced stats require a supported dataset. A purchase does not connect missing data or enable unsupported model types.")
-                    NavigationLink("Purchases & access") {SubscriptionView()}
+                    Text("Unavailable inputs").font(.system(.title2, design: .monospaced).weight(.semibold))
+                    Text("These stats aren’t available yet. Upgrading won’t unlock missing data or unsupported models.")
+                    NavigationLink("Subscription") {SubscriptionView()}
                     Button("Continue with available features") {showAdvancedAccess=false}
                 }.padding(24)
             }.presentationDetents([.medium,.large])
         }
     }
     private var reviewCard:some View {
-        VStack(alignment:.leading,spacing:16) {
-            Panel {VStack(alignment:.leading,spacing:14) {
-                Text(player).font(.system(.title3, design: .monospaced).weight(.semibold))
-                Text(isMoneyline ? "Moneyline · \(league)":gameMarket == "spread" ? "Spread \(targetLine) · \(league)":"\(side) \(targetLine) \(statName) · \(league)").font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
-                if league == "NFL" && !quarterback.isEmpty {HStack {Text("Quarterback").foregroundStyle(.secondary);Spacer();Text(quarterback)}.font(.system(.subheadline, design: .monospaced))}
-                HStack {Text(isGame ? "Opponent":"Defense").foregroundStyle(.secondary);Spacer();Text(opponent)}.font(.system(.subheadline, design: .monospaced))
-                lineSource
-                Divider()
-                DisclosureGroup("\(selected.count) selected features") {ForEach(features.filter{selected.contains($0.id)}) {feature in Label(feature.title,systemImage:"checkmark").font(.system(.subheadline, design: .monospaced))}}
-                entry("Setup name",placeholder:isGame ? "My full-game model":"My receiving model",text:$name)
-            }}
-            NavigationLink {MyModelsView(currentSetup:currentRecipe,setupOwner:loadedVersion?.user_id,onLoad:loadVersion,initialModelID:loadedVersion?.model_id)} label: {
-                Label("Save to My Models",systemImage:"icloud").font(.system(.headline, design: .monospaced)).frame(maxWidth:.infinity).padding(.vertical,8)
-            }.plonnGlassButton(prominent:true).foregroundStyle(.primary).disabled(!validTarget || selected.isEmpty)
-            Text(versionContext + " · Configuration only").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-            Button {save()} label: {Label(saved ? "Saved on device":"Save on this device",systemImage:saved ? "checkmark":"bookmark").font(.system(.headline, design: .monospaced)).frame(maxWidth:.infinity).padding(.vertical,8)}.plonnGlassButton(prominent:true).foregroundStyle(.primary).disabled(saved)
-            Button {Task {await runLocal()}} label: {
-                HStack {if running {PLONNLoader()};Text(running ? (runMessage.hasPrefix("Waiting") ? "Waiting…":"Training…"):"Run or resume model").font(.system(.headline, design: .monospaced))}.frame(maxWidth:.infinity).padding(.vertical,8)
-            }.plonnGlassButton(prominent:true).foregroundStyle(.primary).disabled(running || !validTarget || (!canRun && !canReuse) || preferredBook == "Ask each time")
-            if isGame {Text(trainingCoverageMessage).font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)}
-            if !canRun {Text("Training isn’t available for this setup yet.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-            if preferredBook == "Ask each time" {Text("Choose a sportsbook in Target.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-            if capabilities == nil {Button("Retry connection") {Task {await loadCapabilities()}}}
-            Button("Retrain with new data") {Task {await runLocal(retrain:true)}}
-                .disabled(running || !validTarget || !canRun)
-            Text("Run uses your saved model and its original historical data when available. Retrain updates the model after the previous run finishes.").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)
-            if !resultContext.isEmpty {Text(resultContext).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-            if !runMessage.isEmpty {Text(runMessage).font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)}
-            Panel {VStack(alignment:.leading,spacing:8) {
-                Text(LabServiceContract.probabilityLabel(currentRecipe)).font(.system(.headline, design: .monospaced))
-                AnimatedProbability(value:runProbability).font(.system(.largeTitle, design: .monospaced).weight(.semibold))
-                Text(runProbability == nil ? "Awaiting trained model":(validationCount == nil ? "Experimental estimate · Validation unavailable":"Experimental estimate · Historical test included")).font(.system(.subheadline, design: .monospaced).weight(.semibold))
-                if let tieProbability {Text("Final tie: "+probability(tieProbability)).font(.system(.caption,design:.monospaced)).monospacedDigit()}
-                if let pushProbability,pushProbability>0 {Text("Push: "+probability(pushProbability)).font(.system(.caption, design: .monospaced)).monospacedDigit()}
-                if let context=askModelContext,context.result.ownerID==account.user?.id {
-                    NavigationLink("Explain this result in LLM") {
-                        AskPLONNView(initialRecipe:context.recipe,initialModelResult:context.result)
-                    }.font(.system(.caption,design:.monospaced))
-                }
-            }}
+        VStack(alignment:.leading,spacing:18) {
+            Text("Review model").font(.title2.bold())
             Panel {VStack(alignment:.leading,spacing:12) {
-                HStack {Text("Historical validation").font(.system(.headline, design: .monospaced));Spacer();Text("Automatic").font(.system(.caption, design: .monospaced).weight(.semibold)).padding(.horizontal,8).padding(.vertical,4).background(Color.secondary.opacity(0.15),in:Capsule())}
-                Text("Checked when historical data is available").font(.system(.subheadline, design: .monospaced).weight(.semibold))
-                Text("The service reports validation for this model type and feature set. Retrospective fixed-threshold tests use revised game logs, not historical sportsbook lines, and do not establish betting returns.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-                HStack {Metric(title:"Games tested",value:validationCount.map(String.init) ?? "—");Metric(title:"Brier score",value:brierScore.map{String(format:"%.3f",$0)} ?? "—")}
-                if let baselineScore {Metric(title:"Baseline Brier",value:String(format:"%.3f",baselineScore))}
-                Text(visibleValidationSummary).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+                Label("Test on past games",systemImage:"clock.arrow.circlepath").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                Text(player).font(.title3.bold())
+                Text(isYesNoProp ? "\(LabPropCatalog.displayName(statName)) · \(side == "Over" ? "Yes":"No") · \(league)":isMoneyline ? "Team to win · \(league)":gameMarket == "spread" ? "Spread \(targetLine) · \(league)":"\(side) \(targetLine) \(LabPropCatalog.displayName(statName)) · \(league)").font(.subheadline)
+                if let label=LabPropCatalog.optionsLabel(selectedPropOptions) {Text(label).font(.subheadline).foregroundStyle(.secondary)}
+                LabeledContent("Opponent",value:opponentLabel).font(.subheadline)
+                if let game=historicalGame {Text(LabHistoricalGames.displayDate(game.date)).font(.caption).foregroundStyle(.secondary)}
+                Divider()
+                entry("Model name",placeholder:currentRecipe.name,text:$name)
+                Text("Private · Saved to your account").font(.caption).foregroundStyle(.secondary)
             }}
+            Panel {featureCards}
+            availabilityCard
+            Color.clear.frame(height:1).id("lab-result")
+            if !creationMessage.isEmpty {Label(creationMessage,systemImage:savedMatchesCurrent ? "checkmark.circle.fill":"exclamationmark.circle").font(.subheadline).accessibilityIdentifier("lab-save-status")}
+            if savedMatchesCurrent {
+                NavigationLink("Open My Models") {MyModelsView()}.font(.subheadline)
+            }
+            if running {ProgressView(runMessage.isEmpty ? "Testing your model…":runMessage)}
+            else if !runMessage.isEmpty {Text(runMessage).font(.subheadline).accessibilityIdentifier("lab-run-status")}
+            if let value=runProbability {
+                Panel {VStack(alignment:.leading,spacing:10) {
+                    if let brierScore,let baselineScore {
+                        Label(brierScore < baselineScore ? "Beat the baseline in this test":"Did not beat the baseline",systemImage:"chart.bar.xaxis")
+                            .font(.headline).accessibilityIdentifier("lab-validation-quality")
+                        Text(brierScore < baselineScore ? "More accurate than a simple historical-rate estimate on the held-out games. This is a limited historical test.":"This model wasn’t more accurate than a simple historical-rate estimate on the held-out games. Treat its estimate cautiously.")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Divider()
+                    }
+                    Text(LabServiceContract.probabilityLabel(currentRecipe)).font(.headline)
+                    AnimatedProbability(value:value).font(.largeTitle)
+                    Text("Experimental historical estimate").font(.subheadline)
+                    if let tieProbability {Text("Final tie: "+probability(tieProbability)).font(.caption)}
+                    if let pushProbability,pushProbability>0 {Text("Push: "+probability(pushProbability)).font(.caption)}
+                    Text("This result uses earlier games and does not establish betting returns.").font(.caption).foregroundStyle(.secondary)
+                    if let count=validationCount {Text("Checked against \(count) held-out games").font(.subheadline)}
+                    DisclosureGroup("Test details") {
+                        VStack(alignment:.leading,spacing:8) {
+                            Text(visibleValidationSummary).font(.caption)
+                            if let brierScore {Metric(title:"Brier score",value:String(format:"%.3f",brierScore))}
+                            if let baselineScore {Metric(title:"Baseline Brier",value:String(format:"%.3f",baselineScore))}
+                        }
+                    }.font(.caption)
+                    if let context=askModelContext,context.result.ownerID==account.user?.id {
+                        NavigationLink("Explain this result") {AskPLONNView(initialRecipe:context.recipe,initialModelResult:context.result)}
+                    }
+                }}
+            }
+            if savedMatchesCurrent && canRun {
+                DisclosureGroup("Run options") {
+                    Button("Retrain with new data") {Task {await runLocal(retrain:true)}}.disabled(running || creating)
+                    Text("Starts a new test using currently available historical data.").font(.caption).foregroundStyle(.secondary)
+                }.font(.subheadline)
+            }
         }
+    }
+    private func resetQuestion() {
+        clearHistoricalGame();player="";matchedPlayer="";opponent="";targetLine="";marketStore.live=[];lookupMessage="";step=0
+        customizedInputs=false
+        targetStat=questionOptions.first(where:{capabilities?.match(league:league,stat:$0,target:targetKind) != nil}) ?? questionOptions.first ?? (targetKind == "Team" ? "Moneyline":propOptions.first ?? "Custom stat")
+        applyRecommendations(force:true)
+    }
+    private func applyRecommendations(force:Bool=false) {
+        guard force || (!hasRestoredRecipe && !customizedInputs) else{return}
+        selected=LabCreationPolicy.recommendedFeatures(supportedSetup,fullGame:isGame)
+        modelType=LabCreationPolicy.recommendedModel(supportedSetup)
+    }
+    @MainActor private func createModel() async {
+        guard !creating,!running,validTarget,!selected.isEmpty else{return}
+        guard account.hasSignedInAccount,let owner=account.user?.id else {account.access.present(feature:.privateModels);return}
+        creating=true;creationMessage=""
+        defer {creating=false}
+        let signature=setupSignature
+        if !savedMatchesCurrent {
+            let recipe=currentRecipe
+            let modelID=loadedVersion?.user_id == owner ? loadedVersion?.model_id:nil
+            guard let version=await modelLibrary.save(recipe,modelID:modelID,account:account) else {
+                if account.user?.id==owner {creationMessage=modelLibrary.message.isEmpty ? "Couldn’t save. Please try again.":modelLibrary.message}
+                return
+            }
+            guard account.user?.id==owner,signature==setupSignature else{return}
+            loadedVersion=version
+        }
+        creationMessage="Saved to My Models"
+        creating=false
+        if canRun || canReuse {await runLocal()}
     }
     private var visibleValidationSummary: String {
         #if DEBUG
@@ -607,16 +804,17 @@ struct AILabView: View {
         return "Checked against held-out historical games. This does not establish betting returns or readiness for live bets."
         #endif
     }
-    private func useGameExample() {
-        let examples:[String:(String,String,String,Double,Double)] = [
-            "NBA":("Los Angeles Lakers","New Orleans Pelicans","401585823",224.5,-3.5),
-            "MLB":("Philadelphia Phillies","Washington Nationals","401570893",8.5,-1.5),
-            "NFL":("Pittsburgh Steelers","Cincinnati Bengals","401671836",44.5,-3.5),
-            "NHL":("Edmonton Oilers","Arizona Coyotes","401560533",6.5,-1.5)]
-        guard let example=examples[league] else{return}
-        matchedPlayer=example.0;player=example.0;opponent=example.1;historicalEventID=example.2
-        targetLine=isMoneyline ? "":String(gameMarket == "spread" ? example.4:example.3)
-        side="Over";marketSource="Completed-game research example · User-selected threshold";lookupMessage=""
+    private func clearHistoricalGame() {
+        historicalEventID="";historicalGame=nil;historicalTeam=nil
+        selectedQuote=nil;sourceContext="";marketSource=""
+    }
+    private func selectHistoricalGame(_ game:LabHistoricalGame,team:LabHistoricalGame.Team) {
+        guard let other=game.opponent(for:team) else{return}
+        historicalGame=game;historicalTeam=team;historicalEventID = league == "MLB" && !isGame && historicalSource == .espn ? "espn:"+game.id : game.id
+        if isGame {matchedPlayer=team.name;player=team.name}
+        opponent=other.requestName
+        if initialDraft == nil || selectedQuote != nil {targetLine="";marketSource=""}
+        selectedQuote=nil;sourceContext="";marketLookupContext="";marketStore.live=[];lookupMessage=""
     }
     private func loadVersion(_ version:AccountModelVersion) {
         guard version.user_id==account.user?.id, LaunchSports.includes(version.configuration.sport ?? "NFL") else{return}
@@ -626,23 +824,38 @@ struct AILabView: View {
             if resultContext.hasPrefix(previous) {resultContext=versionContext + resultContext.dropFirst(previous.count)}
         } else {restore(version.configuration);loadedVersion=version}
     }
+    private func applyDraft(_ draft:AskPLONNModelDraft) {
+        guard draft.canReview,let sport=draft.league,let target=draft.target,let stat=draft.stat,let subject=draft.subject else{return}
+        restoringRecipe=true;hasRestoredRecipe=false;customizedInputs=false;loadedVersion=nil
+        league=sport;targetKind=target;targetStat=stat;customStat=""
+        player=subject;matchedPlayer=subject;opponent=draft.opponent ?? "";name=draft.title
+        targetLine=draft.effectiveLine.map{String(format:"%g",$0)} ?? "";side=draft.effectiveSide ?? "Over"
+        scoringPreset=draft.scoringPreset ?? "draftkings_classic";firstBasketMethod=draft.firstBasketMethod ?? "two_pointer"
+        marketSource="AI draft · Research threshold, not a sportsbook quote";selectedQuote=nil
+        historicalEventID="";historicalGame=nil;historicalTeam=nil;step=1
+        Task {@MainActor in await Task.yield();restoringRecipe=false}
+    }
     private func restore(_ recipe:LabRecipe) {
         guard LaunchSports.includes(recipe.sport ?? "NFL") else{return}
         loadedVersion=nil
-        restoringRecipe=true
+        restoringRecipe=true;hasRestoredRecipe=true
         if let book=recipe.book {preferredBook=book}
+        scoringPreset=recipe.propOptions?["scoring_preset"] ?? "draftkings_classic";firstBasketMethod=recipe.propOptions?["first_basket_method"] ?? "two_pointer"
         advanced=recipe.advanced ?? false;training=recipe.training ?? LabTrainingSettings();modelType=recipe.resolvedModelType
         targetKind=recipe.targetKind ?? "Player"
         league=recipe.sport ?? "NFL"
         let restoredStat=recipe.stat ?? "Rec Yds"
         if propOptions.contains(restoredStat) {targetStat=restoredStat} else {targetStat="Custom stat";customStat=restoredStat}
+        historicalGame=nil;historicalTeam=nil
         historicalEventID=recipe.historicalEventID ?? ""
         matchedPlayer=recipe.player;player=recipe.player;quarterback=recipe.quarterback;opponent=recipe.opponent;name=recipe.name
         selected=Set(recipe.features);targetLine=recipe.line.map{String($0)} ?? "";side=recipe.side ?? "Over"
-        marketSource="Saved recipe line · Research threshold, not a current sportsbook quote";selectedQuote=nil;sourceContext=quoteContext;marketStore.live=[];step=0;saved=false
+        marketSource="Saved recipe line · Research threshold, not a current sportsbook quote";selectedQuote=nil;sourceContext=quoteContext;marketStore.live=[];step=2;saved=false
         Task {@MainActor in await Task.yield();restoringRecipe=false;if capabilities != nil {await runLocal(resolveOnly:true)}}
     }
     @MainActor private func runLocal(retrain:Bool = false, resolveOnly:Bool = false) async {
+        guard account.hasSignedInAccount else {account.access.present(feature:.privateModels);return}
+        guard purchases.mayUseProFeatures else {showPro=true;return}
         guard !running else{return}
         guard validTarget,canRun || (!retrain && canReuse),let support=supportedSetup ?? retainedSupport else{runMessage="This model, target, or feature set is not supported by the connected service.";return}
         running=true;runMessage="";runProbability=nil;askModelContext=nil;validationCount=nil;validationSummary="";brierScore=nil;pushProbability=nil;tieProbability=nil;baselineScore=nil
@@ -650,7 +863,7 @@ struct AILabView: View {
         let signature=setupSignature
         let context=versionContext + " · " + (SavedModelType(rawValue:modelType)?.title ?? modelType) + " · " + selected.sorted().joined(separator:", ")
         do {
-            guard let owner=account.user?.id else{throw URLError(.userAuthenticationRequired)}
+            guard let owner=account.user?.id,account.hasSignedInAccount else{throw URLError(.userAuthenticationRequired)}
             let recipe=currentRecipe
             let payload=try LabServiceContract.payload(recipe,support:support)
             let canonical=try LabSubmissionStore.canonical(payload)
@@ -660,7 +873,7 @@ struct AILabView: View {
             var retainedBody:[String:Any]?
             var retainedArtifact:String?
             let resumeOutstanding=submissions.hasOutstanding(owner:owner,payload:canonical)
-            if !retrain && !resumeOutstanding {
+            if !retrain && !resumeOutstanding && capabilities?.retained_artifacts == true {
                 var resolve=URLRequest(url:CloudConfiguration.labURL.appendingPathComponent("artifacts/resolve"))
                 resolve.httpMethod="POST";resolve.timeoutInterval=20
                 resolve.setValue("Bearer " + session.accessToken,forHTTPHeaderField:"Authorization")
@@ -683,7 +896,7 @@ struct AILabView: View {
                 }
             }
             if let artifact=retainedArtifact,let previous=submissions.record(owner:owner,payload:canonical),previous.jobID==artifact {submissions.update(previous,terminal:true)}
-            if resolveOnly && retainedBody==nil && !resumeOutstanding {return}
+            if resolveOnly && retainedBody==nil && !resumeOutstanding && submissions.record(owner:owner,payload:canonical)?.jobID == nil {return}
             var body:[String:Any]
             if let retained=retainedBody {body=retained}
             else {
@@ -795,7 +1008,7 @@ struct AILabView: View {
         return nil
     }
     private func apply(_ market:Market) {
-        guard !requiresHistoricalEvent, offeredProps.contains(market), LabQuoteSelection.canUsePregameQuote(market) else {
+        guard !usesHistoricalMatchup, offeredProps.contains(market), LabQuoteSelection.canUsePregameQuote(market) else {
             lookupMessage="This snapshot cannot establish a current pregame quote. Refresh the matchup or enter a research threshold."
             return
         }
@@ -807,7 +1020,7 @@ struct AILabView: View {
         selectedQuote=market;sourceContext=quoteContext;marketSource=""
     }
     @MainActor private func resolve(_ item:SportsItem,preservingThreshold:Bool=false) async {
-        guard !resolving,!requiresHistoricalEvent else{return}
+        guard !resolving,!usesHistoricalMatchup else{return}
         resolving=true;defer{resolving=false}
         matchedPlayer=item.name;player=item.name;playerTeam=targetKind == "Team" ? item.name:item.subtitle.components(separatedBy:" · ").first ?? ""
         opponent="";marketSource="";marketStore.live=[];quarterback=""
@@ -851,6 +1064,7 @@ struct AILabView: View {
         VStack(alignment:.leading,spacing:7) {Text(title).font(.system(.caption, design: .monospaced).weight(.semibold)).foregroundStyle(.secondary);TextField(placeholder,text:text).textFieldStyle(.roundedBorder)}
     }
     private func save() {
+        guard account.hasSignedInAccount else {account.access.present(feature:.privateModels);return}
         let recipe=currentRecipe
         if let data=try? JSONEncoder().encode([recipe]+recipes),let text=String(data:data,encoding:.utf8) {savedRecipes=text;saved=true}
     }
@@ -882,7 +1096,7 @@ private struct NationalTeamModelView:View {
                         Button {modelType=method.rawValue} label: {
                             Label(method.title,systemImage:modelType == method.rawValue ? "checkmark.circle.fill":"circle")
                                 .font(.system(.subheadline, design: .monospaced)).frame(maxWidth:.infinity,minHeight:48,alignment:.leading).padding(8)
-                                .background(navySurface,in:RoundedRectangle(cornerRadius:12))
+                                .plonnGlassSurface(selected:modelType == method.rawValue,radius:12)
                         }.buttonStyle(.plain).disabled(!available.contains(method.rawValue))
                     }
                 }
@@ -952,5 +1166,48 @@ private struct NationalTeamModelView:View {
             result=try requested.result(body)
         } catch {if setup==requested {message="No result shown. The service was unavailable or returned an unmatched or invalid result."}}
         #endif
+    }
+}
+
+
+private struct LabPlayerPropPicker: View {
+    let league:String
+    let selection:String
+    let capabilities:LabCapabilities?
+    let choose:(String)->Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var search=""
+    private var groups:[LabPropCatalog.PropGroup] {LabPropCatalog.playerGroups(league:league,search:search)}
+    var body:some View {
+        NavigationStack {
+            List {
+                if groups.isEmpty {Text("No matching props. Try another name or category.").foregroundStyle(.secondary)}
+                ForEach(groups) {group in
+                    Section(group.title) {
+                        ForEach(group.props,id:\.self) {prop in
+                            Button {choose(prop);dismiss()} label: {
+                                HStack(alignment:.top,spacing:12) {
+                                    VStack(alignment:.leading,spacing:5) {
+                                        Text(LabPropCatalog.displayName(prop)).foregroundStyle(.primary)
+                                        Text(LabPropCatalog.testingStatus(league:league,stat:prop,capabilities:capabilities)).font(.caption).foregroundStyle(.secondary)
+                                        if let reason=LabPropCatalog.configurationLimitation(prop) {Text(reason).font(.caption).foregroundStyle(.secondary)}
+                                    }
+                                    Spacer(minLength:0)
+                                    if selection==prop {Image(systemName:"checkmark").foregroundStyle(brandAccent)}
+                                }.padding(.vertical,4).contentShape(Rectangle())
+                            }.plonnGlassButton(prominent:selection==prop).disabled(LabPropCatalog.configurationLimitation(prop) != nil)
+                                .accessibilityIdentifier("lab-prop-"+league+"-"+prop)
+                                .accessibilityAddTraits(selection==prop ? .isSelected:[])
+                        }
+                    }
+                }
+                Section {
+                    Text("For alternate lines or milestones, choose the underlying stat and enter the line on the next step.").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            .searchable(text:$search,prompt:"Search props or categories")
+            .navigationTitle("\(league) player props").navigationBarTitleDisplayMode(.inline)
+            .toolbar {ToolbarItem(placement:.cancellationAction) {Button("Cancel") {dismiss()}}}
+        }.preferredColorScheme(.dark)
     }
 }

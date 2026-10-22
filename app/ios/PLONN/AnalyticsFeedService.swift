@@ -94,45 +94,111 @@ actor AnalyticsFeedService {
         guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw PlayerHistoryError.invalidPayload }
         return object
     }
-    func load(snapshots: [Market], now: Date = Date(), recordedRead: RecordedReader? = nil) async -> AnalyticsFeedBuildResult {
+    func load(snapshots: [Market], now: Date = Date(), recordedRead: RecordedReader? = nil, sport selectedSport: String? = nil, publicStatisticsFallback: Bool = false) async -> AnalyticsFeedBuildResult {
         #if DEBUG && targetEnvironment(simulator)
         if ProcessInfo.processInfo.environment["PLONN_ANALYTICS_MARKETS_FIXTURE"] != nil {
-            return AnalyticsFeedCore.build(snapshots: snapshots, verifiedSubjects: fixtureSubjects(now: now), now: now)
+            return AnalyticsFeedCore.build(snapshots: snapshots.filter { selectedSport == nil || $0.sport == selectedSport }, verifiedSubjects: fixtureSubjects(now: now).filter { selectedSport == nil || $0.sport == selectedSport }, now: now)
         }
         #endif
-        if let recordedRead { return await loadRecorded(read: recordedRead, now: now) }
+        if let recordedRead {
+            if publicStatisticsFallback {
+                async let recorded = loadRecorded(read: recordedRead, now: now, sport: selectedSport, includeStatistics: true)
+                async let statistics = load(snapshots: [], now: now, sport: selectedSport, publicStatisticsFallback: true)
+                return await Self.mergeBrowsing(statistics: statistics, recorded: recorded)
+            }
+            return await loadRecorded(read: recordedRead, now: now, sport: selectedSport)
+        }
         var subjects: [AnalyticsFeedVerifiedSubject] = [], warnings: [String] = []
-        var rosterTeams: [(sport: String, name: String, id: String, event: AnalyticsEvent?)] = []
-        // At most four scoreboards, four empty-day directory fallbacks and two rosters.
-        for sport in ["NBA", "MLB", "NFL", "NHL"] {
+        var rosterTeams: [AnalyticsFeedVerifiedSubject] = []
+        let sports: [String] = ["NFL", "NBA", "MLB", "NHL"].filter { selectedSport == nil || $0 == selectedSport }
+        let date = DateFormatter(); date.locale = Locale(identifier: "en_US_POSIX"); date.timeZone = TimeZone(identifier: "America/New_York")
+        // Discover the entire current slate independently of odds coverage.
+        // Empty days use the verified league directory; roster reads are bounded below.
+        for sport in sports {
             guard !Task.isCancelled else { break }
-            let league = PlayerHistoryService.leaguePath(sport)
-            let date = DateFormatter(); date.locale = Locale(identifier: "en_US_POSIX"); date.timeZone = TimeZone(identifier: "America/New_York"); date.dateFormat = "yyyyMMdd"
-            let url = URL(string: "https://site.api.espn.com/apis/site/v2/sports/\(league)/scoreboard?dates=\(date.string(from: now))&limit=100")!
             do {
-                var teams = try Self.scoreboardSubjects(payload: await json(url), sport: sport, sourceURL: url.absoluteString, now: now)
-                if teams.isEmpty {
-                    let directory = URL(string: "https://site.api.espn.com/apis/site/v2/sports/\(league)/teams?limit=1000")!
-                    teams = try Self.directorySubjects(payload: await json(directory), sport: sport, sourceURL: directory.absoluteString, now: now)
+                var teams: [AnalyticsFeedVerifiedSubject]
+                if sport == "MLB" {
+                    date.dateFormat = "yyyy-MM-dd"
+                    let url = URL(string: "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=\(date.string(from: now))")!
+                    teams = try Self.mlbScheduleSubjects(payload: await json(url), sourceURL: url.absoluteString, now: now, includeInactive: true)
+                    if teams.isEmpty {
+                        let directory = URL(string: "https://statsapi.mlb.com/api/v1/teams?sportId=1")!
+                        teams = try Self.mlbDirectorySubjects(payload: await json(directory), sourceURL: directory.absoluteString, now: now)
+                    }
+                } else {
+                    date.dateFormat = "yyyyMMdd"
+                    let league = PlayerHistoryService.leaguePath(sport)
+                    let url = URL(string: "https://site.api.espn.com/apis/site/v2/sports/\(league)/scoreboard?dates=\(date.string(from: now))&limit=100")!
+                    teams = try Self.scoreboardSubjects(payload: await json(url), sport: sport, sourceURL: url.absoluteString, now: now, includeInactive: publicStatisticsFallback)
+                    if teams.isEmpty {
+                        let directory = URL(string: "https://site.api.espn.com/apis/site/v2/sports/\(league)/teams?limit=1000")!
+                        teams = try Self.directorySubjects(payload: await json(directory), sport: sport, sourceURL: directory.absoluteString, now: now)
+                    }
                 }
-                subjects += Array(teams.prefix(2))
-                if let team = teams.first { rosterTeams.append((sport, team.name, team.providerID, team.event)) }
+                subjects += publicStatisticsFallback ? Self.currentTeamContexts(teams, now: now) : Array(teams.prefix(2))
+                if publicStatisticsFallback { rosterTeams += Self.currentTeamContexts(teams, now: now) }
+                else if let team = teams.first { rosterTeams.append(team) }
             } catch is CancellationError { break }
-            catch { warnings.append("\(sport) feed subjects could not be verified. Cached subjects remain available.") }
+            catch { warnings.append("\(sport): public team statistics could not be loaded. Please try again.") }
         }
-        // Rotate the two small roster reads by UTC day rather than favoring a sport.
-        let offset = Int(now.timeIntervalSince1970 / 86400).quotientAndRemainder(dividingBy: max(1, rosterTeams.count)).remainder
-        let rosterOrder = Array(rosterTeams.dropFirst(offset)) + Array(rosterTeams.prefix(offset))
-        for team in rosterOrder.prefix(2) {
-            guard !Task.isCancelled else { break }
-            let path = PlayerHistoryService.leaguePath(team.sport)
-            let url = URL(string: "https://site.api.espn.com/apis/site/v2/sports/\(path)/teams/\(team.id)/roster")!
-            do { subjects += try Self.rosterSubjects(payload: await json(url), sport: team.sport, teamName: team.name, teamID: team.id, event: team.event, sourceURL: url.absoluteString, now: now) }
-            catch is CancellationError { break }
-            catch { warnings.append("\(team.sport) player names could not be verified; no names were substituted.") }
+        // Two roster transports at a time; discovering more teams never loads their histories.
+        var iterator = rosterTeams.makeIterator()
+        await withTaskGroup(of: (AnalyticsFeedVerifiedSubject, [AnalyticsFeedVerifiedSubject]?).self) { group in
+            for _ in 0..<2 {
+                if let team = iterator.next() { group.addTask { (team, try? await self.roster(team: team, now: now, browsing: publicStatisticsFallback)) } }
+            }
+            while let (team, players) = await group.next() {
+                if let players { subjects += players }
+                else { warnings.append("\(team.sport): player statistics could not be loaded for \(team.name).") }
+                if !Task.isCancelled, let next = iterator.next() { group.addTask { (next, try? await self.roster(team: next, now: now, browsing: publicStatisticsFallback)) } }
+            }
         }
-        let built = AnalyticsFeedCore.build(snapshots: snapshots, verifiedSubjects: subjects, now: now, limit: 12)
-        return AnalyticsFeedBuildResult(candidates: built.candidates, warnings: warnings + built.warnings)
+        // Without an authenticated reader, only public identities enter the feed.
+        // Retained selections never grant a guest access to account-scoped odds.
+        let built = AnalyticsFeedCore.build(snapshots: [], verifiedSubjects: subjects, now: now, limit: publicStatisticsFallback ? AnalyticsFeedCore.browsingCapacity : 24)
+        let candidates = sports.flatMap { sport in built.candidates.filter { $0.market.sport == sport } }
+        return AnalyticsFeedBuildResult(candidates: candidates, warnings: warnings + built.warnings)
+    }
+    private func roster(team: AnalyticsFeedVerifiedSubject, now: Date, browsing: Bool) async throws -> [AnalyticsFeedVerifiedSubject] {
+        let url = URL(string: team.sport == "MLB" ? "https://statsapi.mlb.com/api/v1/teams/\(team.providerID)/roster" : "https://site.api.espn.com/apis/site/v2/sports/\(PlayerHistoryService.leaguePath(team.sport))/teams/\(team.providerID)/roster")!
+        let payload = try await json(url)
+        let players = try team.sport == "MLB" ? Self.mlbRosterSubjects(payload: payload, team: team, sourceURL: url.absoluteString, now: now) : Self.rosterSubjects(payload: payload, sport: team.sport, teamName: team.name, teamID: team.providerID, event: team.event, sourceURL: url.absoluteString, now: now, limit: browsing ? 200 : 2)
+        return browsing ? players.map(Self.browsingSubject) : Array(players.prefix(2))
+    }
+    /// One research context per team: live first, then next scheduled game, then latest final.
+    /// This preserves both teams in doubleheaders without mixing different games' prices.
+    static func currentTeamContexts(_ teams: [AnalyticsFeedVerifiedSubject], now: Date) -> [AnalyticsFeedVerifiedSubject] {
+        func rank(_ team: AnalyticsFeedVerifiedSubject) -> Int {
+            guard let event = team.event else { return 3 }
+            if event.lifecycle == .inProgress { return 0 }
+            return event.lifecycle == .scheduled && event.start > now ? 1 : 2
+        }
+        var seen = Set<String>()
+        return teams.sorted {
+            if rank($0) != rank($1) { return rank($0) < rank($1) }
+            if let a = $0.event, let b = $1.event, a.start != b.start { return rank($0) == 2 ? a.start > b.start : a.start < b.start }
+            return $0.name < $1.name
+        }.filter { seen.insert($0.sport + "|" + $0.providerID).inserted }
+    }
+    static func mergeBrowsing(statistics: AnalyticsFeedBuildResult, recorded: AnalyticsFeedBuildResult) -> AnalyticsFeedBuildResult {
+        var byID = Dictionary(statistics.candidates.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        func identity(_ proof: AnalyticsFeedVerifiedSubject) -> String { proof.sport + "|" + proof.subject.rawValue + "|" + proof.providerID }
+        let contexts = Dictionary(statistics.candidates.compactMap { $0.verifiedSubject }.map { (identity($0), $0) }, uniquingKeysWith: { first, _ in first })
+        for candidate in recorded.candidates {
+            guard let proof = candidate.verifiedSubject else { continue }
+            if let current = contexts[identity(proof)] {
+                guard proof.teamID == current.teamID, AnalyticsOddsMatcher.normalized(proof.name) == AnalyticsOddsMatcher.normalized(current.name) else { continue }
+                if let event = current.event {
+                    guard let recordedEvent = proof.event,
+                          recordedEvent.sport == event.sport, recordedEvent.providerID == event.providerID,
+                          recordedEvent.homeID == event.homeID, recordedEvent.awayID == event.awayID,
+                          recordedEvent.start == event.start else { continue }
+                }
+            }
+            byID[candidate.id] = candidate
+        }
+        return AnalyticsFeedBuildResult(candidates: byID.values.sorted { $0.id < $1.id }, warnings: Array(Set(statistics.warnings + recorded.warnings)).sorted())
     }
     /// One authenticated, read-only cache response; the Store adapter cannot request paid odds.
     struct RecordedSnapshot: Sendable {
@@ -145,16 +211,40 @@ actor AnalyticsFeedService {
     }
     typealias RecordedReader = @Sendable (String, NBARecordedOddsPhase?, String?) async throws -> RecordedSnapshot
 
-    /// Read schedules first, then a slate and at most one exact event's props per sport.
+    /// Resolve the selected research subject against an exact existing game cache.
+    /// This never requests additional provider coverage or changes the public identity.
+    static func recordedSelection(_ candidate: AnalyticsFeedCandidate, read: RecordedReader, now: Date = Date()) async throws -> AnalyticsFeedCandidate? {
+        guard let proof = candidate.verifiedSubject, let event = proof.event, event.start > now else { return nil }
+        let phase = NBARecordedOddsRouting.phase(sport: proof.sport, seasonTypes: [event.seasonType])
+        guard phase != .unknown else { return nil }
+        let slate = try validateRecorded(try await read(proof.sport, phase, nil), sport: proof.sport, now: now)
+        try Task.checkCancellation()
+        guard let selected = RecordedEventSelection.select(slate.events, sport: proof.sport, phase: phase,
+            home: event.home, away: event.away, start: event.start, now: now) else { return nil }
+        let detail: RecordedSnapshot
+        if candidate.subject == .player && !slate.markets.contains(where: { $0.event == selected.id && $0.kind == "prop" }) {
+            detail = try validateRecorded(try await read(proof.sport, phase, selected.id), sport: proof.sport, now: now)
+        } else { detail = slate }
+        try Task.checkCancellation()
+        guard let verified = RecordedEventSelection.select(detail.events, sport: proof.sport, phase: phase,
+            home: event.home, away: event.away, start: event.start, now: now), verified.id == selected.id else { return nil }
+        let built = AnalyticsFeedCore.build(snapshots: detail.markets, verifiedSubjects: [proof], now: now,
+            limit: AnalyticsFeedCore.browsingCapacity, recordedSnapshot: true)
+        return built.candidates.first { $0.id == candidate.id && $0.verifiedSubject == proof }
+    }
+
+    /// Read the cache, verify relevant schedule dates, then read at most one exact event's props per sport.
     /// The first matching event is deterministic; no odds, outcome, or forecast ranking.
-    func loadRecorded(read: @escaping RecordedReader, now: Date = Date()) async -> AnalyticsFeedBuildResult {
+    func loadRecorded(read: @escaping RecordedReader, now: Date = Date(), sport selectedSport: String? = nil, includeStatistics: Bool = false) async -> AnalyticsFeedBuildResult {
         guard now.timeIntervalSince1970.isFinite else { return AnalyticsFeedBuildResult(candidates: [], warnings: ["The feed cutoff is invalid."]) }
         var subjects: [AnalyticsFeedVerifiedSubject] = [], snapshots: [Market] = [], warnings: [String] = []
         var archiveQuoteIDs = Set<String>()
         var calendar = Calendar(identifier: .gregorian); calendar.timeZone = TimeZone(identifier: "America/New_York")!
         let formatter = DateFormatter(); formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.timeZone = calendar.timeZone
-        let days = (0..<5).compactMap { calendar.date(byAdding: .day, value: $0, to: calendar.startOfDay(for: now)) }
-        for sport in ["NFL", "NBA", "NHL", "MLB"] {
+        let sports: [String] = ["NFL", "NBA", "NHL", "MLB"].filter { selectedSport == nil || $0 == selectedSport }
+        let today = calendar.startOfDay(for: now)
+        let windowEnd = calendar.date(byAdding: .day, value: 5, to: today)!
+        for sport in sports {
             guard !Task.isCancelled else { break }
             do {
                 var teams: [AnalyticsFeedVerifiedSubject] = []
@@ -164,9 +254,23 @@ actor AnalyticsFeedService {
                     // A missing phase is not evidence about another phase. Every read is cache-only.
                     if let slate = try? Self.validateRecorded(try await read(sport, phase, nil), sport: sport, now: now) { slates[phase?.rawValue ?? sport] = slate }
                 }
-                let archiveDates = slates.values.filter(\.recordedArchive).flatMap(\.events).compactMap { sportsDate($0.commence) }.filter { $0 < now }.map { calendar.startOfDay(for: $0) }
-                let statusDays = Array(Set(days + archiveDates)).sorted()
+                // Only dates represented in the cache can produce a matching card.
+                // Still verify every eligible cached event against the public schedule.
+                let statusDays = Array(Set(slates.values.flatMap { slate in
+                    // Match RecordedStartPolicy across Eastern midnight too: NHL
+                    // puck-drop estimates may differ by ten minutes, others by one second.
+                    let tolerance: TimeInterval = sport == "NHL" ? 600 : 1
+                    return slate.events.compactMap { sportsDate($0.commence) }.flatMap { start in
+                        [start.addingTimeInterval(-tolerance), start, start.addingTimeInterval(tolerance)]
+                    }.filter {
+                        ($0 >= today && $0 < windowEnd) || (slate.recordedArchive && $0 < now)
+                    }.map { calendar.startOfDay(for: $0) }
+                })).sorted()
                 guard statusDays.count <= 32 else { throw PlayerHistoryError.invalidPayload }
+                guard !statusDays.isEmpty else {
+                    warnings.append("\(sport): no unique scheduled event matches the recorded cache.")
+                    continue
+                }
                 if sport == "MLB" {
                     formatter.dateFormat = "yyyy-MM-dd"
                     let url = URL(string: "https://statsapi.mlb.com/api/v1/schedule?sportId=1&startDate=\(formatter.string(from: statusDays[0]))&endDate=\(formatter.string(from: statusDays.last!))")!
@@ -183,59 +287,78 @@ actor AnalyticsFeedService {
                     .values.compactMap { events -> AnalyticsEvent? in
                         guard let first = events.first, events.allSatisfy({ $0 == first }) else { return nil }; return first
                     }.sorted { $0.start == $1.start ? $0.providerID < $1.providerID : $0.start < $1.start }
-                var selected: (AnalyticsEvent, RecordedEventMetadata, RecordedSnapshot, NBARecordedOddsPhase?)?
+                var selected: [(AnalyticsEvent, RecordedEventMetadata, RecordedSnapshot, NBARecordedOddsPhase?)] = []
                 for event in uniqueEvents {
                     let phase = NBARecordedOddsRouting.phase(sport: sport, seasonTypes: [event.seasonType])
                     if phase == .unknown { continue }
                     let key = phase?.rawValue ?? sport
                     if slates[key] == nil { slates[key] = try Self.validateRecorded(try await read(sport, phase, nil), sport: sport, now: now) }
                     guard let slate = slates[key], let metadata = RecordedEventSelection.select(slate.events, sport: sport, phase: phase, home: event.home, away: event.away, start: event.start, now: now, includeStarted: slate.recordedArchive && event.allowsRecorded(now: now, archive: true)) else { continue }
-                    selected = (event, metadata, slate, phase); break
+                    selected.append((event, metadata, slate, phase))
+                    if !includeStatistics { break }
                 }
-                guard let (event, metadata, slate, phase) = selected else {
+                guard !selected.isEmpty else {
                     warnings.append("\(sport): no unique scheduled event matches the recorded cache.")
                     continue
                 }
+                var seenTeams = Set<String>()
+                for (event, metadata, slate, phase) in selected {
                 // Keep the complete selected event scope so contradictory rows are quarantined.
                 let eventMarkets = slate.markets.filter { $0.event == metadata.id }
                 snapshots += eventMarkets
                 if slate.recordedArchive { archiveQuoteIDs.formUnion(eventMarkets.map(\.id)) }
-                let selectedTeams = Dictionary(grouping: teams.filter { $0.event == event }, by: \.providerID).values.compactMap { $0.first }.sorted { $0.providerID < $1.providerID }
+                let selectedTeams = Dictionary(grouping: teams.filter { $0.event == event }, by: \.providerID).values.compactMap { $0.first }.sorted { $0.providerID < $1.providerID }.filter { seenTeams.insert($0.providerID).inserted }
+                guard !selectedTeams.isEmpty else { continue }
                 subjects += selectedTeams
+                var props: [Market] = []
                 do {
                     let detail = try Self.validateRecorded(try await read(sport, phase, metadata.id), sport: sport, now: now)
-                    let props = detail.markets.filter { $0.kind == "prop" }
-                    guard props.allSatisfy({ $0.event == metadata.id }) else { throw PlayerHistoryError.invalidPayload }
-                    if !props.isEmpty {
-                        // Require the detail response to repeat the exact selected provider event.
+                    let returned = detail.markets.filter { $0.kind == "prop" }
+                    guard returned.allSatisfy({ $0.event == metadata.id }) else { throw PlayerHistoryError.invalidPayload }
+                    if !returned.isEmpty {
+                        // Prices still require an exact event match; roster browsing does not.
                         guard let verified = RecordedEventSelection.select(detail.events, sport: sport, phase: phase, home: event.home, away: event.away, start: event.start, now: now, includeStarted: detail.recordedArchive && event.allowsRecorded(now: now, archive: true)), verified.id == metadata.id, verified.commence == metadata.commence else { throw PlayerHistoryError.invalidPayload }
+                        props = returned
                         snapshots += props
                         if detail.recordedArchive { archiveQuoteIDs.formUnion(props.map(\.id)) }
-                        for team in selectedTeams {
-                            let url = URL(string: sport == "MLB" ? "https://statsapi.mlb.com/api/v1/teams/\(team.providerID)/roster" : "https://site.api.espn.com/apis/site/v2/sports/\(PlayerHistoryService.leaguePath(sport))/teams/\(team.providerID)/roster")!
-                            do {
-                                let payload = try await json(url)
-                                let roster = try sport == "MLB"
-                                    ? Self.mlbRosterSubjects(payload: payload, team: team, sourceURL: url.absoluteString, now: now)
-                                    : Self.rosterSubjects(payload: payload, sport: sport, teamName: team.name, teamID: team.providerID, event: event, sourceURL: url.absoluteString, now: now, limit: 200)
-                                subjects += roster.compactMap { player in
-                                    let keys = Set(props.filter { AnalyticsOddsMatcher.normalized($0.name) == AnalyticsOddsMatcher.normalized(player.name) && AnalyticsFeedCore.supports(sport: sport, subject: .player, marketKey: $0.market) }.map(\.market))
-                                    guard !keys.isEmpty else { return nil }
-                                    return AnalyticsFeedVerifiedSubject(sport: player.sport, subject: .player, name: player.name, providerID: player.providerID, teamName: player.teamName, teamID: player.teamID, imageURL: player.imageURL, teamLogoURL: player.teamLogoURL, marketKeys: keys.sorted(), event: player.event, sourceURL: player.sourceURL, verifiedAt: player.verifiedAt)
-                                }
-                            } catch { warnings.append("\(sport): player membership could not be verified for \(team.name).") }
-                        }
                     }
-                } catch { warnings.append("\(sport): recorded player props are unavailable; verified game lines remain.") }
+                } catch { warnings.append("\(sport): recorded player props are unavailable; verified statistics remain.") }
+                if includeStatistics || !props.isEmpty {
+                    for team in selectedTeams {
+                        let url = URL(string: sport == "MLB" ? "https://statsapi.mlb.com/api/v1/teams/\(team.providerID)/roster" : "https://site.api.espn.com/apis/site/v2/sports/\(PlayerHistoryService.leaguePath(sport))/teams/\(team.providerID)/roster")!
+                        do {
+                            let payload = try await json(url)
+                            let roster = try sport == "MLB"
+                                ? Self.mlbRosterSubjects(payload: payload, team: team, sourceURL: url.absoluteString, now: now)
+                                : Self.rosterSubjects(payload: payload, sport: sport, teamName: team.name, teamID: team.providerID, event: event, sourceURL: url.absoluteString, now: now, limit: 200)
+                            subjects += roster.compactMap { player in
+                                var keys = Set(props.filter { AnalyticsOddsMatcher.normalized($0.name) == AnalyticsOddsMatcher.normalized(player.name) && AnalyticsFeedCore.supports(sport: sport, subject: .player, marketKey: $0.market) }.map(\.market))
+                                if includeStatistics { keys.formUnion(Self.browsingSubject(player).marketKeys) }
+                                guard !keys.isEmpty else { return nil }
+                                return AnalyticsFeedVerifiedSubject(sport: player.sport, subject: .player, name: player.name, providerID: player.providerID, teamName: player.teamName, teamID: player.teamID, imageURL: player.imageURL, teamLogoURL: player.teamLogoURL, marketKeys: keys.sorted(), event: player.event, sourceURL: player.sourceURL, verifiedAt: player.verifiedAt)
+                            }
+                        } catch { warnings.append("\(sport): player membership could not be verified for \(team.name).") }
+                    }
+                }
+                }
             } catch is CancellationError { break }
             catch { warnings.append("\(sport): recorded cache or public schedule is unavailable.") }
         }
         let built = AnalyticsFeedCore.build(snapshots: snapshots, verifiedSubjects: subjects, now: now, limit: 30_000, recordedSnapshot: true)
+        if includeStatistics {
+            // Browsing is independent of quote coverage. Card-level matching still gates every price.
+            let candidates = built.candidates.filter { $0.verifiedSubject != nil }.map { original in
+                var candidate = original
+                candidate.recordedArchive = !candidate.quotes.isEmpty && candidate.quotes.allSatisfy { archiveQuoteIDs.contains($0.id) }
+                return candidate
+            }
+            return AnalyticsFeedBuildResult(candidates: candidates, warnings: Array(Set(warnings + built.warnings)).sorted())
+        }
         // Select only verified exact quote matches before applying the bounded history budget.
         // Four leagues and both subject types get independent slots; quote-less alphabetical
         // seeds cannot consume those slots. One stat per subject keeps the feed varied.
         var selected: [AnalyticsFeedCandidate] = []
-        for sport in ["NFL", "NBA", "NHL", "MLB"] {
+        for sport in sports {
             for subject in [AnalyticsFeedSubject.team, .player] {
                 var names = Set<String>()
                 let candidates = built.candidates.filter { $0.market.sport == sport && $0.subject == subject }.map { original in
@@ -319,6 +442,15 @@ actor AnalyticsFeedService {
             return [(hn, hi), (an, ai)].map { name, teamID in AnalyticsFeedVerifiedSubject(sport: "MLB", subject: .team, name: name, providerID: teamID, marketKeys: ["team_totals"], event: event, sourceURL: sourceURL, verifiedAt: now) }
         }
     }
+    static func mlbDirectorySubjects(payload: [String: Any], sourceURL: String, now: Date) throws -> [AnalyticsFeedVerifiedSubject] {
+        guard let teams = payload["teams"] as? [[String: Any]], teams.count <= 100 else { throw PlayerHistoryError.invalidPayload }
+        return teams.compactMap { team in
+            guard let id = mlbIdentifier(team["id"]), let name = team["name"] as? String, !name.isEmpty,
+                  let sport = team["sport"] as? [String: Any], mlbIdentifier(sport["id"]) == "1" else { return nil }
+            return AnalyticsFeedVerifiedSubject(sport: "MLB", subject: .team, name: name, providerID: id,
+                marketKeys: ["team_totals"], sourceURL: sourceURL, verifiedAt: now)
+        }.sorted { $0.name < $1.name }
+    }
     static func mlbRosterSubjects(payload: [String: Any], team: AnalyticsFeedVerifiedSubject, sourceURL: String, now: Date) throws -> [AnalyticsFeedVerifiedSubject] {
         guard let rows = payload["roster"] as? [[String: Any]], rows.count <= 200,
               (payload["teamId"] == nil || mlbIdentifier(payload["teamId"]) == team.providerID) else { throw PlayerHistoryError.invalidPayload }
@@ -342,7 +474,7 @@ actor AnalyticsFeedService {
             request.event = event.providerID; request.eventLabel = event.away + " at " + event.home
             request.commence = ISO8601DateFormatter().string(from: event.start)
         }
-        let history = await playerHistory.load(market: request, includeOpponent: false, seasonCount: 2, now: now)
+        let history = await playerHistory.load(market: request, includeOpponent: false, seasonCount: 2, now: now, maximumGames: 2_000)
         if !history.games.isEmpty, !Self.acceptsPlayerHistory(candidate: candidate, history: history) {
             return AnalyticsHistoryResult(summary: nil, rows: [], observations: [], source: history.source, warnings: ["Current roster and historical player identities could not both be verified."], availability: "Recorded history is unavailable for this roster entry until its player identity is verified.", sourceURLs: history.sourceURLs)
         }
@@ -398,6 +530,23 @@ actor AnalyticsFeedService {
             guard let team = entry["team"] as? [String: Any], let name = team["displayName"] as? String, !name.isEmpty, let id = team["id"] as? String, !id.isEmpty, id.allSatisfy(\.isNumber) else { return nil }
             return AnalyticsFeedVerifiedSubject(sport: sport, subject: .team, name: name, providerID: id, imageURL: logo(team), marketKeys: ["team_totals"], sourceURL: sourceURL, verifiedAt: now)
         }.sorted { $0.name < $1.name }
+    }
+    /// Expand only statistics supported by this history reader and the verified playing role.
+    /// The roster parser's primary key identifies that role without inventing membership.
+    static func browsingSubject(_ player: AnalyticsFeedVerifiedSubject) -> AnalyticsFeedVerifiedSubject {
+        let primary = player.marketKeys.first ?? ""
+        let supported = OpponentPropHistoryEngine.supportedMarkets[player.sport] ?? []
+        let keys = supported.filter { key in
+            switch player.sport {
+            case "NFL":
+                if primary == "player_pass_yds" { return key.hasPrefix("player_pass_") || key.hasPrefix("player_rush_") && key != "player_rush_reception_yds" }
+                return !key.hasPrefix("player_pass_")
+            case "MLB": return key.hasPrefix(primary.hasPrefix("pitcher_") ? "pitcher_" : "batter_")
+            case "NHL": return primary == "player_total_saves" ? key == "player_total_saves" : key != "player_total_saves"
+            default: return true
+            }
+        }.filter { AnalyticsFeedCore.supports(sport: player.sport, subject: .player, marketKey: $0) }
+        return AnalyticsFeedVerifiedSubject(sport: player.sport, subject: player.subject, name: player.name, providerID: player.providerID, teamName: player.teamName, teamID: player.teamID, imageURL: player.imageURL, teamLogoURL: player.teamLogoURL, marketKeys: keys.sorted(), event: player.event, sourceURL: player.sourceURL, verifiedAt: player.verifiedAt)
     }
     static func rosterSubjects(payload: [String: Any], sport: String, teamName: String, teamID: String, event: AnalyticsEvent?, sourceURL: String, now: Date, limit: Int = 2) throws -> [AnalyticsFeedVerifiedSubject] {
         guard let team = payload["team"] as? [String: Any], team["id"] as? String == teamID, AnalyticsOddsMatcher.normalized(team["displayName"] as? String ?? "") == AnalyticsOddsMatcher.normalized(teamName), let groups = payload["athletes"] as? [[String: Any]], groups.count <= 200 else { throw PlayerHistoryError.invalidPayload }

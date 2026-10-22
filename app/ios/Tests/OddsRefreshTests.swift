@@ -4,7 +4,7 @@ import XCTest
 
 @MainActor final class OddsRefreshTests: XCTestCase {
     func market(_ id: String = "one", sport: String = "MLB", event: String = "event", kind: String = "team") -> Market {
-        Market(id:id,event:event,sport:sport,kind:kind,name:"Home",opponent:"Away",label:"Home to win",aliases:"",price:-110,market:"h2h",book:"Book",quotes:[],mode:"live",eventLabel:"Away at Home",commence:"2026-09-30T22:00:00Z")
+        Market(id:id,event:event,sport:sport,kind:kind,name:"Home",opponent:"Away",label:"Home to win",aliases:"",price:-110,market:"h2h",book:"Book",quotes:[],mode:"live",eventLabel:"Away at Home",commence:"2099-09-30T22:00:00Z")
     }
     func account() -> AccountStore { AccountStore(owner: UUID()) }
     func store() -> Store { let store=Store();store.backendURL="";return store }
@@ -141,13 +141,13 @@ import XCTest
             }
             return OddsResponse(markets:[self.market(),self.market("wrong",sport:"NBA")],message:"Slate")
         }
-        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2026-09-30T22:00:00Z")
+        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2099-09-30T22:00:00Z")
         XCTAssertEqual(Set(store.live.map(\.id)),["one","prop"])
         account.client.functions.operation={ body in
             if body["event"] != nil { throw URLError(.timedOut) }
             return OddsResponse(markets:[self.market("updated")],message:"Slate")
         }
-        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2026-09-30T22:00:00Z")
+        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2099-09-30T22:00:00Z")
         XCTAssertEqual(Set(store.live.map(\.id)),["updated","prop"])
         XCTAssertTrue(store.oddsStale)
         XCTAssertTrue(store.status.contains("Stale player props"))
@@ -200,7 +200,7 @@ import XCTest
             if body["event"] != nil {throw URLError(.timedOut)}
             return OddsResponse(markets:[self.market()],message:"Recorded snapshot",cacheOnly:true,stale:true,fetchedAt:stamp,quoteUpdatedAt:stamp)
         }
-        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2026-09-30T22:00:00Z")
+        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2099-09-30T22:00:00Z")
         XCTAssertEqual(store.live.map(\.id),["one"])
         XCTAssertEqual(store.lastOddsRefresh,sportsDate(stamp))
         XCTAssertTrue(store.oddsCachedOnly);XCTAssertTrue(store.oddsStale)
@@ -215,7 +215,7 @@ import XCTest
             if body["event"] != nil {return OddsResponse(markets:[],message:"No recorded props",cacheOnly:true,stale:true)}
             return OddsResponse(markets:[self.market()],message:"Recorded snapshot",cacheOnly:true,stale:true,fetchedAt:stamp,quoteUpdatedAt:stamp)
         }
-        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2026-09-30T22:00:00Z")
+        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2099-09-30T22:00:00Z")
         XCTAssertEqual(store.live.map(\.id),["one"])
         XCTAssertEqual(store.lastOddsRefresh,sportsDate(stamp))
         XCTAssertTrue(store.oddsCachedOnly);XCTAssertTrue(store.oddsStale)
@@ -243,22 +243,24 @@ import XCTest
         XCTAssertTrue(store.status.contains("As-of time unavailable"))
     }
 
-    func testCacheOnlyBodyEncodesBooleanAndDoesNotRequestProps() async throws {
+    func testCacheOnlyBodyKeepsSlateAndEventReadsCacheOnly() async throws {
         let body=OddsRequestBody(sport:"NFL",event:nil,cacheOnly:true)
         let encoded=try JSONSerialization.jsonObject(with:JSONEncoder().encode(body)) as! [String:Any]
         XCTAssertEqual(encoded["cacheOnly"] as? Bool,true)
         XCTAssertNil(encoded["event"])
         let account=account(),store=store()
-        var calls=0
+        var requests:[[String:String]]=[]
         account.client.functions.operation={ request in
-            calls += 1
+            requests.append(request)
             XCTAssertEqual(request["cacheOnly"],"true")
-            XCTAssertNil(request["event"])
-            return OddsResponse(markets:[self.market()],message:"Recorded",cacheOnly:true,stale:true,quoteUpdatedAt:"2026-10-09T19:52:46Z")
+            let rows=request["event"] == nil ? [self.market()]:[self.market("prop",kind:"prop")]
+            return OddsResponse(markets:rows,message:"Recorded",cacheOnly:true,stale:true,quoteUpdatedAt:"2026-10-09T19:52:46Z")
         }
-        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2026-09-30T22:00:00Z",cacheOnly:true)
-        XCTAssertEqual(calls,1)
-        XCTAssertEqual(store.live.map(\.id),["one"])
+        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2099-09-30T22:00:00Z",cacheOnly:true)
+        XCTAssertEqual(requests.count,2)
+        XCTAssertNil(requests.first?["event"])
+        XCTAssertEqual(requests.last?["event"],"event")
+        XCTAssertEqual(store.live.map(\.id),["one","prop"])
         XCTAssertFalse(store.status.contains("No cached markets"))
         XCTAssertTrue(store.status.contains("Quote as of"))
     }
@@ -269,7 +271,7 @@ import XCTest
     }
 
     func testRecordedEventRequiresWholeTeamsAndExactStart() {
-        let start=sportsDate("2026-09-30T22:00:00Z")!
+        let start=sportsDate("2099-09-30T22:00:00Z")!
         XCTAssertTrue(Store.matchesRecordedEvent(market(),sport:"MLB",home:"Home",away:"Away",start:start))
         XCTAssertFalse(Store.matchesRecordedEvent(market(),sport:"MLB",home:"Hom",away:"Away",start:start))
         XCTAssertFalse(Store.matchesRecordedEvent(market(),sport:"NBA",home:"Home",away:"Away",start:start))
@@ -277,16 +279,42 @@ import XCTest
         XCTAssertFalse(Store.matchesRecordedEvent(market(),sport:"MLB",home:"Home",away:"Away",start:start.addingTimeInterval(600)))
     }
 
+    func testExactStartFastPathPreservesAllNonHockeyIdentityChecks() throws {
+        let start=try XCTUnwrap(sportsDate("2099-09-30T22:00:00Z")),now=start.addingTimeInterval(-3600)
+        for sport in ["MLB","NBA","NFL"] {
+            let row=market(sport:sport)
+            let unrelated=(0..<256).map {market(String($0),sport:"NHL",event:"unrelated-\($0)")}
+            XCTAssertTrue(Store.matchesRecordedEvent(row,sport:sport,home:"Home",away:"Away",start:start,candidates:unrelated,now:now))
+            XCTAssertTrue(Store.matchesRecordedEvent(row,sport:sport,home:"Home",away:"Away",start:start.addingTimeInterval(1),candidates:unrelated,now:now))
+            XCTAssertFalse(Store.matchesRecordedEvent(row,sport:sport,home:"Home",away:"Away",start:start.addingTimeInterval(2),candidates:unrelated,now:now))
+            XCTAssertFalse(Store.matchesRecordedEvent(row,sport:sport,home:"Away",away:"Home",start:start,candidates:unrelated,now:now))
+            XCTAssertFalse(Store.matchesRecordedEvent(row,sport:sport,home:"Home",away:"Away",start:start,candidates:unrelated,now:start))
+            var invalid=row;invalid.mode="sample"
+            XCTAssertFalse(Store.matchesRecordedEvent(invalid,sport:sport,home:"Home",away:"Away",start:start,candidates:unrelated,now:now))
+            invalid=row;invalid.commence="invalid"
+            XCTAssertFalse(Store.matchesRecordedEvent(invalid,sport:sport,home:"Home",away:"Away",start:start,candidates:unrelated,now:now))
+        }
+    }
+
+    func testNHLStillRequiresUniqueProviderEventForTimeTolerance() throws {
+        let start=try XCTUnwrap(sportsDate("2099-09-30T22:00:00Z")),now=start.addingTimeInterval(-3600)
+        let row=market(sport:"NHL")
+        XCTAssertTrue(Store.matchesRecordedEvent(row,sport:"NHL",home:"Home",away:"Away",start:start.addingTimeInterval(300),candidates:[row],now:now))
+        var competing=row;competing.event="different-event"
+        XCTAssertFalse(Store.matchesRecordedEvent(row,sport:"NHL",home:"Home",away:"Away",start:start.addingTimeInterval(300),candidates:[row,competing],now:now))
+        XCTAssertFalse(Store.matchesRecordedEvent(row,sport:"NHL",home:"Home",away:"Away",start:start.addingTimeInterval(601),candidates:[row],now:now))
+    }
+
     func testPropsWithWrongScheduledStartCannotJoinMatchingGame() async {
         let account=account(),store=store()
         account.client.functions.operation={ body in
             if body["event"] != nil {
-                var wrong=self.market("bad-prop",kind:"prop");wrong.commence="2026-09-30T22:10:00Z"
+                var wrong=self.market("bad-prop",kind:"prop");wrong.commence="2099-09-30T22:10:00Z"
                 return OddsResponse(markets:[wrong],message:"Props")
             }
             return OddsResponse(markets:[self.market()],message:"Game")
         }
-        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2026-09-30T22:00:00Z")
+        await store.load("MLB",account:account,home:"Home",away:"Away",start:"2099-09-30T22:00:00Z")
         XCTAssertEqual(store.live.map(\.id),["one"])
     }
 

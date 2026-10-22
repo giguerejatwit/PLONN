@@ -2,32 +2,49 @@ import XCTest
 @testable import PLONNCore
 
 final class AuthCallbackPolicyTests: XCTestCase {
+    func testEmailCallbackRequiresNonemptyCodeAndOriginalVerifier() throws {
+        let base = "com.oakas.plonn://auth"
+        let valid = try XCTUnwrap(URL(string: base + "?code=synthetic-code"))
+        XCTAssertNil(EmailAuthCallbackValidation.failure(for: valid, verifierPresent: true))
+        XCTAssertEqual(EmailAuthCallbackValidation.failure(for: valid, verifierPresent: false), "sign_in_context")
+        for suffix in ["", "?code", "?code=", "?code=one&code=two", "?code=one#code=two"] {
+            let url = try XCTUnwrap(URL(string: base + suffix))
+            for present in [true, false] {
+                XCTAssertEqual(EmailAuthCallbackValidation.failure(for: url, verifierPresent: present), "link_incomplete")
+            }
+        }
+        let expired = try XCTUnwrap(URL(string: base + "?error=access_denied&error_code=otp_expired"))
+        XCTAssertNil(EmailAuthCallbackValidation.failure(for: expired, verifierPresent: false))
+        XCTAssertFalse(AuthFailurePresentation.message(forCategory: "sign_in_context").contains("password"))
+        XCTAssertTrue(AuthFailurePresentation.message(forCategory: "auth_storage").contains("securely"))
+    }
+
     func testAIConsentRequiresCurrentExplicitChoiceAndRejectsAnonymousUsers() {
         XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: nil, localChoice: nil))
-        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v0", localChoice: nil))
-        XCTAssertTrue(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v1", localChoice: nil))
+        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v1", localChoice: nil))
+        XCTAssertTrue(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v2_ollama_cloud", localChoice: nil))
         XCTAssertTrue(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: nil, localChoice: true))
-        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v1", localChoice: false))
-        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: true, metadataVersion: "v1", localChoice: true))
+        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v2_ollama_cloud", localChoice: false))
+        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: true, metadataVersion: "v2_ollama_cloud", localChoice: true))
     }
 
     func testAIConsentPreferenceIsVersionedAndBoundToAccount() {
         let first = UUID(), second = UUID()
         XCTAssertEqual(AccountAIConsentPolicy.preferenceKey(owner: first), AccountAIConsentPolicy.preferenceKey(owner: first))
         XCTAssertNotEqual(AccountAIConsentPolicy.preferenceKey(owner: first), AccountAIConsentPolicy.preferenceKey(owner: second))
-        XCTAssertTrue(AccountAIConsentPolicy.preferenceKey(owner: first).hasPrefix("plonn.aiConsent.v1."))
+        XCTAssertTrue(AccountAIConsentPolicy.preferenceKey(owner: first).hasPrefix("plonn.aiConsent.v2_ollama_cloud."))
     }
 
     func testAcknowledgedConsentRemovesOnlyMatchingPendingOverride() {
-        XCTAssertTrue(AccountAIConsentPolicy.synchronizedChoice(requested: true, pending: true, metadataVersion: "v1"))
-        XCTAssertTrue(AccountAIConsentPolicy.synchronizedChoice(requested: false, pending: false, metadataVersion: "declined_v1"))
-        XCTAssertFalse(AccountAIConsentPolicy.synchronizedChoice(requested: true, pending: false, metadataVersion: "v1"))
-        XCTAssertFalse(AccountAIConsentPolicy.synchronizedChoice(requested: false, pending: false, metadataVersion: "v1"))
+        XCTAssertTrue(AccountAIConsentPolicy.synchronizedChoice(requested: true, pending: true, metadataVersion: "v2_ollama_cloud"))
+        XCTAssertTrue(AccountAIConsentPolicy.synchronizedChoice(requested: false, pending: false, metadataVersion: "declined_v2_ollama_cloud"))
+        XCTAssertFalse(AccountAIConsentPolicy.synchronizedChoice(requested: true, pending: false, metadataVersion: "v2_ollama_cloud"))
+        XCTAssertFalse(AccountAIConsentPolicy.synchronizedChoice(requested: false, pending: false, metadataVersion: "v2_ollama_cloud"))
         XCTAssertFalse(AccountAIConsentPolicy.synchronizedChoice(requested: true, pending: true, metadataVersion: nil))
         // After acknowledgement clears the pending override, a later remote revoke governs.
-        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "declined_v1", localChoice: nil))
+        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "declined_v2_ollama_cloud", localChoice: nil))
         // A pending or failed local revoke still overrides old metadata.
-        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v1", localChoice: false))
+        XCTAssertFalse(AccountAIConsentPolicy.permits(isAnonymous: false, metadataVersion: "v2_ollama_cloud", localChoice: false))
     }
 
     func testConsentUpdateCannotOverlapAccountOrSocialTransition() {

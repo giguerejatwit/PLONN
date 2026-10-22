@@ -5,6 +5,10 @@ struct BuilderPriceEstimate: Equatable {
     let american: Double
     let priceImpliedProbability: Double
 }
+struct BuilderReturnEstimate: Equatable {
+    let totalReturn: Double
+    let profit: Double
+}
 struct BuilderAssessment {
     let estimate: BuilderPriceEstimate?
     let blockingReason: String?
@@ -25,6 +29,19 @@ enum BuilderQuoteAge: Equatable {
 }
 enum BuilderLogic {
     static let limit = 8
+    static func stakeAmount(_ stakeText: String) -> Double? {
+        let text = stakeText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard text.range(of: #"^(?:[0-9]+(?:\.[0-9]{0,2})?|\.[0-9]{1,2})$"#, options: .regularExpression) != nil,
+              let stake = Double(text), stake.isFinite, stake > 0 else { return nil }
+        return stake
+    }
+    static func returnEstimate(stakeText: String, estimate: BuilderPriceEstimate?) -> BuilderReturnEstimate? {
+        guard let stake = stakeAmount(stakeText),
+              let estimate, estimate.decimal.isFinite, estimate.decimal > 1 else { return nil }
+        let total = stake * estimate.decimal, profit = total - stake
+        guard total.isFinite, profit.isFinite else { return nil }
+        return BuilderReturnEstimate(totalReturn: total, profit: profit)
+    }
     static func normalized(_ value: String) -> String {
         value.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "en_US_POSIX"))
             .split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")

@@ -1,4 +1,41 @@
 import Foundation
+
+/// Text identity stays available while artwork loads or when an image is missing.
+enum SubjectBadgeInitials {
+    static func make(_ name: String) -> String {
+        name.split(whereSeparator: { $0.isWhitespace })
+            .compactMap { $0.first(where: { $0.isLetter || $0.isNumber }) }
+            .prefix(3).map { String($0).uppercased() }.joined()
+    }
+}
+
+/// Routine recorded-price provenance is a timestamp, not a feed failure.
+/// Only exact known informational messages are suppressed; errors remain visible.
+struct OddsIssuePresentation: Equatable {
+ let asOf: String?
+ let status: String?
+ let warning: String?
+ init(_ message: String) {
+  let parts=message.components(separatedBy:" · ")
+  let wrapped=message.hasPrefix("Cached odds · ") && parts.count >= 3
+  asOf=wrapped ? parts[1]:nil
+  let detail=wrapped ? parts.dropFirst(2).joined(separator:" · "):message
+  switch detail {
+  case "Recorded sportsbook odds · Refresh unavailable · Prices may have changed. See each quote's as-of time.",
+       "Daily recorded sportsbook odds · Prices may have changed. See each quote's as-of time.",
+       "Cached odds. Provider refreshes paused until midnight Eastern.",
+       "Provider refreshes paused until midnight Eastern.":
+   status=wrapped ? nil:"Recorded prices";warning=nil
+  case "No cached markets for this matchup.":
+   status="Prices unavailable for this matchup.";warning=nil
+  case "No recorded odds available for this selection.",
+       "No cached odds available for this selection. Provider refreshes paused until midnight Eastern.":
+   status="Prices unavailable for this selection.";warning=nil
+  default:
+   status=nil;warning=detail
+  }
+ }
+}
 import CoreFoundation
 
 /// Publication and service activation are separate operator gates. Both default off.

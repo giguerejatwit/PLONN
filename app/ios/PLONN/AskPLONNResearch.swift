@@ -400,11 +400,14 @@ enum AskPLONNResearch {
         return (side == "away" && name == normalized(pieces[0])) || (side == "home" && name == normalized(pieces[1]))
     }
     private static func sameSelection(_ a: Market, _ b: Market) -> Bool {
-        partialGameSelection(a) == partialGameSelection(b) && sameEvent(a, b) && a.kind == b.kind &&
-        normalized(a.name) == normalized(b.name) && a.market == b.market && normalized(a.side ?? "") == normalized(b.side ?? "") && a.line == b.line
+        // Reject unrelated props before parsing their clocks or settlement labels.
+        a.kind == b.kind && a.market == b.market && a.line == b.line &&
+        normalized(a.name) == normalized(b.name) && normalized(a.side ?? "") == normalized(b.side ?? "") &&
+        partialGameSelection(a) == partialGameSelection(b) && sameEvent(a, b)
     }
     private static func sameEvent(_ a: Market, _ b: Market) -> Bool {
-        a.sport == b.sport && a.event == b.event && a.commence.flatMap(sportsDate) == b.commence.flatMap(sportsDate)
+        a.sport == b.sport && a.event == b.event &&
+        (a.commence == b.commence || a.commence.flatMap(sportsDate) == b.commence.flatMap(sportsDate))
     }
     private static func sameQuote(_ a: Market, _ b: Market) -> Bool {
         sameSelection(a, b) && normalized(a.book) == normalized(b.book) && a.price == b.price &&

@@ -134,7 +134,7 @@ enum AnalyticsHistoryEngine {
             return row
         }.sorted { $0.date == $1.date ? $0.id < $1.id : $0.date > $1.date }
     }
-    static func statistics(market: Market, observations: [AnalyticsObservation], limit: Int = 10, now: Date = Date()) -> AnalyticsHistoryResult {
+    static func statistics(market: Market, observations: [AnalyticsObservation], limit: Int = 10, now: Date = Date(), maximumWindow: Int = 10) -> AnalyticsHistoryResult {
         if let reason = statsUnavailableReason(market: market, now: now) {
             return AnalyticsHistoryResult(summary: nil, rows: [], observations: observations, source: "Recorded game results", warnings: [], availability: reason)
         }
@@ -147,7 +147,7 @@ enum AnalyticsHistoryEngine {
             guard first.date.timeIntervalSince1970.isFinite, first.date < cutoff else { continue }
             selected.append(first)
         }
-        selected = Array(selected.sorted { $0.date == $1.date ? $0.id < $1.id : $0.date > $1.date }.prefix(min(max(limit, 1), 10)))
+        selected = Array(selected.sorted { $0.date == $1.date ? $0.id < $1.id : $0.date > $1.date }.prefix(min(max(limit, 1), min(max(maximumWindow, 1), 2_000))))
         let prop = market.kind == "prop"
         var values: [Double] = [], wins = 0, losses = 0, ties = 0, missing = 0, voids = 0
         let rows = selected.map { original -> AnalyticsObservation in
@@ -171,7 +171,7 @@ enum AnalyticsHistoryEngine {
         let summary = AnalyticsStatisticsSummary(n: rows.count, valid: values.count, missing: missing, voids: voids, startDate: rows.last?.date, endDate: rows.first?.date, mean: average.flatMap { $0.isFinite ? $0 : nil }, minimum: values.min(), maximum: values.max(), teamWins: prop ? nil : wins, teamLosses: prop ? nil : losses, teamTies: prop ? nil : ties, evidence: evidence)
         return AnalyticsHistoryResult(summary: nil, rows: [], observations: observations, source: "Recorded game results", warnings: warnings, availability: rows.isEmpty ? "No verified prior observations are available." : "Recorded historical statistics.", statistics: rows.isEmpty ? nil : summary, statsRows: rows)
     }
-    static func evaluate(market: Market, observations: [AnalyticsObservation], line: Double? = nil, limit: Int = 10, now: Date = Date()) -> AnalyticsHistoryResult {
+    static func evaluate(market: Market, observations: [AnalyticsObservation], line: Double? = nil, limit: Int = 10, now: Date = Date(), maximumWindow: Int = 10) -> AnalyticsHistoryResult {
         let selectedLine = line ?? market.line
         let side = (market.side ?? market.name).lowercased()
         let prop = market.kind == "prop"
@@ -189,7 +189,7 @@ enum AnalyticsHistoryEngine {
             guard first.date.timeIntervalSince1970.isFinite, first.date < cutoff else { continue }
             cleaned.append(first)
         }
-        cleaned = Array(cleaned.sorted { $0.date == $1.date ? $0.id < $1.id : $0.date > $1.date }.prefix(min(max(limit, 1), 10)))
+        cleaned = Array(cleaned.sorted { $0.date == $1.date ? $0.id < $1.id : $0.date > $1.date }.prefix(min(max(limit, 1), min(max(maximumWindow, 1), 2_000))))
         let rows = cleaned.map { observation -> AnalyticsHistoryRow in
             var value: Double?
             var outcome: AnalyticsOutcome = .missing

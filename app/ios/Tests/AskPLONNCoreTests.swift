@@ -197,12 +197,8 @@ final class AskPLONNCoreTests: XCTestCase {
             XCTAssertFalse(answer.requiresResearchContext)
             XCTAssertTrue(answer.evidence.isEmpty)
             XCTAssertNil(answer.providerLabel)
-            #if DEBUG
-            XCTAssertTrue(answer.text.contains("local chat model is unavailable"))
-            #else
             XCTAssertTrue(answer.text.contains("AI chat is unavailable"))
             XCTAssertFalse(answer.text.contains("local chat model"))
-            #endif
             XCTAssertFalse(answer.text.contains("Verified"))
             XCTAssertFalse(answer.text.contains("Choose"))
             if question.contains("probability") || question.contains("moneyline") {
@@ -210,9 +206,13 @@ final class AskPLONNCoreTests: XCTestCase {
                 XCTAssertTrue(answer.text.contains("illustrative"))
             }
         }
-        let failed = try await AskPLONNConversation().ask(question: "How can models overfit?", intent: .generalChat, evidence: [], ownerID: nil, provider: UnconfiguredAskPLONNProvider())
-        XCTAssertTrue(failed.text.contains("noise"))
-        XCTAssertEqual(failed.mode, .generalExplanation)
+        let conversation = AskPLONNConversation()
+        do {
+            _ = try await conversation.ask(question: "How can models overfit?", intent: .generalChat, evidence: [], ownerID: nil, provider: UnconfiguredAskPLONNProvider())
+            XCTFail("Provider failure must be surfaced for an explicit retry")
+        } catch { XCTAssertEqual(error as? AskPLONNError, .providerUnavailable) }
+        let history = await conversation.history()
+        XCTAssertTrue(history.isEmpty, "Failures must not become assistant context")
     }
     func testDataDependentGeneralQuestionsOfferOptionalResearchAndUnsupportedRequestsDoNotInventPredictions() async throws {
         for question in ["What does my model setup tell me?", "What are the current odds?", "How has Aaron Judge performed?", "What happened in the latest game?"] {

@@ -2,27 +2,39 @@ import SwiftUI
 import Supabase
 import AuthenticationServices
 
-/// Observes only the SDK's normal storage operations. Never retains credential
-/// bytes or performs an additional credential read for diagnostics.
+/// Wraps the SDK's storage with fixed diagnostic categories. The callback guard
+/// checks verifier presence without retaining or exposing credential bytes.
 private final class DiagnosedAuthStorage: AuthLocalStorage, @unchecked Sendable {
     private let base = KeychainLocalStorage(service: "com.plonn.auth")
     private let lock = NSLock()
     private var status = "verifier_unobserved"
-    var category: String { lock.lock(); defer { lock.unlock() }; return status }
+    private var operations: [String] = []
+    private func storageFailure(_ error: Error) -> String {
+        // Only fixed OS error categories; never include a credential or raw error.
+        let description = error.localizedDescription
+        if description.contains("-34018") { return "missing_entitlement" }
+        if description.contains("errSecItemNotFound") { return "not_found" }
+        if description.contains("errSecInteractionNotAllowed") { return "locked" }
+        return "keychain_error"
+    }
+    func verifierPresent(key: String) -> Bool {
+        (try? retrieve(key: key))?.isEmpty == false
+    }
+    var category: String { lock.lock(); defer { lock.unlock() }; return operations.isEmpty ? status : operations.joined(separator: ",") }
     private func record(_ category: String, key: String) {
         guard key.hasSuffix("-code-verifier") else { return }
-        lock.lock(); status = category; lock.unlock()
+        lock.lock(); status = category; operations.append(category); if operations.count > 8 { operations.removeFirst() }; lock.unlock()
     }
     func store(key: String, value: Data) throws {
         do { try base.store(key: key, value: value); record(value.isEmpty ? "verifier_write_empty" : "verifier_write_ok", key: key) }
-        catch { record("verifier_write_failed", key: key); throw error }
+        catch { record("verifier_write_failed_" + storageFailure(error), key: key); throw error }
     }
     func retrieve(key: String) throws -> Data? {
         do {
             let value = try base.retrieve(key: key)
             record(value?.isEmpty == false ? "verifier_present" : "verifier_missing", key: key)
             return value
-        } catch { record("verifier_read_failed", key: key); throw error }
+        } catch { record("verifier_read_failed_" + storageFailure(error), key: key); throw error }
     }
     func remove(key: String) throws {
         do { try base.remove(key: key); record("verifier_removed", key: key) }
@@ -43,9 +55,20 @@ struct CloudWatchInsert: Encodable {
 }
 
 @MainActor final class AccountStore: ObservableObject {
+    let access = AccountAccessCoordinator()
+    @Published private(set) var restoringSession = true
+    var hasSignedInAccount: Bool { AccountAccessPolicy.permits(ownerID:user?.id,isAnonymous:user?.isAnonymous) }
+
     private static let authStorage = DiagnosedAuthStorage()
+    private var completedEmailCallbacks: [(fingerprint: String, owner: UUID)] = []
+    private var verifierStorageKey: String {
+        "sb-" + (CloudConfiguration.url.host?.split(separator: ".").first.map(String.init) ?? "") + "-auth-token-code-verifier"
+    }
     private let authCallback = AuthCallbackPolicy(bundleIdentifier: Bundle.main.bundleIdentifier)
     private static var offlineReportFixture: Bool {
+#if DEBUG && targetEnvironment(simulator) && PLONN_STOREKIT_LAB
+        if LocalStoreKitLab.active { return true }
+#endif
 #if DEBUG && targetEnvironment(simulator)
         return SharedReportOfflineFixture.active
 #else
@@ -66,6 +89,7 @@ struct CloudWatchInsert: Encodable {
     @Published private(set) var user: User? {
         didSet {
             restoreChatConsent()
+            interestsState.restore(owner: user?.id, isAnonymous: user?.isAnonymous, metadata: user?.userMetadata[UserInterests.metadataKey]?.stringValue)
             #if DEBUG && targetEnvironment(simulator)
             if (ProcessInfo.processInfo.environment["PLONN_EXECUTE_FROZEN_ODDS"] == "plonn-20261013-through-sunday" || ProcessInfo.processInfo.environment["PLONN_VERIFY_NBA_CACHE"] == "1"), user?.id.uuidString.lowercased() == "fd31452b-35c7-4cf4-bab7-5bed17072001" {
                 Task { await executeAuthorizedFrozenOdds() }
@@ -80,6 +104,7 @@ struct CloudWatchInsert: Encodable {
 
             guard oldValue?.id != user?.id else { return }
             chatConsentSyncMessage = nil
+            interestsSaveMessage = nil
             cancelSocialAuthentication()
             socialAttempt.switchOwner(user?.id)
             referral.switchOwner(user?.id)
@@ -87,6 +112,51 @@ struct CloudWatchInsert: Encodable {
                let operation = referral.beginAutomatic(owner: next.id, pendingCode: next.userMetadata["pending_referral_code"]?.stringValue) {
                 Task { await performReferral(operation) }
             }
+        }
+    }
+    @Published private(set) var interestsState = InterestsAccountState()
+    #if DEBUG && targetEnvironment(simulator) && PLONN_STOREKIT_LAB
+    func prepareLocalStoreKitUser(_ id: UUID) {
+        precondition(LocalStoreKitLab.active)
+        user = User(id: id, appMetadata: [:], userMetadata: [:], aud: "authenticated",
+                    email: "storekit-lab@example.invalid", createdAt: Date(), updatedAt: Date())
+        restoringSession = false
+    }
+    #endif
+    @Published private(set) var interestsSaving = false
+    @Published private(set) var interestsSaveMessage: String?
+    var shouldOfferInterests: Bool {
+        hasSignedInAccount && interestsState.shouldOnboard(
+            pending: user?.userMetadata[UserInterests.onboardingKey]?.stringValue,
+            createdAt: user?.createdAt)
+    }
+    func deferInterestsOnboarding() { interestsState.deferOnboarding() }
+    func clearInterestsMessage() { interestsSaveMessage = nil }
+    func saveInterests(_ value: UserInterests, owner: UUID) async -> Bool {
+        guard !busy, !chatConsentUpdating, hasSignedInAccount, user?.id == owner,
+              let operation = interestsState.operation(), operation.owner == owner else { return false }
+        busy = true; interestsSaving = true; interestsSaveMessage = nil
+        defer { busy = false; interestsSaving = false }
+        do {
+            let encoded = try value.encoded()
+            let session = try await client.auth.session
+            guard interestsState.accepts(operation), user?.id == owner, session.user.id == owner,
+                  !session.isExpired, !session.user.isAnonymous else { throw InterestsError.wrongAccount }
+            // Auth merges these keys, preserving display name, consent and referral metadata.
+            let updated = try await client.auth.update(user: UserAttributes(data: [
+                UserInterests.metadataKey: .string(encoded),
+                UserInterests.onboardingKey: .string(value.onboardingCompleted ? "completed_v1" : UserInterests.onboardingPending)
+            ]))
+            guard interestsState.accepts(operation), user?.id == owner, updated.id == owner else { return false }
+            guard UserInterests.decode(updated.userMetadata[UserInterests.metadataKey]?.stringValue) == value else {
+                interestsSaveMessage = "Your interests weren’t confirmed as saved. Please try again."; return false
+            }
+            user = updated
+            return true
+        } catch {
+            guard interestsState.accepts(operation), user?.id == owner else { return false }
+            interestsSaveMessage = "Couldn’t confirm your interests were saved. Check your connection and try again."
+            return false
         }
     }
     @Published private(set) var chatConsentOwner: UUID?
@@ -292,7 +362,7 @@ struct CloudWatchInsert: Encodable {
         } catch { referral.fail(token: operation.token) }
     }
     @Published private(set) var watches: [CloudWatch] = []
-    @Published var message = "Sign in to sync research between devices."
+    @Published var message = ""
     @Published var busy = false
     @Published private(set) var authFailureCategory: String?
     @Published private(set) var authFlowDiagnostic: String?
@@ -458,6 +528,7 @@ struct CloudWatchInsert: Encodable {
     }
 
     private func applyAuthEvent(_ event: AuthChangeEvent, session: Session?) {
+        restoringSession = false
         let next = session?.isExpired == false ? session?.user : nil
         if next?.id != user?.id { watches = []; passwordRecovery = false }
         user = next
@@ -485,18 +556,24 @@ struct CloudWatchInsert: Encodable {
                 deferredSocialAuthEvent = (event, session)
                 continue
             }
-            applyAuthEvent(event, session: session)
+            if event == .initialSession, session?.isExpired == true {
+                // Let the SDK refresh its persisted session before showing a guest welcome.
+                let restored = try? await client.auth.session
+                applyAuthEvent(event, session: restored)
+            } else {applyAuthEvent(event, session: session)}
         }
     }
     func perform(_ operation: () async throws -> Void) async {
         guard !busy, !chatConsentUpdating else { return }
         busy = true
         authFailureCategory = nil
+        message = ""
         defer { busy = false }
         do { try await operation() }
         catch {
             let category: String
-            if let error = error as? AuthError {
+            if let error = error as? EmailAuthLinkError { category = error.category }
+            else if let error = error as? AuthError {
                 switch error {
                 case .api(_, let code, _, let response):
                     category = AuthFailurePresentation.category(serverCode: code.rawValue, httpStatus: response.statusCode)
@@ -530,6 +607,7 @@ struct CloudWatchInsert: Encodable {
             recoveryIntent = nil; passwordRecovery = false
             defer { authFlowDiagnostic = authCallback.scheme + " · " + Self.authStorage.category }
             try await client.auth.signInWithOTP(email: value, redirectTo: authCallback.redirectURL, shouldCreateUser: false)
+            guard Self.authStorage.verifierPresent(key: verifierStorageKey) else { throw EmailAuthLinkError.storageUnavailable }
             message = "Sign-in email requested. Open the new link on this device."
         }
     }
@@ -537,7 +615,7 @@ struct CloudWatchInsert: Encodable {
         guard let authCallback else { message = "Account links are unavailable in this app build."; return }
         await perform {
             let code = ReferralState.normalized(referralCode)
-            var metadata: [String: AnyJSON] = ["display_name": .string(displayName.trimmingCharacters(in: .whitespacesAndNewlines))]
+            var metadata: [String: AnyJSON] = ["display_name": .string(displayName.trimmingCharacters(in: .whitespacesAndNewlines)), UserInterests.onboardingKey: .string(UserInterests.onboardingPending)]
             if allowAI { metadata[AccountAIConsentPolicy.metadataKey] = .string(AccountAIConsentPolicy.version) }
             if !code.isEmpty { metadata["pending_referral_code"] = .string(code) }
             let response = try await client.auth.signUp(email: email.trimmingCharacters(in: .whitespacesAndNewlines), password: password, data: metadata, redirectTo: authCallback.redirectURL)
@@ -553,10 +631,20 @@ struct CloudWatchInsert: Encodable {
     func handleLoginURL(_ url: URL) async {
         guard authCallback?.accepts(url) == true, socialAttempt.pending == nil,
               !handledSocialCallbacks.contains(SocialAuthNonce.hash(url.absoluteString)) else { return }
+        let fingerprint = SocialAuthNonce.hash(url.absoluteString)
+        // A successful one-time link can be delivered twice by the OS/email browser.
+        // Do not exchange it again or replace the already-verified session with an error.
+        if completedEmailCallbacks.contains(where: { $0.fingerprint == fingerprint && $0.owner == user?.id }) { return }
         await perform {
             authFlowDiagnostic = (authCallback?.scheme ?? "unknown_app") + " · " + AuthCallbackPresence.category(for: url)
             defer { authFlowDiagnostic = (authFlowDiagnostic ?? "callback") + " · " + Self.authStorage.category }
+            let failure = EmailAuthCallbackValidation.failure(for: url,
+                verifierPresent: Self.authStorage.verifierPresent(key: verifierStorageKey))
+            if failure == "sign_in_context" { throw EmailAuthLinkError.missingRequest }
+            if failure != nil { throw EmailAuthLinkError.incomplete }
             let session = try await client.auth.session(from: url)
+            completedEmailCallbacks.append((fingerprint, session.user.id))
+            if completedEmailCallbacks.count > 16 { completedEmailCallbacks.removeFirst() }
             // The pinned SDK emits only signedIn for PKCE. A previously requested
             // recovery may open its form only after SDK verification, for the
             // same email fingerprint and a bounded request window.
@@ -570,7 +658,8 @@ struct CloudWatchInsert: Encodable {
     }
     func signOut() async {
         await perform {
-            try await client.auth.signOut()
+            // This button signs out this installation, not the user's other devices.
+            try await client.auth.signOut(scope: .local)
             user = nil; watches = []; passwordRecovery=false; recoveryIntent=nil
             message = "Signed out. Device-only watchlist is unchanged."
         }
@@ -596,6 +685,7 @@ struct CloudWatchInsert: Encodable {
         }
     }
     func refresh() async {
+        guard hasSignedInAccount else {access.present(feature:.savedResearch);return}
         await perform {
             let session = try await client.auth.session
             let owner = session.user.id
@@ -606,6 +696,7 @@ struct CloudWatchInsert: Encodable {
         }
     }
     func upload(_ markets: [Market]) async {
+        guard hasSignedInAccount else {access.present(feature:.savedResearch);return}
         guard !markets.isEmpty else { message = "Save a market on this device first."; return }
         await perform {
             let session = try await client.auth.session
@@ -615,6 +706,7 @@ struct CloudWatchInsert: Encodable {
         }
     }
     func remove(_ row: CloudWatch) async {
+        guard hasSignedInAccount else {access.present(feature:.savedResearch);return}
         await perform {
             let owner = try await client.auth.session.user.id
             guard owner == row.user_id else { return }
@@ -624,20 +716,28 @@ struct CloudWatchInsert: Encodable {
         }
     }
     func deleteAccount() async {
-        await perform {
-            let session = try await client.auth.session
-            var request = URLRequest(url: CloudConfiguration.labURL.appendingPathComponent("runs"))
-            request.httpMethod = "DELETE"
-            request.timeoutInterval = 20
-            request.setValue("Bearer " + session.accessToken, forHTTPHeaderField: "Authorization")
-            let (_, response) = try await URLSession.shared.data(for: request)
-            guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw URLError(.badServerResponse) }
-            try await client.functions.invoke("delete-account")
+        guard !busy, !chatConsentUpdating else { return }
+        guard let deletingOwner = user?.id else { return }
+        busy = true; message = "Deleting your account…"
+        defer { busy = false }
+        do {
+            struct DeletionReply: Decodable { let status: String; let message: String }
+            let result: DeletionReply = try await client.functions.invoke("delete-account", options: .init(timeoutInterval: 70))
+            guard result.status == "deleted" else { message = result.message; return }
+            LabSubmissionStore().deleteAccountRecords(owner: deletingOwner)
+            UserDefaults.standard.removeObject(forKey: AccountAIConsentPolicy.preferenceKey(owner: deletingOwner))
+            chatConsentOwner = nil
             try? await client.auth.signOut(scope: .local)
-            user = nil; watches = []; passwordRecovery=false
+            user = nil; watches = []; passwordRecovery = false
             message = "Account deleted. Device-only watchlist is unchanged."
+        } catch {
+            if case let FunctionsError.httpError(_, data) = error,
+               let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let detail = body["message"] as? String {
+                message = detail
+            } else { message = "Deletion could not be confirmed. Please tap Delete account again to retry safely." }
         }
     }
+
 }
 
 private final class SocialSettingsRedirectGuard: NSObject, URLSessionTaskDelegate {
@@ -731,7 +831,9 @@ struct AccountView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var confirmDelete = false
+    @State private var manageSubscriptions = false
     @State private var creating = false
+    init(initiallyCreating: Bool = false) { _creating = State(initialValue:initiallyCreating) }
     @State private var displayName = ""
     @State private var referralCode = ""
     @State private var confirmation = ""
@@ -740,15 +842,26 @@ struct AccountView: View {
     private var valid:Bool {validEmail && !password.isEmpty && (!creating || (!displayName.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && password.count >= 8 && password == confirmation))}
     var body: some View {
         Form {
-            Section {
-                Text(account.message).font(.system(.callout, design: .monospaced)).accessibilityIdentifier("cloud-status")
-                if account.busy { PLONNLoader() }
-                if account.socialCommitting { Text("Finishing secure sign-in. Account actions will be available when it completes.").font(.caption) }
+            if account.hasSignedInAccount && (!account.message.isEmpty || account.busy || account.socialCommitting) {
+                Section {
+                    if !account.message.isEmpty {
+                        accountStatusMessage
+                    }
+                    if account.busy { PLONNLoader() }
+                    if account.socialCommitting { Text("Finishing secure sign-in. Account actions will be available when it completes.").font(.caption) }
+                }
             }
-            if let user = account.user {
-                Section("Account") {
+            if let user = account.user, account.hasSignedInAccount {
+                Section {
                     Text(user.email ?? "Signed in")
                     Button("Sign out") { Task { await account.signOut() } }
+                }
+                Section {
+                    NavigationLink {
+                        InterestsView().id(user.id)
+                    } label: {
+                        Label("Interests & alerts", systemImage: "heart.text.square")
+                    }
                 }
                 if !user.isAnonymous {
                     Section("AI research") {
@@ -770,14 +883,14 @@ struct AccountView: View {
                 }
                 ReferralSection()
                 if account.socialAuthAvailable(.apple, action: .linkIdentity) || account.socialAuthAvailable(.google, action: .linkIdentity) {
-                    Section("Linked sign-in methods") {
+                    Section("Sign-in methods") {
                         Text("Link a provider to this signed-in account. Your email sign-in and saved research stay with the same account.").font(.caption)
                         socialButtons(action: .linkIdentity)
                     }
                 }
-                Section("Private models") {
+                Section {
                     NavigationLink("My Models") {MyModelsView()}
-                    NavigationLink("Purchases & access") {SubscriptionView()}
+
                 }
                 Section("Cloud watchlist") {
                     Text("Copy device selections to your account, then refresh. Removing cloud selections does not remove device copies.").font(.system(.caption, design: .monospaced))
@@ -793,7 +906,8 @@ struct AccountView: View {
                     }
                 }
                 Section("Delete account") {
-                    Text("Permanently removes your account and its cloud profile, watchlist, saved parlays, private model versions and access records. App Store subscriptions are not cancelled by account deletion. Device-only selections remain until cleared in Settings.").font(.system(.caption, design: .monospaced))
+                    Text("Permanently removes your account and its cloud profile, watchlist, saved parlays, private model versions, hosted results and account-linked usage records. App Store subscriptions are not cancelled by account deletion. Device-only selections remain until cleared in Settings.").font(.system(.caption, design: .monospaced))
+                    Button("Manage Apple subscriptions") { manageSubscriptions = true }
                     Button("Delete account", role: .destructive) { confirmDelete = true }
                 }
             } else {
@@ -801,7 +915,13 @@ struct AccountView: View {
                     VStack(alignment:.leading,spacing:10) {
                         Brand()
                         Text(creating ? "Create your account":"Welcome back").font(.system(.title2, design: .monospaced).bold())
-                        Text(creating ? "Save your research and make PLONN yours.":"Sign in to access your saved research.").font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
+                        if account.message.isEmpty {
+                            Text(creating ? "Save your research and make PLONN yours.":"Sign in to access your saved research.").font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
+                        } else {
+                            accountStatusMessage
+                        }
+                        if account.busy { PLONNLoader() }
+                        if account.socialCommitting { Text("Finishing secure sign-in…").font(.caption).foregroundStyle(.secondary) }
                     }.padding(.vertical,10)
                     Picker("Account action",selection:$creating) {Text("Sign in").tag(false);Text("Sign up").tag(true)}.pickerStyle(.segmented)
                 }
@@ -848,14 +968,32 @@ struct AccountView: View {
                 Text("Account email, private model configurations, explicitly copied selections, and previously published community posts are stored in PLONN's Supabase project. Community display names, captions, selections, and reposts are visible to signed-in members. Login sessions are stored in the iOS Keychain. We do not collect payments in this beta.").font(.system(.caption, design: .monospaced))
             }
         }
+        .plonnGlassButton()
         .disabled(account.busy || account.chatConsentUpdating)
         .task { await account.refreshSocialReadiness() }
-        .navigationTitle(account.user == nil ? "Account":"Account & sync")
+        .navigationTitle("Account")
         .onChange(of:creating) {_,_ in password="";confirmation="";referralCode=""}
         .onChange(of:account.user?.id) {_,_ in referralCode="";password="";confirmation=""}
+        .manageSubscriptionsSheet(isPresented: $manageSubscriptions)
         .confirmationDialog("Permanently delete your PLONN account?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Delete permanently", role: .destructive) { Task { await account.deleteAccount() } }
         }
+    }
+    private var accountStatusMessage: some View {
+        HStack(alignment: .top, spacing: 10) {
+            if account.authFailureCategory != nil {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .accessibilityHidden(true)
+            }
+            Text(account.message)
+                .accessibilityLabel(account.authFailureCategory == nil ? account.message : "Warning. " + account.message)
+                .accessibilityIdentifier("cloud-status")
+                #if DEBUG && targetEnvironment(simulator)
+                .accessibilityValue(ProcessInfo.processInfo.environment["PLONN_AUTH_DIAGNOSTICS"] == "1" ? (account.authFlowDiagnostic ?? "") : "")
+                #endif
+        }
+        .font(.system(.subheadline, design: .monospaced))
+        .foregroundStyle(account.authFailureCategory == nil ? Color.secondary : Color.red)
     }
     @ViewBuilder private func socialButtons(action: SocialAuthAction) -> some View {
         if account.socialAuthAvailable(.apple, action: action) {
@@ -1007,7 +1145,8 @@ struct CommunityView: View {
     private var visible:[CommunityPost] {
         community.posts.filter {filter == "My posts" ? $0.user_id == account.user?.id : filter == "Reposts" ? community.reposted.contains($0.id) : true}
     }
-    var body:some View {
+    var body:some View {AccountRequiredView(feature:.savedResearch){protectedBody}}
+    private var protectedBody:some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment:.leading,spacing:20) {
@@ -1021,7 +1160,7 @@ struct CommunityView: View {
                     if let message=community.message {Text(message).font(.system(.callout, design: .monospaced)).foregroundStyle(.secondary)}
                     if community.busy && community.posts.isEmpty {PLONNLoader().frame(maxWidth:.infinity).padding(40)}
                     else if account.user == nil {
-                        ContentUnavailableView {Label("Your picks. Your community.",systemImage:"person.2")} description:{Text("Sign in to share parlays and explore other members’ research.")} actions:{NavigationLink{AccountView()}label:{Text("Sign in").foregroundStyle(navy)}.plonnGlassButton(prominent:true).tint(charcoalAccent);Button("Create a draft"){compose=true}}
+                        ContentUnavailableView {Label("Your picks. Your community.",systemImage:"person.2")} description:{Text("Sign in to share parlays and explore other members’ research.")} actions:{NavigationLink{AccountView()}label:{Text("Sign in")}.plonnGlassButton(prominent:true);Button("Create a draft"){compose=true}}
                     } else if visible.isEmpty {
                         ContentUnavailableView("No posts yet",systemImage:"bubble.left.and.bubble.right",description:Text("Share a parlay from your Builder to start the conversation."))
                     }
@@ -1088,7 +1227,8 @@ struct CommunityComposer:View {
     @State private var agreed=false
     @State private var saved=false
     private var valid:Bool {account.user != nil && (2...8).contains(legs.count) && legs.allSatisfy{$0.mode == "live"} && !name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && name.count<=40 && caption.count<=500 && agreed}
-    var body:some View {
+    var body:some View {AccountRequiredView(feature:.savedResearch){protectedBody}}
+    private var protectedBody:some View {
         NavigationStack{ScrollView{VStack(alignment:.leading,spacing:18){
             Text("Share your parlay").font(.system(.title, design: .monospaced).bold())
             TextField("Display name",text:$name).textFieldStyle(.roundedBorder)
@@ -1102,14 +1242,14 @@ struct CommunityComposer:View {
             NavigationLink("Read guidelines"){CommunityGuidelines()}.font(.system(.footnote, design: .monospaced))
             if account.user == nil {NavigationLink("Sign in to publish"){AccountView()}}
             if let message=community.message {Text(message).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-            Button{Task{saveDraft();if await community.publish(account,name:name.trimmingCharacters(in:.whitespacesAndNewlines),caption:caption,legs:legs){saved=true;caption="";draftData=Data();dismiss()}}}label:{HStack{Spacer();if community.busy {PLONNLoader()} else {Text("Publish parlay").bold().foregroundStyle(navy)};Spacer()}.padding(8)}.plonnGlassButton(prominent:true).disabled(!valid || community.busy)
+            Button{Task{saveDraft();if await community.publish(account,name:name.trimmingCharacters(in:.whitespacesAndNewlines),caption:caption,legs:legs){saved=true;caption="";draftData=Data();dismiss()}}}label:{HStack{Spacer();if community.busy {PLONNLoader()} else {Text("Publish parlay").bold()};Spacer()}.padding(8)}.plonnGlassButton(prominent:true).disabled(!valid || community.busy)
             Text("Posted selections are a snapshot of your research, not a verified betting slip or result.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
         }.padding()}.background(navy).navigationTitle("New post").navigationBarTitleDisplayMode(.inline).toolbar{ToolbarItem(placement:.cancellationAction){Button("Save draft"){saveDraft();dismiss()}}}
         .onAppear{legs=(try? JSONDecoder().decode([Market].self,from:draftData)) ?? store.legs}
         .onDisappear{if !saved {saveDraft()}}
         }
     }
-    private func saveDraft(){if let data=try? JSONEncoder().encode(legs){draftData=data}}
+    private func saveDraft(){guard account.hasSignedInAccount else{return};if let data=try? JSONEncoder().encode(legs){draftData=data}}
 }
 struct CommunityGuidelines:View {
     var body:some View {List{Section("Share useful research"){Text("Explain your selections. Respect other members. Never promise guaranteed wins or misrepresent a result.")};Section("Keep it safe"){Text("No harassment, spam, promotions, private information, or requests for money. Use the post menu to report content or block a member.")};Section("Your content"){Text("Only share content you own. You can delete your posts. Deleting your account also removes your community posts, reposts, and reports.")}}.navigationTitle("Community guidelines")}
@@ -1132,7 +1272,7 @@ struct PasswordRecoveryView:View {
                         .disabled(account.busy || password.count<8 || password != confirmation || !account.passwordRecovery)
                 }
                 Text(account.message).font(.system(.caption, design: .monospaced))
-            }.navigationTitle("Reset password")
+            }.plonnGlassButton().navigationTitle("Reset password")
              .toolbar {ToolbarItem(placement:.cancellationAction){Button("Cancel"){account.passwordRecovery=false;dismiss()}}}
         }
     }

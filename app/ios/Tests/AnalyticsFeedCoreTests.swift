@@ -65,6 +65,13 @@ final class AnalyticsFeedCoreTests: XCTestCase {
         XCTAssertEqual(result.candidates.first?.market.market, "team_totals")
         XCTAssertEqual(result.candidates.last?.market.market, "player_points")
     }
+    func testPublicStatisticsStayVisibleWithoutQuotesOrLoadedHistory() {
+        let built = AnalyticsFeedCore.build(snapshots: [], verifiedSubjects: [proof(player: true), proof()], now: now)
+        let visible = AnalyticsFeedCore.visibleCandidates(built.candidates, sport: "NBA", query: "", histories: [:], now: now)
+        XCTAssertEqual(visible.map(\.subject), [.team, .player])
+        XCTAssertTrue(visible.allSatisfy { AnalyticsFeedCore.cardOdds(candidate: $0, history: nil, now: now).isEmpty })
+        XCTAssertTrue(AnalyticsFeedCore.visibleCandidates(built.candidates, sport: "NBA", query: "", histories: [:], now: now.addingTimeInterval(901)).isEmpty)
+    }
     func testBookSideAndLineCopiesBecomeOneStableCardWithExactQuotes() throws {
         let first = quote()
         var second = quote("quote-2"); second.book = "Other Book"; second.line = -3.5; second.price = 105; second.side = "away"

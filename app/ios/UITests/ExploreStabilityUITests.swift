@@ -95,7 +95,7 @@ final class ExploreStabilityUITests: XCTestCase {
         }
         var histories = [player: observations(playerRows: true, sport: "NHL"), team: observations(), game: observations(), statsOnly: observations(sport: "NBA")]
         for row in additions { histories[row.name] = observations(playerRows: row.subject == "player", sport: row.sport) }
-        app.launchArguments = ["-backendURL", "https://127.0.0.1:9", "-appearanceMode", "light", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments = ["-backendURL", "https://127.0.0.1:9", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launchEnvironment["PLONN_ANALYTICS_MARKETS_FIXTURE"] = String(decoding: try JSONSerialization.data(withJSONObject: markets), as: UTF8.self)
         app.launchEnvironment["PLONN_ANALYTICS_HISTORY_FIXTURE"] = String(decoding: try JSONSerialization.data(withJSONObject: histories), as: UTF8.self)
         app.launchEnvironment["PLONN_ANALYTICS_SUBJECTS_FIXTURE"] = String(decoding: try JSONSerialization.data(withJSONObject: subjects), as: UTF8.self)
@@ -156,8 +156,8 @@ final class ExploreStabilityUITests: XCTestCase {
         XCTAssertTrue(image.waitForExistence(timeout: 10), app.debugDescription)
         XCTAssertTrue(image.isHittable, app.debugDescription)
         XCTAssertTrue(image.label.contains(subject), "A reused image must retain the correct subject: " + image.label)
-        XCTAssertEqual(image.value as? String, "Image unavailable", "Missing source images must expose a clear accessible fallback")
-        XCTAssertTrue(image.label.hasSuffix(subject == player ? "headshot" : "team logo"), image.label)
+        XCTAssertEqual(image.value as? String, "Image unavailable", "Missing artwork must preserve the fallback instead of reusing another subject's image")
+        XCTAssertEqual(image.label, subject + (subject == player ? " headshot" : " team logo"))
         XCTAssertEqual(image.frame.width, 56, accuracy: 0.5)
         XCTAssertEqual(image.frame.height, 56, accuracy: 0.5)
         return image.frame
@@ -182,23 +182,23 @@ final class ExploreStabilityUITests: XCTestCase {
         XCTAssertTrue(text("analytics-sample-", playerID, in: app).waitForExistence(timeout: 15), app.debugDescription)
         let playerDenominator = text("analytics-denominator-", "ui-player", in: app)
         reveal(playerDenominator, in: app)
-        XCTAssertEqual(playerDenominator.label, "2 hits / 3 decisions")
+        XCTAssertEqual(playerDenominator.label, "Met this line in 2 of 3 games")
         // SwiftUI exposes the single quote's children under the outer odds container.
         let quote = app.descendants(matching: .any)["analytics-odds-" + playerID].firstMatch
         XCTAssertTrue(quote.exists, app.debugDescription)
         XCTAssertTrue(quote.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Fixture Book")).firstMatch.exists)
         XCTAssertTrue(quote.staticTexts["Over 20"].exists)
         XCTAssertTrue(quote.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "-110")).firstMatch.exists)
-        XCTAssertEqual(quote.staticTexts["analytics-denominator-ui-player"].label, "2 hits / 3 decisions")
+        XCTAssertEqual(quote.staticTexts["analytics-denominator-ui-player"].label, "Met this line in 2 of 3 games")
         XCTAssertTrue(text("analytics-provenance-", playerID, in: app).exists)
         search("team_totals", in: app, sport: "NFL")
         let teamDenominator = text("analytics-denominator-", "ui-team", in: app)
         reveal(teamDenominator, in: app)
-        XCTAssertEqual(teamDenominator.label, "1 hits / 4 decisions", "A team total uses the selected team's score, not both teams' combined score.")
+        XCTAssertEqual(teamDenominator.label, "Met this line in 1 of 4 games", "A team total uses the selected team's score, not both teams' combined score.")
         search(game, in: app, sport: "NFL")
         let gameDenominator = text("analytics-denominator-", "ui-game", in: app)
         reveal(gameDenominator, in: app)
-        XCTAssertEqual(gameDenominator.label, "0 hits / 3 decisions", "A game total retains both teams' scores and an exact-line push.")
+        XCTAssertEqual(gameDenominator.label, "Met this line in 0 of 3 games", "A game total retains both teams' scores and an exact-line push.")
         capture(app, name: "Full-game total remains visible with zero historical hits")
     }
 
@@ -216,11 +216,11 @@ final class ExploreStabilityUITests: XCTestCase {
             let teamCandidate = candidateID(teamName, sport: sport, subject: "team", key: "team_totals")
             let playerCandidate = candidateID(playerName, sport: sport, subject: "player", key: playerKey)
             reveal(app.staticTexts["analytics-team-props-heading"], in: app)
-            XCTAssertEqual(app.staticTexts["analytics-team-props-heading"].label, "Team Props")
+            XCTAssertEqual(app.staticTexts["analytics-team-props-heading"].label, "Team statistics")
             XCTAssertTrue(teams.staticTexts["analytics-sample-" + teamCandidate].waitForExistence(timeout: 15), app.debugDescription)
             XCTAssertFalse(teams.descendants(matching: .any)["analytics-card-" + playerCandidate].firstMatch.exists)
             reveal(app.staticTexts["analytics-player-props-heading"], in: app)
-            XCTAssertEqual(app.staticTexts["analytics-player-props-heading"].label, "Player Props")
+            XCTAssertEqual(app.staticTexts["analytics-player-props-heading"].label, "Player statistics")
             XCTAssertTrue(players.staticTexts["analytics-sample-" + playerCandidate].waitForExistence(timeout: 15), app.debugDescription)
             XCTAssertFalse(players.descendants(matching: .any)["analytics-card-" + teamCandidate].firstMatch.exists)
             XCTAssertTrue(players.descendants(matching: .any)["analytics-card-imagery-" + playerCandidate].firstMatch.exists)
@@ -230,7 +230,7 @@ final class ExploreStabilityUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts["analytics-team-props-empty"].label, "No team results match this search.")
         XCTAssertFalse(teams.exists, "An empty category must not manufacture cards.")
         reveal(players.staticTexts["analytics-denominator-ui-player"], in: app)
-        XCTAssertEqual(players.staticTexts["analytics-denominator-ui-player"].label, "2 hits / 3 decisions")
+        XCTAssertEqual(players.staticTexts["analytics-denominator-ui-player"].label, "Met this line in 2 of 3 games")
         search("Fixture MLB Player", in: app, sport: "NFL")
         XCTAssertFalse(players.exists, "Search must not escape the selected NFL league.")
         search("", in: app, sport: "NFL")
@@ -244,8 +244,8 @@ final class ExploreStabilityUITests: XCTestCase {
         XCTAssertLessThan(firstTeam.frame.minX, firstX - 30, "The team results row must scroll horizontally.")
         reveal(app.staticTexts["analytics-player-props-heading"], in: app)
         XCTAssertTrue(players.exists)
-        XCTAssertFalse(app.staticTexts[statsOnly].exists, "Clearing search restores exact recorded-odds eligibility.")
-        capture(app, name: "Offline fixture: separate Team Props and Player Props rows across four sports")
+        XCTAssertFalse(app.staticTexts[statsOnly].exists, "Clearing search keeps results within the selected league.")
+        capture(app, name: "Offline fixture: separate team and player statistics rows across four sports")
     }
 
     func testStatsOnlyKeepsRecordedHistoryAndShowsUnavailableOdds() throws {
@@ -276,7 +276,7 @@ final class ExploreStabilityUITests: XCTestCase {
         search("", in: app)
         XCTAssertFalse(app.buttons["Clear search"].exists, "Clearing returns the unfiltered feed.")
         XCTAssertTrue(text("analytics-sample-", playerID, in: app).waitForExistence(timeout: 5), app.debugDescription)
-        XCTAssertFalse(app.staticTexts[statsOnly].exists, "Clearing search restores only subjects with matching odds.")
+        XCTAssertFalse(app.staticTexts[statsOnly].exists, "Clearing search keeps results within the selected league.")
         search(player, in: app, sport: "NHL")
         XCTAssertTrue(sample.waitForExistence(timeout: 5))
         XCTAssertEqual(sample.label, recorded)
@@ -285,7 +285,7 @@ final class ExploreStabilityUITests: XCTestCase {
         XCTAssertTrue(detail.isHittable); detail.tap()
         let recordedOpponent = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Recorded Rival 0")).firstMatch
         reveal(recordedOpponent, in: app)
-        app.tabBars.buttons["LLM"].tap(); openAnalytics(app)
+        app.tabBars.buttons["Ask PLONN"].tap(); openAnalytics(app)
         search(player, in: app, sport: "NHL")
         XCTAssertEqual(sample.label, recorded)
         capture(app, name: "Search reuses retained recorded player history")
@@ -293,7 +293,7 @@ final class ExploreStabilityUITests: XCTestCase {
 
     func testLeavingDuringHistoryLoadAndRelaunchRepresentsFreshFeed() throws {
         let app = try launch(delay: 2000); defer { app.terminate() }
-        app.tabBars.buttons["LLM"].tap()
+        app.tabBars.buttons["Ask PLONN"].tap()
         openAnalytics(app)
         search(player, in: app, sport: "NHL")
         XCTAssertTrue(text("analytics-sample-", playerID, in: app).waitForExistence(timeout: 20), app.debugDescription)
@@ -314,14 +314,14 @@ final class ExploreStabilityUITests: XCTestCase {
             search(subject, in: app, sport: index.isMultiple(of: 2) ? "NHL" : "NFL")
             XCTAssertTrue(text("analytics-sample-", id, in: app).waitForExistence(timeout: 15), "History missing during cycle \(index)")
             search("", in: app)
-            app.tabBars.buttons[["LLM", "Models", "My Models"][index % 3]].tap()
+            app.tabBars.buttons[["Ask PLONN", "Models", "My Models"][index % 3]].tap()
             openAnalytics(app)
             XCTAssertEqual(app.state, .runningForeground, "Feed stopped during cycle \(index)")
         }
         search(game, in: app, sport: "NFL")
         let denominator = text("analytics-denominator-", "ui-game", in: app)
         reveal(denominator, in: app)
-        XCTAssertEqual(denominator.label, "0 hits / 3 decisions")
+        XCTAssertEqual(denominator.label, "Met this line in 0 of 3 games")
         assertNoManualGate(app)
         capture(app, name: "Mixed feed after twelve tab and search cycles")
     }
@@ -341,30 +341,40 @@ final class ExploreStabilityUITests: XCTestCase {
         capture(app, name: "Offline fixture: single league row and NHL player results")
     }
 
-    func testNoMatchingOddsShowsEmptyDefaultFeedButSearchRetainsGeneralStatistics() throws {
-        let app = try launch(noOdds: true); defer { app.terminate() }
-        let empty = app.staticTexts["analytics-no-matching-odds"]
-        XCTAssertTrue(empty.waitForExistence(timeout: 20), app.debugDescription)
-        XCTAssertFalse(app.scrollViews["analytics-trend-carousel"].exists)
-        XCTAssertFalse(app.scrollViews["analytics-team-props-carousel"].exists)
-        XCTAssertFalse(app.scrollViews["analytics-player-props-carousel"].exists)
-        for id in [playerID, teamID, gameID, statsID] {
-            XCTAssertFalse(app.descendants(matching: .any)["analytics-card-" + id].firstMatch.exists)
+    func testSignedOutStatisticsRemainVisibleAcrossSportsAndOfferSignIn() throws {
+        let app = try launch(noOdds: true, allSports: true); defer { app.terminate() }
+        let signIn = app.buttons["analytics-sign-in"]
+        XCTAssertTrue(signIn.waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertTrue(app.staticTexts["Browse team and player statistics without an account. Sign in for recorded odds and saved research."].exists)
+        for (sport, teamName, playerName, playerKey) in [
+            ("NFL", team, "Fixture NFL Player", "player_receptions"),
+            ("NBA", "Fixture NBA Team", "Fixture NBA Player", "player_points"),
+            ("NHL", "Fixture NHL Team", player, "player_shots_on_goal"),
+            ("MLB", "Fixture MLB Team", "Fixture MLB Player", "batter_hits")
+        ] {
+            search("", in: app, sport: sport)
+            XCTAssertFalse(app.staticTexts["analytics-no-statistics"].exists)
+            for (name, subject, key, row) in [
+                (teamName, "team", "team_totals", "analytics-team-props-carousel"),
+                (playerName, "player", playerKey, "analytics-player-props-carousel")
+            ] {
+                let id = candidateID(name, sport: sport, subject: subject, key: key)
+                let sample = app.scrollViews[row].staticTexts["analytics-sample-" + id]
+                reveal(sample, in: app)
+                XCTAssertFalse(sample.label.isEmpty)
+                let odds = app.scrollViews[row].descendants(matching: .any)["analytics-odds-" + id].firstMatch
+                reveal(odds, in: app)
+                XCTAssertTrue(odds.label.localizedCaseInsensitiveContains("unavailable"), odds.label)
+            }
+            XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Fixture Book")).firstMatch.exists)
+            capture(app, name: "Offline fixture: signed-out " + sport + " statistics without odds")
         }
-        XCTAssertTrue(app.textFields["analytics-search"].isHittable)
-        search(statsOnly, in: app, sport: "NBA")
-        XCTAssertTrue(text("analytics-sample-", statsID, in: app).waitForExistence(timeout: 15), app.debugDescription)
-        XCTAssertTrue(app.scrollViews["analytics-trend-carousel"].exists)
-        XCTAssertTrue(app.scrollViews["analytics-team-props-carousel"].exists)
-        XCTAssertFalse(app.scrollViews["analytics-player-props-carousel"].exists)
-        XCTAssertFalse(empty.exists)
-        let odds = app.descendants(matching: .any)["analytics-odds-" + statsID].firstMatch
-        reveal(odds, in: app)
-        XCTAssertTrue(odds.label.localizedCaseInsensitiveContains("unavailable"), odds.label)
-        search("", in: app)
-        XCTAssertTrue(empty.waitForExistence(timeout: 10), app.debugDescription)
-        XCTAssertFalse(app.scrollViews["analytics-trend-carousel"].exists)
-        capture(app, name: "Offline fixture: honest empty default feed when matching odds are absent")
+        search("", in: app, sport: "NFL")
+        XCTAssertTrue(signIn.isHittable, app.debugDescription)
+        signIn.tap()
+        XCTAssertTrue(app.navigationBars["Account"].waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(app.buttons["account-email-signin-link"].exists, app.debugDescription)
+        capture(app, name: "Signed-out Analytics opens account sign-in")
     }
 
     func testMissingImagesRemainMatchedAndStableAfterSearchReuse() throws {
@@ -393,21 +403,23 @@ final class ExploreStabilityUITests: XCTestCase {
         search("team_totals", in: app, sport: "NFL")
         let carousel = app.scrollViews["analytics-trend-carousel"]
         XCTAssertTrue(carousel.waitForExistence(timeout: 20), app.debugDescription)
-        let firstPage = teamID + "|" + teamID + "|recentBaseline"
+        let firstPage = teamID + "|recentBaseline"
         let firstSample = carousel.staticTexts["analytics-insight-sample-" + firstPage]
         XCTAssertTrue(firstSample.waitForExistence(timeout: 20), app.debugDescription)
-        XCTAssertEqual(firstSample.label, "24 games in this comparison")
+        XCTAssertTrue(firstSample.label.hasPrefix("24 games with usable statistics · "), firstSample.label)
+        XCTAssertTrue(carousel.staticTexts["analytics-insight-detail-" + firstPage].label.contains("19 games immediately before them"))
         assertMissingImagery(firstPage, subject: team, in: app)
         XCTAssertTrue(app.textFields["analytics-search"].isHittable)
         capture(app, name: "Offline fixture: last-five-games comparison within NFL")
         for kind in ["consistency", "homeAway", "seasonBaseline"] {
             carousel.coordinate(withNormalizedOffset: CGVector(dx: 0.80, dy: 0.50))
                 .press(forDuration: 0.1, thenDragTo: carousel.coordinate(withNormalizedOffset: CGVector(dx: 0.20, dy: 0.50)), withVelocity: .slow, thenHoldForDuration: 0)
-            let page = teamID + "|" + teamID + "|" + kind
+            let page = teamID + "|" + kind
             let headline = carousel.staticTexts["analytics-insight-headline-" + page]
             XCTAssertTrue(headline.waitForExistence(timeout: 5), app.debugDescription)
             XCTAssertTrue(headline.isHittable, app.debugDescription)
-            XCTAssertFalse(headline.label.contains("IQR")); XCTAssertFalse(headline.label.contains("Median"))
+            XCTAssertFalse(headline.label.contains("IQR")); XCTAssertFalse(headline.label.contains("Middle result"))
+            XCTAssertTrue(headline.label.contains("points"), headline.label)
             assertMissingImagery(page, subject: team, in: app)
         }
         capture(app, name: "Offline fixture: plain-language NFL comparisons")

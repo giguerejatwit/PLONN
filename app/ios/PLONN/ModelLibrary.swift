@@ -23,7 +23,7 @@ private struct SaveModelParameters: Encodable {
     func refresh(_ account: AccountStore) async {
         let request = UUID(); generation = request
         versions = []; message = ""; busy = false
-        guard let owner = account.user?.id else { return }
+        guard account.hasSignedInAccount, let owner = account.user?.id else { return }
         busy = true
         defer { if generation == request { busy = false } }
         do {
@@ -39,7 +39,7 @@ private struct SaveModelParameters: Encodable {
         }
     }
     func save(_ recipe: LabRecipe, modelID: UUID?, account: AccountStore) async -> AccountModelVersion? {
-        guard !busy, let owner = account.user?.id else { return nil }
+        guard !busy, account.hasSignedInAccount, let owner = account.user?.id else { return nil }
         let request = generation; busy = true; message = ""
         defer { if generation == request { busy = false } }
         do {
@@ -47,7 +47,7 @@ private struct SaveModelParameters: Encodable {
                 SaveModelParameters(p_model_id: modelID, p_name: recipe.name, p_configuration: recipe)).single().execute().value
             guard generation == request, account.user?.id == owner, version.user_id == owner, version.configuration.configurationFingerprint == recipe.configurationFingerprint else { return nil }
             versions.insert(version, at: 0)
-            message = "Saved privately · \(version.name) v\(version.version). Configuration only."
+            message = "Saved to My Models · \(version.name)"
             return version
         } catch {
             if generation == request, account.user?.id == owner { message = "Save failed. Your setup remains in Models. Check the name, inputs and connection, then retry." }
@@ -55,7 +55,7 @@ private struct SaveModelParameters: Encodable {
         }
     }
     func delete(_ version: AccountModelVersion, account: AccountStore) async {
-        guard !busy, let owner = account.user?.id, owner == version.user_id else { return }
+        guard !busy, account.hasSignedInAccount, let owner = account.user?.id, owner == version.user_id else { return }
         let request = generation; busy = true
         defer { if generation == request { busy = false } }
         do {
@@ -83,13 +83,12 @@ struct MyModelsView: View {
         Dictionary(grouping: mine, by: \.model_id).values.compactMap { $0.max { $0.version < $1.version } }
             .sorted { $0.created_at > $1.created_at }
     }
-    var body: some View {
+    var body:some View {AccountRequiredView(feature:.privateModels){protectedBody}}
+    private var protectedBody:some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 18) {
                 Text("My Models").font(.system(.title2, design: .monospaced).weight(.semibold))
-                Text("Named, versioned configurations saved to your account. Reopen a trained setup to resolve its retained weights and frozen historical feature snapshot. Performance remains experimental.")
-                    .font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
-                if account.user == nil {
+                if !account.hasSignedInAccount {
                     NavigationLink { AccountView() } label: { Label("Sign in to My Models", systemImage: "person.crop.circle") }
                     Text("Device-only setups remain in Models and are never uploaded automatically.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
                 } else {
@@ -112,7 +111,9 @@ struct MyModelsView: View {
                     }
                     if library.busy { PLONNLoader() }
                     if !library.message.isEmpty { Text(library.message).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary) }
-                    if mine.isEmpty && !library.busy { Text("No private models loaded. Save a setup from Models.").foregroundStyle(.secondary) }
+                    if mine.isEmpty && !library.busy { Text("Create a matchup model from Models, or save a custom setup.").foregroundStyle(.secondary) }
+                    UpcomingModelLibrarySection()
+                    PlayerMatchupLibrarySection()
                     ForEach(latest) { model in
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
@@ -123,17 +124,17 @@ struct MyModelsView: View {
                             }
                             ForEach(mine.filter { $0.model_id == model.model_id }.sorted { $0.version > $1.version }) { version in
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("v\(version.version) · \(SavedModelType(rawValue: version.configuration.resolvedModelType)?.title ?? "Unsupported model type")")
+                                    Text("Version \(version.version)")
                                         .font(.system(.subheadline, design: .monospaced).weight(.semibold))
                                     Text("\(version.configuration.sport ?? "") · \(version.configuration.player) · \(version.configuration.stat ?? "") · \(version.configuration.features.count) features")
                                         .font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-                                    Text("Saved \(String(version.created_at.prefix(10))) · Setup only").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
+                                    Text("Saved \(String(version.created_at.prefix(10)))").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
                                     if !LaunchSports.includes(version.configuration.sport ?? "NFL") {
                                         Text("Archived sport · Saved version preserved").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
                                     } else if let onLoad {
                                         Button("Use this version") { onLoad(version); dismiss() }
                                     } else {
-                                        NavigationLink("Open this version in Models") { AILabView(initialVersion: version) }
+                                        NavigationLink("Open model") { AILabView(initialVersion: version) }
                                     }
                                 }.padding(.vertical, 6)
                             }

@@ -141,6 +141,10 @@ struct SportsItem: Identifiable, Codable {
                                 return SportsItem(id: text(team["id"]) + ":" + text(player["id"]), name: text(player["displayName"]), subtitle: text(team["displayName"]) + " · " + text(position["abbreviation"]))
                             }
                         } catch is CancellationError { throw CancellationError() } catch { missing += 1 }
+                        try Task.checkCancellation()
+                        guard requestVersion == version else { return }
+                        // Surface partial directory results as each roster arrives.
+                        items = result
                     }
                     if missing == teams.count && !teams.isEmpty { throw URLError(.badServerResponse) }
                 }
@@ -215,6 +219,31 @@ struct GameCenterView: View {
 private let todayCanvas = navy
 private let todaySurface = navySurface
 
+/// Readable identity fallback when a portrait or team logo is unavailable.
+struct SubjectBadge: View {
+    let name: String
+    var size: CGFloat = 52
+    var isPlayer = false
+    private var initials: String { SubjectBadgeInitials.make(name) }
+    var body: some View {
+        Group {
+            if initials.isEmpty {
+                Image(systemName: isPlayer ? "person.fill" : "sportscourt")
+                    .font(.system(size: size * 0.38))
+            } else {
+                Text(initials).font(.system(size: size * 0.28, weight: .semibold, design: .monospaced))
+                    .lineLimit(1).minimumScaleFactor(0.7)
+            }
+        }.foregroundStyle(brandAccent.opacity(0.9))
+            .frame(width: size, height: size)
+            .background(brandAccent.opacity(0.10), in: Circle())
+            .overlay(Circle().strokeBorder(brandAccent.opacity(0.18), lineWidth: 1))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(name)
+            .accessibilityValue((isPlayer ? "Player" : "Team") + (initials.isEmpty ? " icon" : " initials"))
+    }
+}
+
 struct TeamMark: View {
     let url: String
     let name: String
@@ -256,12 +285,11 @@ struct WeekDateStrip: View {
                                 VStack(spacing:5) {
                                     Text(value.formatted(.dateTime.weekday(.abbreviated))).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
                                     Text(value.formatted(.dateTime.day())).font(.system(.subheadline, design: .monospaced).weight(.semibold)).monospacedDigit().frame(width:38,height:38)
-                                        .background(selected ? Color.primary:Color.secondary.opacity(0.12),in:Circle())
-                                        .foregroundStyle(selected ? Color(uiColor:.systemBackground):Color.primary)
+                                        .foregroundStyle(.primary).plonnGlassSurface(selected:selected,radius:19)
                                 }.frame(maxWidth:.infinity).padding(.vertical,4)
                             }.buttonStyle(.plain).accessibilityLabel(value.formatted(date:.complete,time:.omitted)).accessibilityAddTraits(selected ? .isSelected:[])
                         }
-                    }.padding(.horizontal,12).tag(offset)
+                    }.plonnGlassGroup().padding(.horizontal,12).tag(offset)
                 }
             }.tabViewStyle(.page(indexDisplayMode:.never)).frame(height:72).accessibilityIdentifier("games-week-dates")
         }.padding(.top,10)
@@ -295,21 +323,19 @@ struct TodayView: View {
     }
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                PLONNTrident().frame(width: 24, height: 28)
-                PLONNWordmark(size:17)
-                Spacer()
-                NavigationLink { SettingsView() } label: { Image(systemName: "person.crop.circle").font(.system(size: 22,design:.monospaced)).foregroundStyle(charcoalAccent).frame(width: 44,height: 44) }.accessibilityLabel("Account and settings")
-            }.padding(.horizontal, 16)
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                TextField("Search today's teams", text: $query).font(.system(.body, design: .monospaced)).accessibilityIdentifier("today-search")
-                if !query.isEmpty { Button { query = "" } label: { Image(systemName:"xmark.circle.fill").foregroundStyle(.secondary) }.accessibilityLabel("Clear search") }
-            }.padding(12).background(Color.black.opacity(0.06), in: RoundedRectangle(cornerRadius:12)).padding(.horizontal,16).padding(.vertical,8)
+            header
             Text("Games").font(.system(.title2,design:.monospaced).bold()).frame(maxWidth:.infinity,alignment:.leading).padding(.horizontal,16)
+            if !account.hasSignedInAccount {
+                HStack {
+                    Text("Preview · Games and statistics").foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Sign in") {account.access.present(feature:.odds)}.fontWeight(.semibold)
+                        .accessibilityIdentifier("games-sign-in")
+                }.font(.caption).padding(.horizontal,16).padding(.vertical,6)
+            }
             leagueSelectors
             WeekDateStrip(date:$date)
-                .frame(height:calendarCollapsed ? 0 : 100,alignment:.top)
+                .frame(height:calendarCollapsed ? 0 : 132,alignment:.top)
                 .opacity(calendarCollapsed ? 0 : 1)
                 .clipped()
                 .allowsHitTesting(!calendarCollapsed)
@@ -336,7 +362,7 @@ struct TodayView: View {
                                 Button {moveDay(1)} label: {
                                     HStack(spacing:10) {Text("Next game day");Image(systemName:"arrow.right")}
                                         .font(.system(.subheadline, design: .monospaced).weight(.semibold)).padding(.horizontal,20).padding(.vertical,14)
-                                        .foregroundStyle(navy).background(charcoalAccent,in:RoundedRectangle(cornerRadius:10))
+                                        .foregroundStyle(.primary).plonnGlassSurface(selected:true,radius:18)
                                 }.buttonStyle(.plain).disabled(findingGameDay).opacity(findingGameDay ? 0.5:1)
                             }
                         }.frame(maxWidth:.infinity).padding(.vertical,60)
@@ -371,15 +397,42 @@ struct TodayView: View {
             } while !Task.isCancelled
         }
     }
+    private var header:some View {
+        VStack(spacing:8) {
+            HStack {
+                PLONNTrident().frame(width:24,height:28)
+                PLONNWordmark(size:17)
+                Spacer()
+                NavigationLink { SettingsView() } label: {
+                    Image(systemName:"person.crop.circle").font(.system(size:22,design:.monospaced))
+                        .foregroundStyle(.primary).frame(width:44,height:44)
+                        .plonnGlassSurface(radius:22)
+                }.buttonStyle(.plain).accessibilityLabel("Account and settings")
+            }
+            HStack(spacing:10) {
+                Image(systemName:"magnifyingglass").foregroundStyle(.secondary)
+                TextField("Search today's teams",text:$query).font(.system(.body,design:.monospaced))
+                    .submitLabel(.search).accessibilityIdentifier("today-search")
+                if !query.isEmpty {
+                    Button {query=""} label: {
+                        Image(systemName:"xmark.circle.fill").foregroundStyle(.secondary).frame(width:44,height:44)
+                    }.plonnGlassButton().accessibilityLabel("Clear search")
+                }
+            }.padding(.horizontal,14).frame(minHeight:48)
+                .plonnGlassSurface(radius:24,interactive:false)
+        }.plonnGlassGroup().padding(.horizontal,16).padding(.bottom,12)
+    }
     @ViewBuilder private var leagueSelectors:some View {
-            ScrollView(.horizontal,showsIndicators:false) { HStack(spacing: 20) {
+            ScrollView(.horizontal,showsIndicators:false) { HStack(spacing: 8) {
                 ForEach(["All"] + LaunchSports.supported, id: \.self) { league in
                     Button { sport = league; query = "" } label: {
-                        VStack(spacing:5) {LeagueMark(league:league);Text(league).font(.system(.caption, design: .monospaced).weight(.semibold))}.foregroundStyle(sport == league ? .primary : .secondary).frame(minWidth:48).frame(height:58).overlay(alignment:.bottom) { if sport == league { Rectangle().fill(charcoalAccent).frame(height:2) } }
-                    }.accessibilityAddTraits(sport == league ? .isSelected : [])
+                        VStack(spacing:4) {LeagueMark(league:league);Text(league).font(.system(.caption, design: .monospaced).weight(.semibold))}
+                            .foregroundStyle(sport == league ? Color.primary : .secondary).frame(minWidth:62,minHeight:62)
+                            .plonnGlassSurface(selected:sport == league,radius:20)
+                    }.buttonStyle(.plain).accessibilityAddTraits(sport == league ? .isSelected : [])
                 }
                 Spacer(minLength: 0)
-            }.foregroundStyle(.primary).padding(.horizontal,16) }.overlay(alignment:.bottom) { Divider().padding(.horizontal,16) }
+            }.plonnGlassGroup().padding(.horizontal,16).padding(.vertical,8) }
             if sport == "Tennis" {Picker("Tour",selection:$tennisTour) {Text("ATP").tag("ATP");Text("WTA").tag("WTA")}.pickerStyle(.segmented).padding(.horizontal,16)}
             if sport == "Soccer" {
                 ScrollView(.horizontal,showsIndicators:false) {
@@ -388,8 +441,7 @@ struct TodayView: View {
                             Button {soccerCompetition=item.0} label: {
                                 VStack(spacing:7) {
                                     Image(systemName:item.2).font(.system(.title2, design: .monospaced)).frame(width:46,height:46)
-                                        .foregroundStyle(soccerCompetition == item.0 ? navy:charcoalAccent)
-                                        .background(soccerCompetition == item.0 ? charcoalAccent:Color.secondary.opacity(0.12),in:RoundedRectangle(cornerRadius:12))
+                                        .foregroundStyle(.primary).plonnGlassSurface(selected:soccerCompetition == item.0,radius:12)
                                     Text(item.1).font(.system(.caption2, design: .monospaced).weight(.semibold)).multilineTextAlignment(.center).frame(width:76)
                                 }.padding(.vertical,8)
                             }.buttonStyle(.plain).accessibilityAddTraits(soccerCompetition == item.0 ? .isSelected:[])
@@ -441,6 +493,7 @@ struct TodayView: View {
 }
 
 private struct ScheduledOddsCard:View {
+    @EnvironmentObject private var account:AccountStore
     let game:SportsItem
     let sport:String
     let markets:[Market]
@@ -455,12 +508,12 @@ private struct ScheduledOddsCard:View {
                 HStack {
                     if let start=sportsDate(game.start) { Text(start,style:.time) }
                     Spacer()
-                    Text(cachedOnly ? (asOf.map{Store.oddsAsOf($0)} ?? "Price time unavailable"):"Snapshot · Includes book margin")
+                    Text(!account.hasSignedInAccount ? "Games and statistics preview":(cachedOnly ? (asOf.map{Store.oddsAsOf($0)} ?? "Price time unavailable"):"Snapshot · Includes book margin"))
                 }.font(.system(size:10,design:.monospaced)).foregroundStyle(.secondary)
             }.padding(14).background(TeamCardBackground(game:game))
     }
     private func moneyline(_ team:String,game:SportsItem)->Market? {
-        guard let start=sportsDate(game.start) else {return nil}
+        guard account.hasSignedInAccount,let start=sportsDate(game.start) else {return nil}
         return Store.recordedMoneyline(team,markets:markets,sport:sport,home:game.home,away:game.away,start:start)
     }
     private func moneylineRow(_ name:String,logo:String,game:SportsItem)->some View {
@@ -473,40 +526,29 @@ private struct ScheduledOddsCard:View {
                     HStack(spacing:8) { Text(odds(market.price)).foregroundStyle(charcoalAccent);Text(probability(implied(market.price))) }.font(.system(size:14,weight:.semibold,design:.monospaced)).monospacedDigit()
                     Text(market.book).font(.system(size:9,design:.monospaced)).foregroundStyle(.secondary).lineLimit(1)
                 }
-            } else { Text(loading ? "Loading…":"Odds unavailable").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary) }
+            } else { Text(account.hasSignedInAccount ? (loading ? "Loading…":"Odds unavailable"):"Sign in for odds").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary) }
         }
     }
 }
 
 private struct OddsIssueNotice:View {
+ @EnvironmentObject private var account:AccountStore
  let message:String
- // Keep known source-policy notices concise. Unknown messages and actual errors stay visible.
- private var summary:String? {
-  guard message.hasPrefix("Cached odds · ") else {return nil}
-  let parts=message.components(separatedBy:" · ")
-  guard parts.count >= 3 else {return nil}
-  let source=parts.dropFirst(2).joined(separator:" · ")
-  switch source {
-  case "Recorded sportsbook odds · Refresh unavailable · Prices may have changed. See each quote's as-of time.",
-       "Cached odds. Provider refreshes paused until midnight Eastern.",
-       "Provider refreshes paused until midnight Eastern.":
-   return "Prices may have changed · "+parts[1]
-  case "No cached markets for this matchup.":
-   return "Prices unavailable for this matchup."
-  case "No recorded odds available for this selection.",
-       "No cached odds available for this selection. Provider refreshes paused until midnight Eastern.":
-   return "Prices unavailable for this selection."
-  default:return nil
-  }
- }
  var body:some View {
-  if let summary {
-   Label(summary,systemImage:"clock").font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("odds-feed-issue")
-  } else {
-   Label(message,systemImage:"exclamationmark.triangle")
-    .font(.system(.caption,design:.monospaced)).foregroundStyle(.orange)
-    .accessibilityIdentifier("odds-feed-issue")
-  }
+  let presentation=OddsIssuePresentation(message)
+  if account.hasSignedInAccount {VStack(alignment:.leading,spacing:4) {
+   if let asOf=presentation.asOf {
+    Text(asOf).font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("odds-as-of")
+   }
+   if let status=presentation.status {
+    Text(status).font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("odds-feed-status")
+   }
+   if let warning=presentation.warning {
+    Label(warning,systemImage:"exclamationmark.triangle")
+     .font(.system(.caption,design:.monospaced)).foregroundStyle(.orange)
+     .accessibilityIdentifier("odds-feed-issue")
+   }
+  }}
  }
 }
 
@@ -558,35 +600,49 @@ private struct TodayGameDetail: View {
     @EnvironmentObject private var account: AccountStore
     @State private var category = "Overview"
     @StateObject private var research = MatchupResearch()
+    @StateObject private var gameUpdates = LiveMatchupStore()
+    private var event: SharedMatchupEvent { game.matchupEvent(sport:sport) }
+    private var liveSnapshot: LiveMatchupSnapshot? { gameUpdates.snapshot?.event == event ? gameUpdates.snapshot : nil }
     @State private var propType = "All props"
     @State private var search = ""
+    private var matchupMarkets: [Market] {
+        guard !LiveMatchupPolicy.showsGameContext(event:event,state:game.state,snapshot:liveSnapshot,now:Date()),account.hasSignedInAccount,let start=sportsDate(game.start) else {return []}
+        return markets.live.filter { Store.matchesRecordedEvent($0,sport:sport,home:game.home,away:game.away,start:start,candidates:markets.live) }
+    }
     private var matching: [Market] {
-        markets.live.filter { market in
-            guard let start=sportsDate(game.start) else {return false}
-            return Store.matchesRecordedEvent(market,sport:sport,home:game.home,away:game.away,start:start,candidates:markets.live)
-                && (category == "Player props" ? market.kind == "prop" : market.kind == "team")
+        guard !LiveMatchupPolicy.showsGameContext(event:event,state:game.state,snapshot:liveSnapshot,now:Date()),account.hasSignedInAccount,let start=sportsDate(game.start) else {return []}
+        return markets.live.filter { market in
+            (category == "Player props" ? market.kind == "prop" : market.kind == "team")
                 && (category != "Player props" || propType == "All props" || propTitle(market.market) == propType)
                 && (category != "Player props" || search.isEmpty || (market.name + " " + market.label).localizedCaseInsensitiveContains(search))
+                && Store.matchesRecordedEvent(market,sport:sport,home:game.home,away:game.away,start:start,candidates:markets.live)
         }
     }
     var body: some View {
+        ScrollViewReader { scroll in
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
                 VStack(spacing: 14) {
-                    HStack { TeamMark(url:game.awayLogo,name:game.away);Text(game.away);Spacer();Text(game.awayScore).bold() }
-                    HStack { TeamMark(url:game.homeLogo,name:game.home);Text(game.home);Spacer();Text(game.homeScore).bold() }
-                    Text(game.subtitle).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-         if sport == "MLB" && game.live {
-          BaseOccupancy(game:game).frame(maxWidth:.infinity,alignment:.center)
-          if let balls=game.balls,let strikes=game.strikes,let outs=game.outs {Text("\(balls) B · \(strikes) S · \(outs) outs").font(.system(.caption,design:.monospaced))}
-          LiveBaseballPlayers(game:game)
-         }
-                }.padding(16).background(TeamCardBackground(game:game))
+                    HStack { TeamMark(url:game.awayLogo,name:game.away);Text(game.away);Spacer();Text(liveSnapshot?.phase == .scheduled ? game.awayScore : (liveSnapshot?.away.score ?? game.awayScore)).bold() }
+                    HStack { TeamMark(url:game.homeLogo,name:game.home);Text(game.home);Spacer();Text(liveSnapshot?.phase == .scheduled ? game.homeScore : (liveSnapshot?.home.score ?? game.homeScore)).bold() }
+                    Text(liveSnapshot?.status ?? game.subtitle).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+
+                }.padding(16).background(TeamCardBackground(game:game)).id("matchup-top")
+                if game.state == "pre", let start = sportsDate(game.start), start > Date(), [2,3].contains(game.seasonType ?? 2) {
+                    NavigationLink {
+                        UpcomingModelView(setup: .init(league: sport, eventID: game.id, home: game.home, away: game.away, startsAt: game.start), autoStart: true)
+                    } label: {
+                        Label("Build model", systemImage: "sparkles").frame(maxWidth: .infinity).padding(.vertical, 6)
+                    }.plonnGlassButton(prominent: true).accessibilityIdentifier("matchup-one-click-model")
+                }
                 Picker("Market category",selection:$category) {
                     ForEach(["Overview","Team stats","Player props"],id: \.self) { Text($0) }
                 }.pickerStyle(.segmented)
-                if let issue=markets.oddsIssue {OddsIssueNotice(message:issue)}
-                if category != "Player props" { MatchupOverview(game:game,sport:sport,markets:matching,research:research,statsOnly:category == "Team stats") }
+                if !account.hasSignedInAccount {
+                    Button("Sign in to view odds") {account.access.present(feature:.odds)}
+                        .accessibilityIdentifier("matchup-sign-in-odds")
+                } else if let issue=markets.oddsIssue {OddsIssueNotice(message:issue)}
+                if category != "Player props" { MatchupOverview(game:game,sport:sport,markets:matchupMarkets,research:research,statsOnly:category == "Team stats",gameUpdates:gameUpdates) }
                 if category == "Player props" {
                     NavigationLink("Player stats & trends") {ExploreView(initialSport:sport,live:true)}
                     Text("Load a player's stats in Analytics before matching a selected line. No player odds are fetched automatically.").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)
@@ -623,22 +679,31 @@ private struct TodayGameDetail: View {
                         }.padding(14).background(PlayerTeamBackground(market:market))
                     }.buttonStyle(.plain)
                 }
-                if !markets.loading && matching.isEmpty {
+                if account.hasSignedInAccount && !markets.loading && matching.isEmpty {
                     ContentUnavailableView(markets.oddsIssue == nil ? "No available markets":"Prices could not refresh",systemImage:"chart.bar.xaxis",description:Text(markets.oddsIssue ?? "No prices available for this market right now."))
                 }
                 }
-                Text("Sportsbook snapshots · Prices may change").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
+                if account.hasSignedInAccount {
+                    Text("Sportsbook snapshots · Prices may change").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
+                }
             }.padding(16)
-        }.background(todayCanvas).navigationTitle("Matchup").navigationBarTitleDisplayMode(.inline)
+        }.onAppear { scroll.scrollTo("matchup-top",anchor:.top) }
+        .background(todayCanvas).navigationTitle("Matchup").navigationBarTitleDisplayMode(.inline)
         .environment(\.matchupPalette,[matchupColor(game.awayColor),matchupColor(game.homeColor)])
+        .task(id: event.sport + event.eventID + event.homeTeam + event.awayTeam + event.startISO + String(describing:scenePhase) + String(gameUpdates.refreshRevision)) {
+            guard scenePhase == .active else {return}
+            await gameUpdates.watch(event:event)
+        }
         .task(id: sport + game.id + String(describing:scenePhase) + (account.user?.id.uuidString ?? "guest")) {
             guard scenePhase == .active else{return}
             await research.load(game:game,sport:sport)
             await markets.load(sport,account:account,home:game.home,away:game.away,start:game.start,forceRefresh:false,cacheOnly:true,nbaSeasonTypes:[game.seasonType])
         }
         .plonnRefreshable {
+            gameUpdates.refreshRevision += 1
             await research.load(game:game,sport:sport)
             await markets.load(sport,account:account,home:game.home,away:game.away,start:game.start,cacheOnly:true,nbaSeasonTypes:[game.seasonType])
+        }
         }
     }
 }
@@ -679,9 +744,8 @@ struct HotLiveOddsCarousel:View {
  }
  var body:some View {
   VStack(alignment:.leading,spacing:12) {
-   Text("Live games · recent team trends").font(.system(.headline,design:.monospaced))
-   Text("Completed games first. Historical form is not a prediction for the game in progress.").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)
-   Button(loading ? "Loading team stats…":"Load recent team trends",action:loadStats).disabled(loading || liveGames.isEmpty).font(.system(.subheadline,design:.monospaced).weight(.semibold))
+   Button(loading ? "Loading team stats…":"View recent form",action:loadStats).disabled(loading || liveGames.isEmpty).font(.system(.subheadline,design:.monospaced).weight(.semibold))
+   if !rows.isEmpty { Text("Last 5 completed games · Not live predictions").font(.caption).foregroundStyle(.secondary) }
    ForEach(rows) {row in
     Panel {
      Text(row.name).font(.system(.headline,design:.monospaced))
@@ -850,7 +914,7 @@ actor PlayerPortraits {
                             guard let name=player["fullName"] as? String,let id=player["id"] as? Int else { continue }
                             result[Self.key(name),default:[]].append("https://img.mlbstatic.com/mlb-photos/image/upload/w_200,q_auto:best/v1/people/\(id)/headshot/67/current")
                         }
-                    } else if market.sport == "NBA" || market.sport == "NFL" {
+                    } else if market.sport == "NBA" || market.sport == "NFL" || market.sport == "NHL" {
                         let league=sportsFeedPath(market.sport)
                         let data=try await Self.json("https://site.api.espn.com/apis/site/v2/sports/\(league)/teams?limit=1000")
                         let sports=data["sports"] as? [[String:Any]] ?? []
@@ -901,7 +965,7 @@ struct PropStatisticsView:View {
  var body:some View {
   if let stats=PropDistribution(values:values,line:line) {
    VStack(alignment:.leading,spacing:16) {
-    Text("Distribution & statistics").font(.system(.headline, design: .monospaced))
+    Text("Distribution").font(.system(.headline, design: .monospaced))
     HStack { Metric(title:"Median",value:stats.median.formatted(.number.precision(.fractionLength(1))));Metric(title:"Std. deviation",value:stats.deviation.formatted(.number.precision(.fractionLength(1))));Metric(title:"Sample",value:"\(values.count) games") }
     let buckets=Dictionary(grouping:values,by:{$0}).map{(value:$0.key,count:$0.value.count)}.sorted{$0.value<$1.value}
     Chart {
@@ -1007,12 +1071,15 @@ private struct MatchupOverview:View {
  @ObservedObject var research:MatchupResearch
  @State private var count=5
  var statsOnly=false
+ @ObservedObject var gameUpdates:LiveMatchupStore
+ private var gameContext:Bool { LiveMatchupPolicy.showsGameContext(event:game.matchupEvent(sport:sport),state:game.state,snapshot:gameUpdates.snapshot,now:Date()) }
  private func recent(_ name:String)->[TeamRecentGame] { Array((research.logs[name] ?? []).prefix(count)) }
  private func average(_ games:[TeamRecentGame],scored:Bool)->String { guard !games.isEmpty else{return "—"};return String(format:"%.1f",games.map{scored ? $0.scored:$0.allowed}.reduce(0,+)/Double(games.count)) }
  var body:some View {
   VStack(alignment:.leading,spacing:18) {
-   if !statsOnly {
-    Text("The market").font(.system(.headline, design: .monospaced))
+   TimelineView(.periodic(from:.now,by:15)) { timeline in
+   if !statsOnly && !LiveMatchupPolicy.showsGameContext(event:game.matchupEvent(sport:sport),state:game.state,snapshot:gameUpdates.snapshot,now:timeline.date) {
+    Text("Odds").font(.system(.headline, design: .monospaced))
     VStack(spacing:12) {
      ForEach([game.away,game.home],id:\.self) { team in
       let ml=sportsDate(game.start).flatMap { Store.recordedMoneyline(team,markets:markets,sport:sport,home:game.home,away:game.away,start:$0) }
@@ -1027,8 +1094,17 @@ private struct MatchupOverview:View {
     }.padding(16).background(navySurface,in:RoundedRectangle(cornerRadius:14))
     Text("Sportsbook snapshots · Implied probability includes margin").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
    }
-   MatchupAdvantagesView(game:game,sport:sport,logs:research.logs,markets:markets,showInsights:!statsOnly,researchLoading:research.loading)
-   if sport == "MLB" && !statsOnly { StartingPitchersView(game:game,markets:markets) }
+   }
+   if statsOnly {
+    TimelineView(.periodic(from:.now,by:15)) { timeline in
+     if LiveMatchupPolicy.showsGameContext(event:game.matchupEvent(sport:sport),state:game.state,snapshot:gameUpdates.snapshot,now:timeline.date) {
+      LiveMatchupCard(event:game.matchupEvent(sport:sport),snapshot:gameUpdates.snapshot,loading:gameUpdates.loading,failed:gameUpdates.failed,now:timeline.date)
+       .padding(16).background(navySurface,in:RoundedRectangle(cornerRadius:18))
+     }
+    }
+   }
+   MatchupAdvantagesView(game:game,sport:sport,logs:research.logs,markets:markets,showInsights:!statsOnly,researchLoading:research.loading,gameUpdates:gameUpdates)
+   if sport == "MLB" && !statsOnly && !gameContext { StartingPitchersView(game:game,markets:markets) }
    HStack { Text(statsOnly ? "Team comparison":"Recent form").font(.system(.headline, design: .monospaced));Spacer();Picker("Games",selection:$count){Text("Last 5").tag(5);Text("Last 10").tag(10)}.pickerStyle(.segmented).frame(width:155) }
    if research.loading { PLONNLoader("Loading matchup…") }
    ForEach([game.away,game.home],id:\.self) { name in
@@ -1274,7 +1350,8 @@ private struct MatchupEfficiency:Identifiable {
   // These are explicitly season-to-date comparisons, not historical as-of snapshots.
   let now=Date(),year=Calendar.current.component(.year,from:now)
   let season=["NBA","NHL"].contains(sport) && Calendar.current.component(.month,from:now)>=10 ? year+1:year
-  let cacheKey=sport+String(season)
+  let phase=game.seasonType == 1 ? 1:2
+  let cacheKey=sport+String(season)+"|"+String(phase)
   if !force,let cached=Self.cache[cacheKey],now.timeIntervalSince(cached.0)<900 {
    league=cached.1;teams=league.filter{$0.name==game.home || $0.name==game.away};insightProfiles=cached.2;return
   }
@@ -1328,9 +1405,9 @@ private struct MatchupEfficiency:Identifiable {
    for team in ordered {
     try Task.checkCancellation()
     guard let name=team["displayName"] as? String,let id=team["id"] as? String else{continue}
-    guard let data=try? await json(base+"/teams/\(id)/statistics?season=\(season)&seasontype=2") else{continue}
+    guard let data=try? await json(base+"/teams/\(id)/statistics?season=\(season)&seasontype=\(phase)") else{continue}
     try Task.checkCancellation();guard generation==token else{return}
-    var insight=MatchupInsightSources.espn(team:name,sport:sport,requestedYear:season,payload:data)
+    var insight=MatchupInsightSources.espn(team:name,sport:sport,requestedYear:season,payload:data,seasonType:phase)
     insight?.through=Date()
     let results=data["results"] as? [String:Any] ?? [:]
     func extract(_ groups:Any?)->[String:Double] {
@@ -1371,7 +1448,7 @@ private struct MatchupEfficiency:Identifiable {
      if fga+0.44*fta>0 {offense["tsPct"]=100*points/(2*(fga+0.44*fta))}
      offense["turnoverRate"]=100*to/possessions
      if let rebounds=own["totalRebounds"] ?? own["rebounds"]{offense["rebounds"]=rebounds/games}
-     if let schedule=try? await json(base+"/teams/\(id)/schedule?season=\(season)&seasontype=2"),
+     if let schedule=try? await json(base+"/teams/\(id)/schedule?season=\(season)&seasontype=\(phase)"),
         let average=MatchupInsightSources.nbaScheduleAllowance(teamID:id,payload:schedule,sample:Int(games),cutoff:min(sportsDate(game.start) ?? now,now),excludingEventID:game.id) {
       allowed["rating"]=average*games/possessions*100;allowed["points"]=average*games;allowed["avgPoints"]=average
       insight?.allowed["avgPoints"]=average;insight?.through=Date()
@@ -1412,6 +1489,7 @@ private struct MatchupAdvantagesView:View {
  let markets:[Market]
  let showInsights:Bool
  var researchLoading = false
+ @ObservedObject var gameUpdates:LiveMatchupStore
  @EnvironmentObject private var account:AccountStore
  @Environment(\.scenePhase) private var scenePhase
  @State private var verifiedPlayerTeams:[String:String]=[:]
@@ -1424,10 +1502,16 @@ private struct MatchupAdvantagesView:View {
   VStack(alignment:.leading,spacing:14) {
    if showInsights {
     VStack(alignment:.leading,spacing:12) {
-     SharedMatchupReportCard(event:sharedReportEvent,client:account.sharedMatchupReportClient(),accessIdentity:account.user?.id.uuidString ?? "signed-out",narrativeClient:account.matchupNarrativeClient(),ready:outlookReady,embedded:true,unavailableMessage:(CloudConfiguration.sharedReportsEnabled || SharedMatchupFrozenArchive.bundled) ? "Sign in to view this matchup’s outlook." : "Matchup outlook is unavailable.")
+     TimelineView(.periodic(from:.now,by:15)) { timeline in
+     if LiveMatchupPolicy.showsGameContext(event:sharedReportEvent,state:game.state,snapshot:gameUpdates.snapshot,now:timeline.date) {
+      LiveMatchupCard(event:sharedReportEvent,snapshot:gameUpdates.snapshot,loading:gameUpdates.loading,failed:gameUpdates.failed,now:timeline.date)
+     } else if account.hasSignedInAccount {
+     SharedMatchupReportCard(event:sharedReportEvent,client:account.sharedMatchupReportClient(),accessIdentity:account.user?.id.uuidString ?? "signed-out",narrativeClient:account.matchupNarrativeClient(),markets:markets,currentFacts:MatchupOutlookSelection.currentFacts(event:sharedReportEvent,profiles:data.insightProfiles,now:timeline.date),sourceLoading:data.loading,ready:outlookReady,embedded:true,unavailableMessage:(CloudConfiguration.sharedReportsEnabled || SharedMatchupFrozenArchive.bundled) ? "Sign in to view this matchup’s outlook." : "Matchup outlook is unavailable.")
+     } else {AccountFeaturePrompt(feature:.aiResearch)}
+     }
      if !contextualInsights.isEmpty {
       Divider()
-      Text("Team context").font(.subheadline.bold())
+      Text("Historical team context").font(.subheadline.bold())
      }
      ForEach(contextualInsights) { insight in
       VStack(alignment:.leading,spacing:5) {
@@ -1452,7 +1536,7 @@ private struct MatchupAdvantagesView:View {
     }.padding(16).background(Color(uiColor:.systemBackground),in:RoundedRectangle(cornerRadius:18))
      .accessibilityElement(children:.contain).accessibilityIdentifier("matchup-outlook-card")
    }
-   Text("Matchup advantages").font(.system(.headline, design: .monospaced))
+   Text("Team comparison").font(.system(.headline, design: .monospaced))
    ScrollView(.horizontal,showsIndicators:false) {
     HStack {ForEach(groups,id:\.self) {group in
      Button(group){selectedGroup=group}.font(.system(.caption, design: .monospaced).bold()).padding(.horizontal,12).padding(.vertical,9)
@@ -1476,7 +1560,7 @@ private struct MatchupAdvantagesView:View {
     Task{await data.load(game:game,sport:sport,logs:logs,force:true)}
    }.font(.system(.caption, design: .monospaced)).disabled(data.loading)
   }.task(id:researchSignature) {
-    guard !researchLoading else{return}
+    guard !researchLoading,scenePhase == .active else{return}
     let signature=researchSignature
     #if DEBUG && targetEnvironment(simulator)
     if MatchupOfflineFixture.active { loadedResearchSignature=signature;return }
@@ -1484,6 +1568,11 @@ private struct MatchupAdvantagesView:View {
     await data.load(game:game,sport:sport,logs:logs)
     guard !Task.isCancelled,researchSignature==signature else{return}
     loadedResearchSignature=signature
+    while !Task.isCancelled,scenePhase == .active,researchSignature == signature {
+     do {try await Task.sleep(for:.seconds(600))} catch {return}
+     guard !Task.isCancelled,scenePhase == .active,researchSignature == signature else{return}
+     await data.load(game:game,sport:sport,logs:logs,force:true)
+    }
    }
    .task(id:rosterSignature) {
     let signature=rosterSignature
@@ -1502,7 +1591,7 @@ private struct MatchupAdvantagesView:View {
   return true
  }
  private var researchSignature:String {
-  game.id+String(researchLoading)+logs.keys.sorted().map {team in
+  game.id+String(researchLoading)+String(scenePhase == .active)+logs.keys.sorted().map {team in
    team+(logs[team] ?? []).map {"\($0.id)|\($0.date.timeIntervalSince1970)|\($0.scored)|\($0.allowed)"}.joined(separator:";")
   }.joined(separator:"|")
  }
@@ -1789,10 +1878,10 @@ struct StatLabel:View {
    Text(title)
    if let explanation {
     Button {showing=true} label: {Image(systemName:"questionmark.circle").font(.system(.caption, design: .monospaced)).padding(.vertical,6)}
-     .buttonStyle(.borderless).accessibilityLabel("Define "+title)
+     .plonnGlassButton().accessibilityLabel("Define "+title)
      .sheet(isPresented:$showing) {
       NavigationStack {
-       ScrollView {VStack(alignment:.leading,spacing:16) {Text(explanation);if let matchupContext {Text("This matchup").font(.system(.headline, design: .monospaced)).foregroundStyle(brandFuchsia);Text(matchupContext)}}.font(.system(.body, design: .monospaced)).frame(maxWidth:.infinity,alignment:.leading).padding(24)}
+       ScrollView {VStack(alignment:.leading,spacing:16) {Text(explanation);if let matchupContext {Text("Matchup context").font(.system(.headline, design: .monospaced)).foregroundStyle(brandAccent);Text(matchupContext)}}.font(.system(.body, design: .monospaced)).frame(maxWidth:.infinity,alignment:.leading).padding(24)}
         .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
         .toolbar {ToolbarItem(placement:.confirmationAction){Button("Done"){showing=false}}}
       }.presentationDetents([.medium,.large])
@@ -1914,7 +2003,7 @@ private struct PlayerMatchupProps:View {
       Text(player.eventLabel ?? "Matchup props").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
      }
     }.padding(16).frame(maxWidth:.infinity,alignment:.leading).background(PlayerTeamBackground(market:player))
-    Text("Available player props").font(.system(.headline, design: .monospaced))
+    Text("Player props").font(.system(.headline, design: .monospaced))
     ForEach(selections) {market in
      NavigationLink {DetailView(m:market)} label: {
       HStack {
@@ -2004,6 +2093,11 @@ private struct SoccerMatchupView:View {
  let game:SportsItem
  let sport:String
  @StateObject private var oddsStore=Store()
+ @StateObject private var gameUpdates=LiveMatchupStore()
+ @Environment(\.scenePhase) private var scenePhase
+ private var event:SharedMatchupEvent {game.matchupEvent(sport:sport)}
+ private var liveSnapshot:LiveMatchupSnapshot? {gameUpdates.snapshot?.event == event ? gameUpdates.snapshot:nil}
+ private var gameContext:Bool {LiveMatchupPolicy.showsGameContext(event:event,state:game.state,snapshot:gameUpdates.snapshot,now:Date())}
  @EnvironmentObject private var account:AccountStore
  private var supportsOdds:Bool {!["Soccer:fifa.friendly"].contains(sport)}
  private var gameMarkets:[Market] {
@@ -2017,12 +2111,18 @@ private struct SoccerMatchupView:View {
  @State private var message=""
  var body:some View {
   ScrollView {VStack(spacing:20) {
-   HStack {TeamMark(url:game.awayLogo,name:game.away);Text(game.away);Spacer();Text(game.awayScore).bold()}
-   HStack {TeamMark(url:game.homeLogo,name:game.home);Text(game.home);Spacer();Text(game.homeScore).bold()}
-   Text(game.subtitle).font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
-   if supportsOdds {
+   HStack {TeamMark(url:game.awayLogo,name:game.away);Text(game.away);Spacer();Text(liveSnapshot?.phase == .scheduled ? game.awayScore : (liveSnapshot?.away.score ?? game.awayScore)).bold()}
+   HStack {TeamMark(url:game.homeLogo,name:game.home);Text(game.home);Spacer();Text(liveSnapshot?.phase == .scheduled ? game.homeScore : (liveSnapshot?.home.score ?? game.homeScore)).bold()}
+   Text(liveSnapshot?.status ?? game.subtitle).font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
+   TimelineView(.periodic(from:.now,by:15)) { timeline in
+    if LiveMatchupPolicy.showsGameContext(event:event,state:game.state,snapshot:gameUpdates.snapshot,now:timeline.date) {
+     LiveMatchupCard(event:event,snapshot:gameUpdates.snapshot,loading:gameUpdates.loading,failed:gameUpdates.failed,now:timeline.date)
+      .padding(16).background(navySurface,in:RoundedRectangle(cornerRadius:18))
+    }
+   }
+   if supportsOdds && !gameContext {
     VStack(alignment:.leading,spacing:12) {
-     Text("Game odds").font(.system(.headline, design: .monospaced))
+     Text("Odds").font(.system(.headline, design: .monospaced))
      if oddsStore.loading {PLONNLoader("Loading prices…")}
      if let issue=oddsStore.oddsIssue {OddsIssueNotice(message:issue)}
      ForEach(gameMarkets) {market in
@@ -2032,11 +2132,11 @@ private struct SoccerMatchupView:View {
     }.padding(14).background(navySurface,in:RoundedRectangle(cornerRadius:14))
    }
    if loading {PLONNLoader("Loading matchup…")}
-   ForEach(sections) { section in
+   ForEach(sections.filter { !gameContext || !$0.title.hasSuffix(" · Game stats") }) { section in
     VStack(alignment:.leading,spacing:12) {Text(section.title).font(.system(.headline, design: .monospaced));ForEach(Array(section.rows.enumerated()),id:\.offset) { _, row in HStack(alignment:.top) {Text(row.0).font(.system(.subheadline, design: .monospaced));Spacer();Text(row.1).font(.system(.subheadline, design: .monospaced).weight(.semibold)).monospacedDigit()}}}.padding(14).background(navySurface,in:RoundedRectangle(cornerRadius:14))
    }
    if !message.isEmpty {Text(message).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-  }.padding(20)}.background(LeagueBackdrop(league:sport)).navigationTitle("Matchup").navigationBarTitleDisplayMode(.inline).task(id:game.id) {await load();if supportsOdds {await oddsStore.load(sport,account:account,home:game.home,away:game.away,start:game.start)}}.plonnRefreshable {await load();if supportsOdds {await oddsStore.load(sport,account:account,home:game.home,away:game.away,start:game.start)}}
+  }.padding(20)}.background(LeagueBackdrop(league:sport)).navigationTitle("Matchup").navigationBarTitleDisplayMode(.inline).task(id:game.id) {await load();if supportsOdds && !gameContext {await oddsStore.load(sport,account:account,home:game.home,away:game.away,start:game.start)}}.task(id:event.sport+event.eventID+event.homeTeam+event.awayTeam+event.startISO+String(describing:scenePhase)+String(gameUpdates.refreshRevision)) {guard scenePhase == .active else{return};await gameUpdates.watch(event:event)}.plonnRefreshable {gameUpdates.refreshRevision += 1;await load();if supportsOdds && !gameContext {await oddsStore.load(sport,account:account,home:game.home,away:game.away,start:game.start)}}
  }
  struct FeedSection:Identifiable {let id=UUID();let title:String;let rows:[(String,String)]}
  @MainActor private func load() async {
@@ -2294,13 +2394,14 @@ struct LeagueMark:View {
 #if DEBUG && targetEnvironment(simulator)
 /// Exercises the real matchup view and generation state using an offline hosted-transport fixture.
 struct MatchupOfflineFixtureView: View {
+ @StateObject private var gameUpdates=LiveMatchupStore()
  var body: some View {
   NavigationStack {
    ScrollView {
     VStack(alignment:.leading,spacing:16) {
      Text("Offline fixture · No network or model request").font(.caption.bold()).accessibilityIdentifier("matchup-offline-fixture-banner")
      Text("Seattle Seahawks\nvs Denver Broncos").font(.title2.bold())
-     MatchupAdvantagesView(game:SportsItem(id:"offline-sea-den",name:"Seattle Seahawks vs Denver Broncos",home:MatchupOfflineFixture.home,away:MatchupOfflineFixture.away,state:"pre",start:"2026-10-15T20:00:00Z"),sport:"NFL",logs:[:],markets:[],showInsights:true)
+     MatchupAdvantagesView(game:SportsItem(id:"offline-sea-den",name:"Seattle Seahawks vs Denver Broncos",home:MatchupOfflineFixture.home,away:MatchupOfflineFixture.away,state:"pre",start:"2026-10-15T20:00:00Z"),sport:"NFL",logs:[:],markets:[],showInsights:true,gameUpdates:gameUpdates)
     }.padding()
    }.navigationTitle("PLONN · Offline verification").navigationBarTitleDisplayMode(.inline)
   }

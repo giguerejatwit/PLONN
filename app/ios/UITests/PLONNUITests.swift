@@ -2,7 +2,7 @@ import XCTest
 final class PLONNUITests: XCTestCase {
  private func openSettings(_ app: XCUIApplication) { app.tabBars.buttons["Today"].tap(); if app.buttons["Account and settings"].exists { app.buttons["Account and settings"].tap() } }
  override func setUpWithError() throws { continueAfterFailure = false }
- func testGamesShowsCachedOddsSourceTimestamp() {
+ func testGamesShowsQuoteTimeWithoutRoutineCacheWarning() {
   let app=XCUIApplication()
   app.launchArguments=["-backendURL","http://127.0.0.1:8766"]
   app.launch()
@@ -11,11 +11,12 @@ final class PLONNUITests: XCTestCase {
   let ready=expectation(for:NSPredicate(format:"hittable == true"),evaluatedWith:settings)
   wait(for:[ready],timeout:40)
   app.buttons["NBA"].tap()
-  let issue=app.staticTexts.matching(identifier:"odds-feed-issue").firstMatch
-  let cached=expectation(for:NSPredicate(format:"label CONTAINS %@", "Cached odds · As of"),evaluatedWith:issue)
-  wait(for:[cached],timeout:30)
-  XCTAssertTrue(issue.label.contains("EDT"),issue.label)
-  let screenshot=XCTAttachment(screenshot:app.screenshot());screenshot.name="Games shows cached odds and source timestamp";screenshot.lifetime = .keepAlways
+  let asOf=app.staticTexts.matching(identifier:"odds-as-of").firstMatch
+  let recorded=expectation(for:NSPredicate(format:"label CONTAINS %@", "Quote as of"),evaluatedWith:asOf)
+  wait(for:[recorded],timeout:30)
+  XCTAssertTrue(asOf.label.contains("EDT"),asOf.label)
+  XCTAssertFalse(app.staticTexts.matching(identifier:"odds-feed-issue").firstMatch.exists)
+  let screenshot=XCTAttachment(screenshot:app.screenshot());screenshot.name="Games shows quote time without a cache warning";screenshot.lifetime = .keepAlways
   add(screenshot)
  }
  func testGamesShowsOfflineOddsSourceWithoutSpendingProviderCredits() {
@@ -38,7 +39,7 @@ final class PLONNUITests: XCTestCase {
   let ready = expectation(for: NSPredicate(format: "hittable == true"), evaluatedWith: settings)
   wait(for: [ready], timeout: 40) // launch intro waits for initial data or its timeout
   settings.tap()
-  app.buttons["Account & sync"].tap()
+  app.buttons["Account"].tap()
   XCTAssertTrue(app.textFields["Email"].waitForExistence(timeout: 10))
   XCTAssertFalse(app.textFields["signup-referral-code"].exists)
   app.segmentedControls.buttons["Sign up"].tap()
@@ -83,7 +84,7 @@ final class PLONNUITests: XCTestCase {
   app.buttons["Save Boston Celtics"].tap()
   openSettings(app)
   app.swipeDown()
-  app.buttons["Account & sync"].tap()
+  app.buttons["Account"].tap()
   if app.buttons["Sign out"].exists { app.buttons["Sign out"].tap() }
   let emailField = app.textFields["Email"]
   XCTAssertTrue(emailField.waitForExistence(timeout: 10))
@@ -100,7 +101,7 @@ final class PLONNUITests: XCTestCase {
   app.terminate(); app.launch(); app.tabBars.buttons["Search"].tap()
   openSettings(app)
   app.swipeDown()
-  app.buttons["Account & sync"].tap()
+  app.buttons["Account"].tap()
   XCTAssertTrue(app.buttons["Sign out"].waitForExistence(timeout: 20))
   app.buttons["Refresh cloud watchlist"].tap()
   XCTAssertTrue(app.staticTexts["Cloud watchlist refreshed."].waitForExistence(timeout: 20))
@@ -114,7 +115,7 @@ final class PLONNUITests: XCTestCase {
   let app = XCUIApplication(); app.launch(); app.tabBars.buttons["Search"].tap()
   openSettings(app)
   app.swipeDown()
-  app.buttons["Account & sync"].tap()
+  app.buttons["Account"].tap()
   XCTAssertTrue(app.textFields["Email"].waitForExistence(timeout: 5))
   XCTAssertTrue(app.secureTextFields["Password"].exists)
   XCTAssertFalse(app.buttons["Sign in"].isEnabled)
@@ -127,7 +128,7 @@ final class PLONNUITests: XCTestCase {
   app.launch(); app.tabBars.buttons["Search"].tap()
   XCTAssertTrue(app.buttons["Sportsbook odds"].waitForExistence(timeout: 10))
   app.buttons["Sportsbook odds"].tap()
-  XCTAssertTrue(app.staticTexts["Sign in under Settings > Account & sync to view sportsbook odds. Sample research works offline."].waitForExistence(timeout: 5))
+  XCTAssertTrue(app.staticTexts["Sign in under Settings > Account to view sportsbook odds. Sample research works offline."].waitForExistence(timeout: 5))
   XCTAssertTrue(app.staticTexts["No matching markets"].exists)
   XCTAssertFalse(app.staticTexts["Boston Celtics"].exists)
   XCTAssertFalse(app.progressIndicators.firstMatch.exists)
@@ -236,7 +237,7 @@ final class PLONNUITests: XCTestCase {
 
  }
 
- func testFullGameCreationAndDeviceReopenWithoutHostedRuns() throws {
+ func testGuidedModelRestoresLegacySetupWithoutHostedRuns() throws {
   let app=XCUIApplication()
   let supports=["NBA","MLB","NFL","NHL"].flatMap { league in
    ["Game total","Spread","Moneyline"].map { stat -> [String:Any] in
@@ -246,7 +247,9 @@ final class PLONNUITests: XCTestCase {
    }
   }
   app.launchEnvironment["PLONN_LAB_CAPABILITIES_FIXTURE"]=String(data:try JSONSerialization.data(withJSONObject:["supported":[],"supported_data_targets":supports]),encoding:.utf8)!
-  app.launchArguments=["-preferredSportsbook","DraftKings"]
+  let seedRecipe:[String:Any] = ["id":UUID().uuidString,"name":"Pittsburgh Steelers · Spread","player":"Pittsburgh Steelers","quarterback":"","opponent":"Cincinnati Bengals","features":["recent","season"],"created":0,"line":-3.5,"side":"Over","sport":"NFL","stat":"Spread","targetKind":"Team","advanced":false,"modelType":"logistic_regression","book":"DraftKings","historicalEventID":"401671627"]
+  let recipes=String(data:try JSONSerialization.data(withJSONObject:[seedRecipe]),encoding:.utf8)!
+  app.launchArguments=["-preferredSportsbook","DraftKings","-labFeatureRecipes",recipes]
   func reveal(_ element:XCUIElement) {
    for _ in 0..<10 {if element.isHittable{return};app.swipeUp()}
    for _ in 0..<10 {if element.isHittable{return};app.swipeDown()}
@@ -258,37 +261,129 @@ final class PLONNUITests: XCTestCase {
    let ready=XCTNSPredicateExpectation(predicate:NSPredicate(format:"isHittable == true"),object:tab)
    XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:20),.completed)
    tab.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
-   let create=app.buttons.matching(NSPredicate(format:"label CONTAINS %@","Create a model")).firstMatch
+   let create=app.buttons.matching(NSPredicate(format:"label CONTAINS %@","Custom model")).firstMatch
    XCTAssertTrue(create.waitForExistence(timeout:10),app.debugDescription)
    create.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
   }
-  app.launch();openCreate()
-  app.segmentedControls.buttons["Team / full game"].tap()
-  app.buttons["Spread"].firstMatch.tap()
-  let example=app.buttons["Use a completed-game example"];reveal(example);example.tap()
-  let next=app.buttons["Choose features"];reveal(next);XCTAssertTrue(next.isEnabled);next.tap()
+  app.launch()
+  guard app.tabBars.buttons["Models"].waitForExistence(timeout:10) else {throw XCTSkip("Requires a signed-in test account; the picker itself has an independent offline UI test.")}
+  openCreate()
+  let more=app.buttons["More options"];reveal(more);more.tap()
+  let existing=app.buttons.matching(NSPredicate(format:"label CONTAINS %@","Pittsburgh Steelers · Spread")).firstMatch
+  reveal(existing);existing.tap()
+  XCTAssertTrue(app.staticTexts["Review model"].waitForExistence(timeout:5))
+  XCTAssertTrue(app.staticTexts["Spread -3.5 · NFL"].exists)
+  XCTAssertFalse(app.textFields["Enter the exact historical game ID"].exists)
+  let create=app.buttons["lab-create-model"]
+  XCTAssertTrue(create.exists)
+  XCTAssertEqual(create.label,"Create model")
+  XCTAssertFalse(app.buttons["Save on this device"].exists)
+  XCTAssertFalse(app.staticTexts["Experimental historical estimate"].exists)
+  let advanced=app.buttons["lab-advanced"];reveal(advanced);advanced.tap()
   let forest=app.buttons.matching(NSPredicate(format:"label CONTAINS %@","Random forest")).firstMatch
   reveal(forest);XCTAssertTrue(forest.isEnabled);forest.tap()
-  let review=app.buttons["Review setup"];reveal(review);review.tap()
-  let saved=app.buttons["Save on this device"];reveal(saved);saved.tap()
-  XCTAssertTrue(app.buttons["Saved on device"].waitForExistence(timeout:5))
-  let image=XCTAttachment(screenshot:app.screenshot());image.name="Full-game spread review";image.lifetime = .keepAlways;add(image)
-  app.terminate();app.launch();openCreate()
-  let recipe=app.buttons.matching(NSPredicate(format:"label CONTAINS %@","Pittsburgh Steelers · Spread")).firstMatch
-  reveal(recipe);recipe.tap()
-  // Reopening retains the signed handicap and explicit historical game.
-  for _ in 0..<8 {app.swipeDown()}
-  XCTAssertEqual(app.textFields["Enter the exact historical game ID"].value as? String,"401671836")
-  XCTAssertEqual(app.textFields["e.g. -1.5 or +1.5"].value as? String,"-3.5")
-  let moneyline=app.buttons["Moneyline"].firstMatch;XCTAssertTrue(moneyline.exists);moneyline.tap()
-  reveal(app.buttons["Use a completed-game example"]);app.buttons["Use a completed-game example"].tap()
-  let noLine=app.staticTexts["Moneyline · Selected team to win. No line required."];reveal(noLine)
-  XCTAssertTrue(noLine.exists)
-  XCTAssertFalse(app.textFields["e.g. -1.5 or +1.5"].exists)
-  reveal(next);next.tap();reveal(review);review.tap()
-  reveal(app.buttons["Save on this device"]);app.buttons["Save on this device"].tap()
-  XCTAssertTrue(app.buttons["Saved on device"].waitForExistence(timeout:5))
-  // No Train model button is tapped: this test consumes no hosted account quota.
+  // The disabled service still permits reviewing and editing. Nothing is submitted.
+  let image=XCTAttachment(screenshot:app.screenshot());image.name="Guided model with advanced settings";image.lifetime = .keepAlways;add(image)
+  app.terminate();app.launch();openCreate();reveal(more);more.tap();reveal(existing);existing.tap()
+  XCTAssertTrue(app.staticTexts["Spread -3.5 · NFL"].waitForExistence(timeout:5))
+  let game=app.buttons.matching(NSPredicate(format:"label CONTAINS %@","2, Game")).firstMatch
+  if game.exists {game.tap()} else {app.buttons["Game"].tap()}
+  XCTAssertTrue(app.buttons["lab-choose-game"].exists)
+  XCTAssertTrue(app.staticTexts["Saved matchup"].exists)
+  XCTAssertEqual(app.textFields["e.g. -2.5"].value as? String,"-3.5")
+  // No Create model action: this test never saves to an account or consumes training quota.
+
  }
 
+ func testCompletedGamePickerShowsTeamsAndSelectsOpponentWithoutIDs() {
+  let app=XCUIApplication()
+  app.launchEnvironment["PLONN_LAB_GAME_PICKER_FIXTURE"]="1"
+  app.launch()
+  defer {app.terminate()}
+  XCTAssertTrue(app.navigationBars["Choose NFL game"].waitForExistence(timeout:15))
+  XCTAssertTrue(app.staticTexts["Pittsburgh Steelers at Cincinnati Bengals"].waitForExistence(timeout:10))
+  XCTAssertFalse(app.textFields["Enter the exact historical game ID"].exists)
+  XCTAssertFalse(app.staticTexts["2024_13_PIT_CIN"].exists)
+  XCTAssertFalse(app.links["Find game IDs"].exists)
+  let image=XCTAttachment(screenshot:app.screenshot());image.name="Completed game picker with matchup names";image.lifetime = .keepAlways;add(image)
+  app.buttons["lab-game-2024_13_PIT_CIN-PIT"].tap()
+  let selected=app.staticTexts["lab-picker-selection"]
+  XCTAssertTrue(selected.waitForExistence(timeout:5))
+  XCTAssertEqual(selected.label,"Team: Pittsburgh Steelers\nOpponent: Cincinnati Bengals")
+  app.buttons["Choose completed game"].tap()
+  let home=app.buttons["lab-game-2024_13_PIT_CIN-CIN"]
+  XCTAssertTrue(home.waitForExistence(timeout:5));home.tap()
+  XCTAssertEqual(selected.label,"Team: Cincinnati Bengals\nOpponent: Pittsburgh Steelers")
+ }
+
+}
+
+final class PreviewAccessUITests: XCTestCase {
+ override func setUpWithError() throws {continueAfterFailure=false}
+ private func launch(statisticsFixture:Bool=false) -> XCUIApplication {
+  let app=XCUIApplication()
+  app.launchArguments=["-plonn.previewWelcomeSeen","YES","-backendURL","https://127.0.0.1:9","-AppleLanguages","(en)","-AppleLocale","en_US"]
+  if statisticsFixture {
+   app.launchEnvironment["PLONN_ANALYTICS_MARKETS_FIXTURE"]="[]"
+   app.launchEnvironment["PLONN_ANALYTICS_SUBJECTS_FIXTURE"]="[]"
+   app.launchEnvironment["PLONN_ANALYTICS_HISTORY_FIXTURE"]="{}"
+  }
+  app.launch();return app
+ }
+ private func openAndCancelSignIn(_ app:XCUIApplication,feature:String) {
+  let button=app.buttons["sign-in-for-"+feature]
+  XCTAssertTrue(button.waitForExistence(timeout:15),app.debugDescription)
+  button.tap()
+  XCTAssertTrue(app.textFields["Email"].waitForExistence(timeout:10),app.debugDescription)
+  XCTAssertTrue(app.secureTextFields["Password"].exists)
+  let cancel=app.buttons["account-access-cancel"]
+  XCTAssertTrue(cancel.exists);cancel.tap()
+  XCTAssertTrue(button.waitForExistence(timeout:10),"Cancelling must return to the original feature.")
+ }
+ func testWelcomeRequiresSignInEvenWithLegacyPreviewPreference() {
+  let app=launch();defer{app.terminate()}
+  XCTAssertTrue(app.staticTexts["preview-welcome-heading"].waitForExistence(timeout:20),app.debugDescription)
+  XCTAssertFalse(app.tabBars.firstMatch.exists)
+  app.buttons["preview-create-account"].tap()
+  XCTAssertTrue(app.textFields["Display name"].waitForExistence(timeout:10))
+  XCTAssertTrue(app.secureTextFields["Confirm password"].exists)
+  app.buttons["account-access-cancel"].tap()
+  app.buttons["preview-sign-in"].tap()
+  XCTAssertTrue(app.textFields["Email"].waitForExistence(timeout:10))
+  XCTAssertFalse(app.textFields["Display name"].exists)
+  app.buttons["account-access-cancel"].tap()
+  XCTAssertTrue(app.staticTexts["preview-welcome-heading"].waitForExistence(timeout:10))
+  XCTAssertFalse(app.buttons["preview-explore"].exists)
+  XCTAssertFalse(app.tabBars.firstMatch.exists)
+  app.terminate();app.launch()
+  XCTAssertTrue(app.staticTexts["preview-welcome-heading"].waitForExistence(timeout:20))
+  XCTAssertFalse(app.buttons["preview-explore"].exists)
+  XCTAssertFalse(app.tabBars.firstMatch.exists)
+  let screenshot=XCTAttachment(screenshot:app.screenshot());screenshot.name="Dark welcome requires sign-in with no Explore first";screenshot.lifetime = .keepAlways;add(screenshot)
+ }
+ func testPreviewGatesAIModelsSavedResearchAndOddsWithoutLosingNavigation() {
+  let app=launch(statisticsFixture:true);defer{app.terminate()}
+  let games=app.tabBars.buttons["Games"]
+  let ready=expectation(for:NSPredicate(format:"hittable == true"),evaluatedWith:games);wait(for:[ready],timeout:35)
+  for (tab,feature) in [("Ask PLONN","aiResearch"),("Models","privateModels"),("My Models","privateModels")] {
+   app.tabBars.buttons[tab].tap()
+   XCTAssertFalse(app.textFields["ask-plonn-question"].exists)
+   XCTAssertFalse(app.buttons["Save private model"].exists)
+   openAndCancelSignIn(app,feature:feature)
+   XCTAssertTrue(app.tabBars.buttons[tab].isSelected)
+  }
+  games.tap();app.buttons["Account and settings"].tap()
+  let saved=app.buttons["Saved research"]
+  for _ in 0..<5 where !saved.isHittable {app.swipeUp()}
+  XCTAssertTrue(saved.exists);saved.tap()
+  openAndCancelSignIn(app,feature:"savedResearch")
+  app.tabBars.buttons["Analytics"].tap()
+  let signIn=app.buttons["analytics-sign-in"]
+  XCTAssertTrue(signIn.waitForExistence(timeout:15));signIn.tap()
+  XCTAssertTrue(app.staticTexts["Sign in to continue with odds."].waitForExistence(timeout:10))
+  app.buttons["account-access-cancel"].tap()
+  XCTAssertTrue(app.textFields["analytics-search"].waitForExistence(timeout:10))
+  XCTAssertTrue(app.tabBars.buttons["Analytics"].isSelected)
+  let screenshot=XCTAttachment(screenshot:app.screenshot());screenshot.name="Preview remains on Analytics after cancelling odds sign-in";screenshot.lifetime = .keepAlways;add(screenshot)
+ }
 }

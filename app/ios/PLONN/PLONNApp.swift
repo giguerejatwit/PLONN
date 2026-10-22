@@ -13,25 +13,36 @@ struct OddsResponse: Codable { var markets: [Market]; var events:[RecordedEventM
 struct HistoryRow: Codable { var date: String; var pick_team: String; var opponent: String; var result: String; var profit: String }
 let charcoalAccent = Color(uiColor: .label)
 let performanceGreen = Color(uiColor: UIColor { traits in traits.userInterfaceStyle == .dark ? UIColor(red:0.30,green:0.88,blue:0.53,alpha:1):UIColor(red:0.05,green:0.43,blue:0.23,alpha:1) })
-let brandFuchsia = Color(red:0.957,green:0.357,blue:0.835)
+// Violet → indigo → fuchsia. Lighter ink stays readable on the dark canvas;
+// color stays in quiet edge reflections instead of solid button fills.
+enum PLONNPalette {
+ static let violet = Color(red:124/255,green:58/255,blue:237/255)
+ static let indigo = Color(red:79/255,green:70/255,blue:229/255)
+ static let fuchsia = Color(red:162/255,green:28/255,blue:175/255)
+ static let ink = Color(red:182/255,green:162/255,blue:255/255)
+ static let gradient = LinearGradient(colors:[violet,indigo,fuchsia],startPoint:.topLeading,endPoint:.bottomTrailing)
+ static let highlight = LinearGradient(colors:[ink,Color(red:165/255,green:180/255,blue:252/255),Color(red:232/255,green:121/255,blue:249/255)],startPoint:.leading,endPoint:.trailing)
+}
+let brandAccent = PLONNPalette.ink
 let appBackground = UIColor { traits in traits.userInterfaceStyle == .dark ? UIColor(white:0.075,alpha:1) : .systemBackground }
 let navy = Color(uiColor: appBackground)
 let navySurface = Color(uiColor: UIColor { traits in traits.userInterfaceStyle == .dark ? UIColor(white:0.13,alpha:1) : .secondarySystemBackground })
-struct LeagueBackdrop: View {
- @Environment(\.colorScheme) private var scheme
- let league:String
- private var accent:Color {
-  switch league {
-  case "All":return brandFuchsia
-  case "NBA", "WNBA", "NCAAM", "NCAAW":return Color(red:0.12,green:0.62,blue:0.35)
-  case "MLB":return Color(red:0.80,green:0.18,blue:0.23)
-  case "NHL":return Color(red:0.91,green:0.70,blue:0.12)
-  default:return Color(red:0.10,green:0.22,blue:0.43)
-  }
- }
+struct PLONNBrandBackdrop: View {
+ @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
  var body:some View {
-  LinearGradient(stops:[.init(color:accent.opacity(scheme == .dark ? 0.36:0.42),location:0),.init(color:accent.opacity(scheme == .dark ? 0.12:0.23),location:scheme == .dark ? 0.45:0.60),.init(color:.clear,location:scheme == .dark ? 0.85:1.0)],startPoint:.topLeading,endPoint:.bottomTrailing)
-   .background(scheme == .dark ? Color(white:0.055):Color.white).overlay(ModelLandscape(accent:accent,showsBase:false)).ignoresSafeArea()
+  ZStack {
+   navy
+   if !reduceTransparency {
+    LinearGradient(colors:[PLONNPalette.violet.opacity(0.10),PLONNPalette.indigo.opacity(0.05),.clear],startPoint:.topLeading,endPoint:.bottomTrailing)
+    RadialGradient(colors:[PLONNPalette.fuchsia.opacity(0.06),.clear],center:.bottomTrailing,startRadius:0,endRadius:420)
+   }
+  }.ignoresSafeArea().allowsHitTesting(false).accessibilityHidden(true)
+ }
+}
+struct LeagueBackdrop: View {
+ let league:String
+ var body:some View {
+  PLONNBrandBackdrop().overlay(ModelLandscape(accent:brandAccent,showsBase:false).opacity(0.45)).ignoresSafeArea()
  }
 }
 func odds(_ n: Double?) -> String { guard let n, n.isFinite else { return "Unavailable" }; if UserDefaults.standard.string(forKey:"oddsFormat") == "decimal" { guard abs(n)>=100 else{return "Unavailable"};return String(format:"%.2f",n>0 ? 1+n/100:1+100/abs(n)) }; return String(format: "%+.0f", n) }
@@ -105,13 +116,17 @@ enum AnalyticsScopedOddsError:Error {
 
 @MainActor final class Store: ObservableObject {
  @Published var saved: [Market] = []
- @Published var legs: [Market] = []
+ @Published var legs: [Market] = [] {didSet {persistBuilderDraft()}}
+ @Published private(set) var builderDraftIssue=""
+ @Published private(set) var builderDraftBlocked=false
  @Published var live: [Market] = []
  @Published var status = "Sample data. Prices and model estimates are illustrative."
  @Published var loading = false
  @Published var history: [HistoryRow] = []
  @AppStorage("backendURL") var backendURL = ""
  private let watchlist = WatchlistStorage<Market>(defaults: .standard)
+ private let builderDraft = BuilderDraftStorage(defaults:.standard)
+ private var builderOwner:UUID?
  private var requestVersion = 0
  private static let oddsCache = SharedOddsCache<OddsResponse>()
  private static var scopedSnapshots:[String:AnalyticsScopedOddsResponse]=[:]
@@ -198,24 +213,71 @@ enum AnalyticsScopedOddsError:Error {
   status = "Account or odds source changed. Refresh sportsbook prices."
  }
  init() {
-  do { saved = try watchlist.load() } catch { status = "Saved watchlist could not be read. Clear it in Settings to reset." }
   if let url=Bundle.main.url(forResource:"history",withExtension:"json"),let data=try? Data(contentsOf:url),let rows=try? JSONDecoder().decode([HistoryRow].self,from:data){history=rows}
  }
- func toggleSave(_ m:Market){
-  var next = saved
-  if next.contains(where:{$0.id==m.id}) { next.removeAll{$0.id==m.id} } else { next.append(m) }
-  do { try watchlist.save(next); saved = next } catch { status = "Unable to save this market on your device." }
+ func bindAccount(_ account:AccountStore) {
+  guard observedAccount !== account else {return}
+  observedAccount=account
+  accountObservation=account.$user.map {user in
+   AccountAccessPolicy.permits(ownerID:user?.id,isAnonymous:user?.isAnonymous) ? user?.id:nil
+  }.removeDuplicates().sink { [weak self] owner in
+   guard let self else {return}
+   self.builderOwner=nil;self.builderDraftBlocked=false;self.builderDraftIssue=""
+   self.resetOdds();self.saved=[];self.legs=[]
+   if owner != nil {
+    do {self.saved=try self.watchlist.load()}
+    catch {self.status="Saved research could not be read. Try again in Settings."}
+    do {
+     let restored=BuilderLogic.sanitized(try self.builderDraft.load())
+     self.legs=restored.legs;self.builderDraftIssue=restored.notices.joined(separator:"\n")
+    } catch {self.builderDraftBlocked=true;self.builderDraftIssue="The saved draft could not be read. Reset it to resume saving."}
+   }
+   self.builderOwner=owner
+  }
  }
- func clearWatchlist(){watchlist.clear();saved=[]}
- func add(_ m:Market){guard !legs.contains(where:{$0.id==m.id}) else{return};guard legs.count<8 else{status="Preview limit: eight legs.";return};guard legs.first?.mode==nil || legs.first?.mode==m.mode else{status="Sample and live selections cannot be combined.";return};legs.append(m)}
+ private func persistBuilderDraft() {
+  guard builderOwner != nil,!builderDraftBlocked else{return}
+  do {try builderDraft.save(legs)} catch {builderDraftIssue="Draft could not be saved on this device. Your current picks remain available."}
+ }
+ func resetBuilderDraft() {
+  guard observedAccount?.hasSignedInAccount == true else{return}
+  builderDraft.clear();builderDraftBlocked=false;builderDraftIssue="";persistBuilderDraft()
+ }
+ func clearBuilderDraft() {
+  guard observedAccount?.hasSignedInAccount == true else{return}
+  builderDraftBlocked=false;builderDraftIssue="";legs=[]
+ }
+ func toggleSave(_ m:Market){
+  guard let account=observedAccount else{return}
+  account.access.require(.savedResearch,ownerID:account.user?.id,isAnonymous:account.user?.isAnonymous) { [weak self,weak account] in
+   guard let self,let account,account.hasSignedInAccount,self.observedAccount === account else{return}
+   var next=self.saved
+   if next.contains(where:{$0.id==m.id}) {next.removeAll{$0.id==m.id}} else {next.append(m)}
+   do {try self.watchlist.save(next);self.saved=next} catch {self.status="Unable to save this research on your device."}
+  }
+ }
+ func clearWatchlist(){
+  guard let account=observedAccount else{return}
+  account.access.require(.savedResearch,ownerID:account.user?.id,isAnonymous:account.user?.isAnonymous) { [weak self,weak account] in
+   guard let self,account?.hasSignedInAccount == true else{return}
+   self.watchlist.clear();self.saved=[]
+  }
+ }
+ func add(_ m:Market){
+  guard let account=observedAccount else{return}
+  account.access.require(.savedResearch,ownerID:account.user?.id,isAnonymous:account.user?.isAnonymous) { [weak self,weak account] in
+   guard let self,account?.hasSignedInAccount == true,!self.legs.contains(where:{$0.id==m.id}) else{return}
+   guard self.legs.count<8 else{self.status="Maximum of eight selections.";return}
+   guard self.legs.first?.mode==nil || self.legs.first?.mode==m.mode else{self.status="Sample and live selections cannot be combined.";return}
+   self.legs.append(m)
+  }
+ }
  func setSample(){requestVersion += 1;live=[];liveContext=[];loading=false;oddsStale=false;oddsCachedOnly=false;oddsLoadSucceeded=false;oddsIssue=nil;status="Sample data. Prices and model estimates are illustrative."}
  /// Existing callers refresh by default; background reuse can opt into the 30-second cache.
  func load(_ sport:String, account:AccountStore, home:String? = nil, away:String? = nil, start:String? = nil, forceRefresh:Bool = true, cacheOnly:Bool = false, nbaSeasonTypes:[Int?] = []) async {
-  if observedAccount !== account {
-   resetOdds(); observedAccount = account
-   accountObservation = account.$user.map { $0?.id }.removeDuplicates().dropFirst().sink { [weak self] _ in
-    self?.resetOdds()
-   }
+  bindAccount(account)
+  guard account.hasSignedInAccount else {
+   resetOdds();oddsUnauthorized=true;oddsIssue="Sign in to view sportsbook odds.";status=oddsIssue!;return
   }
   let scope = scope(for:account)
   if oddsScope != scope { resetOdds(); oddsScope = scope }
@@ -301,7 +363,7 @@ enum AnalyticsScopedOddsError:Error {
    guard current() else { return }
    if Self.isAuthorizationFailure(error) {
     Self.oddsCache.invalidate(scope);live=[];lastOddsRefresh=nil
-    oddsStale=false;oddsCachedOnly=false;oddsUnauthorized=true;status="Sign in under Settings > Account & sync to refresh sportsbook odds."
+    oddsStale=false;oddsCachedOnly=false;oddsUnauthorized=true;status="Sign in under Settings > Account to refresh sportsbook odds."
    } else {
     if live.isEmpty, home == nil, away == nil, start == nil, let cached=Self.oddsCache.cached(slateKey) {
      live=cached.value.markets.filter { $0.sport == sport && $0.mode == "live" };lastOddsRefresh=Self.recordedQuoteTime(cached.value) ?? (cached.value.cacheOnly == true ? nil:cached.value.fetchedAt.flatMap(sportsDate) ?? cached.receivedAt);oddsCachedOnly=cached.value.cacheOnly == true
@@ -319,6 +381,12 @@ enum AnalyticsScopedOddsError:Error {
         !key(home).isEmpty, !key(away).isEmpty, key(home) != key(away),
         let label=market.eventLabel, key(label)==key(away+" at "+home),
         let quoteStart=market.commence.flatMap(sportsDate) else {return false}
+  // Only NHL needs the full candidate set for its unique-event time tolerance.
+  // Other sports use the exact scheduled instant; rescanning every quote here
+  // made a matchup filter quadratic on the main thread.
+  if sport != "NHL" {
+   return RecordedStartPolicy.accepts(eventID:market.event,quoteStart:quoteStart,start:start,sport:sport,candidates:[],now:now)
+  }
   let pair=candidates.filter {$0.sport == sport && $0.mode == "live" && !$0.event.isEmpty && key($0.eventLabel ?? "") == key(away+" at "+home)}.compactMap {row -> (String,Date)? in
    guard let date=row.commence.flatMap(sportsDate) else{return nil};return (row.event,date)
   }
@@ -380,6 +448,7 @@ enum AnalyticsScopedOddsError:Error {
   return (error as? URLError)?.code == .userAuthenticationRequired
  }
  private static func fetchOdds(_ key:OddsRequestKey, account:AccountStore) async throws -> OddsResponse {
+  guard account.hasSignedInAccount else {throw URLError(.userAuthenticationRequired)}
   guard account.user?.id == key.scope.owner else { throw CancellationError() }
   guard !key.recordedArchive || key.cacheOnly else {throw URLError(.unsupportedURL)}
   guard NBARecordedOddsRouting.canRead(key.phase,cacheOnly:key.cacheOnly,preseasonHandlerEnabled:CloudConfiguration.nbaPreseasonCacheEnabled),key.phase == nil || key.sport == "NBA" else {throw URLError(.unsupportedURL)}
@@ -422,17 +491,23 @@ enum AnalyticsScopedOddsError:Error {
  }
 }
 
-@main struct PLONNApp: App { @AppStorage("appearanceMode") private var appearanceMode="system"; @StateObject private var store=Store();@StateObject private var account=AccountStore();@StateObject private var purchases=PurchaseStore();var body:some Scene{WindowGroup{launchRoot.fontDesign(.monospaced).environmentObject(store).environmentObject(account).environmentObject(purchases).task {
- #if DEBUG && targetEnvironment(simulator)
- if MatchupOfflineFixture.active || SharedReportOfflineFixture.active {return}
+@main struct PLONNApp: App {
+  @StateObject private var store=Store();@StateObject private var account=AccountStore();@StateObject private var purchases=PurchaseStore();var body:some Scene{WindowGroup{launchRoot.buttonStyle(PLONNGlassButtonStyle()).fontDesign(.monospaced).environmentObject(store).environmentObject(account).environmentObject(account.access).environmentObject(purchases).task {
+ #if DEBUG && targetEnvironment(simulator) && PLONN_STOREKIT_LAB
+ if LocalStoreKitLab.active {return}
  #endif
- await account.observe() }.onOpenURL { url in Task { await account.handleLoginURL(url) } }.preferredColorScheme(appearanceMode == "system" ? nil : appearanceMode == "dark" ? .dark : .light).tint(charcoalAccent)}} }
+ #if DEBUG && targetEnvironment(simulator)
+ if ProcessInfo.processInfo.environment["PLONN_PRO_PREVIEW"] == "1" || MatchupOfflineFixture.active || SharedReportOfflineFixture.active || LabGamePickerFixture.active {return}
+ #endif
+ await account.observe() }.onOpenURL { url in Task { await account.handleLoginURL(url) } }.preferredColorScheme(.dark).tint(brandAccent)}} }
 extension PLONNApp {
  @ViewBuilder var launchRoot: some View {
-  #if DEBUG && targetEnvironment(simulator)
-  if SharedReportOfflineFixture.active {SharedReportOfflineFixtureView()} else if MatchupOfflineFixture.active {MatchupOfflineFixtureView()} else {LaunchExperience()}
+  #if DEBUG && targetEnvironment(simulator) && PLONN_STOREKIT_LAB
+  LocalStoreKitLabView()
+  #elseif DEBUG && targetEnvironment(simulator)
+  if ProcessInfo.processInfo.environment["PLONN_PRO_PREVIEW"] == "1" {NavigationStack {ProPaywallView()}} else if LabGamePickerFixture.active {LabGamePickerFixtureView()} else if LiveMatchupPreview.active {LiveMatchupPreviewView()} else if SharedReportOfflineFixture.active {SharedReportOfflineFixtureView()} else if MatchupOfflineFixture.active {MatchupOfflineFixtureView()} else {PreviewAccessView()}
   #else
-  LaunchExperience()
+  PreviewAccessView()
   #endif
  }
 }
@@ -452,7 +527,7 @@ struct LaunchExperience: View {
    RootView().scaleEffect(showingIntro && !reduceMotion ? 0.97:1).blur(radius:showingIntro && !reduceMotion ? 5:0).allowsHitTesting(!showingIntro).accessibilityHidden(showingIntro)
    if showingIntro {
     ZStack {
-     ModelLandscape(accent:brandFuchsia)
+     ModelLandscape(accent:brandAccent)
      VStack(spacing:22) {
       ZStack {
        Circle().stroke(charcoalAccent.opacity(0.08),lineWidth:1).frame(width:176,height:176)
@@ -497,13 +572,20 @@ struct LaunchExperience: View {
  }
 }
 struct RootView: View {
+ @State private var selectedTab="Games"
  @EnvironmentObject private var account:AccountStore
  @EnvironmentObject private var purchases:PurchaseStore
+ @EnvironmentObject private var store:Store
  @Environment(\.scenePhase) private var scenePhase
  init() {
   let background=appBackground
   UIRefreshControl.appearance().tintColor = .clear
-  let navigation=UINavigationBarAppearance();navigation.configureWithOpaqueBackground();navigation.backgroundColor=background
+  let navigation=UINavigationBarAppearance()
+  if #available(iOS 26.0, *) {
+   navigation.configureWithDefaultBackground()
+  } else {
+   navigation.configureWithOpaqueBackground();navigation.backgroundColor=background
+  }
   navigation.titleTextAttributes=[.font:UIFont.monospacedSystemFont(ofSize:17,weight:.semibold)]
   navigation.largeTitleTextAttributes=[.font:UIFont.monospacedSystemFont(ofSize:34,weight:.bold)]
   let buttonFont:[NSAttributedString.Key:Any] = [.font:UIFont.monospacedSystemFont(ofSize:17,weight:.regular)]
@@ -513,30 +595,58 @@ struct RootView: View {
   UISegmentedControl.appearance().setTitleTextAttributes([.font:UIFont.monospacedSystemFont(ofSize:13,weight:.medium)],for:.normal)
   UISegmentedControl.appearance().setTitleTextAttributes([.font:UIFont.monospacedSystemFont(ofSize:13,weight:.semibold)],for:.selected)
   UINavigationBar.appearance().standardAppearance=navigation;UINavigationBar.appearance().scrollEdgeAppearance=navigation;UINavigationBar.appearance().compactAppearance=navigation;UINavigationBar.appearance().compactScrollEdgeAppearance=navigation
-  let tabs=UITabBarAppearance();tabs.configureWithOpaqueBackground();tabs.backgroundColor=background
-  let accent=UIColor.label
+  let tabs=UITabBarAppearance()
+  if #available(iOS 26.0, *) {
+   tabs.configureWithDefaultBackground()
+  } else {
+   tabs.configureWithOpaqueBackground();tabs.backgroundColor=background
+  }
+  let accent=UIColor(brandAccent)
   for item in [tabs.stackedLayoutAppearance,tabs.inlineLayoutAppearance,tabs.compactInlineLayoutAppearance] { item.selected.iconColor=accent;item.normal.titleTextAttributes=[.font:UIFont.monospacedSystemFont(ofSize:10,weight:.medium)];item.selected.titleTextAttributes=[.foregroundColor:accent,.font:UIFont.monospacedSystemFont(ofSize:10,weight:.semibold)] }
   UITabBar.appearance().standardAppearance=tabs;UITabBar.appearance().scrollEdgeAppearance=tabs
  }
  var body: some View {
-  TabView {
-   NavigationStack { TodayView() }.tabItem { Label("Games",systemImage:"calendar") }
-   ExploreView().tabItem { Label("Analytics",systemImage:"chart.xyaxis.line") }
-   NavigationStack { AILabView() }.tint(brandFuchsia).tabItem { Label("Models",systemImage:"flask") }
-   NavigationStack { AskPLONNView() }.tabItem { Label("LLM",systemImage:"bubble.left.and.bubble.right") }
-   NavigationStack { MyModelsView() }.tint(brandFuchsia).tabItem { Label("My Models",systemImage:"square.stack.3d.up") }
+  TabView(selection:$selectedTab) {
+   NavigationStack { TodayView() }.tabItem { Label("Games",systemImage:"calendar") }.tag("Games")
+   ExploreView().safeAreaInset(edge:.bottom,spacing:8) {
+    if account.hasSignedInAccount,!store.legs.isEmpty {
+     Button {selectedTab="Builder"} label: {
+      HStack(spacing:12) {
+       Image(systemName:"square.stack.3d.up.fill")
+       Text("\(store.legs.count) \(store.legs.count == 1 ? "pick":"picks")").monospacedDigit()
+       Spacer()
+       Text("View Builder").fontWeight(.semibold)
+       Image(systemName:"arrow.right")
+      }.font(.subheadline).foregroundStyle(.white).padding(.horizontal,18).frame(minHeight:54)
+       .background(PLONNPalette.gradient.opacity(0.3),in:Capsule())
+       .plonnGlassSurface(selected:true,radius:28)
+     }.buttonStyle(.plain).padding(.horizontal,16).padding(.bottom,4)
+      .accessibilityIdentifier("analytics-builder-bar")
+      .accessibilityLabel("View Builder, \(store.legs.count) picks")
+    }
+   }.tabItem { Label("Analytics",systemImage:"chart.xyaxis.line") }.tag("Analytics")
+   NavigationStack { AILabView() }.id("Models|"+(account.user?.id.uuidString ?? "guest")).tint(brandAccent).tabItem { Label("Models",systemImage:"flask") }.tag("Models")
+   NavigationStack { AskPLONNView() }.id("LLM|"+(account.user?.id.uuidString ?? "guest")).tabItem { Label("Ask PLONN",systemImage:"bubble.left.and.bubble.right") }.tag("LLM")
+   BuilderView(openAnalytics:{selectedTab="Analytics"}).id("Builder|"+(account.user?.id.uuidString ?? "guest")).tint(brandAccent).tabItem { Label("Builder",systemImage:"square.stack.3d.up") }.tag("Builder")
   }
-  .task(id:account.user?.id) {await purchases.bind(account.user?.id)}
+  .tint(brandAccent)
+  .onReceive(NotificationCenter.default.publisher(for:Notification.Name("PLONNOpenAnalytics"))) {_ in selectedTab="Analytics"}
+  .task(id:account.user?.id) {await purchases.bind(account.user?.id, accountStore: account)}
   .task {await purchases.observeTransactions()}
+  .task {await purchases.observePurchaseIntents()}
+  .sheet(item:$purchases.purchaseRequest) {request in
+   NavigationStack {ProPaywallView(initialProductID:request.productID)}.tint(brandAccent)
+  }
   .onChange(of:scenePhase) {_,phase in if phase == .active {Task {await purchases.refreshEntitlements()}}}
-  .sheet(isPresented:$account.passwordRecovery) {PasswordRecoveryView()}
+  .task {store.bindAccount(account)}
  }
 }
 
 struct Brand:View{var body:some View{HStack{PLONNTrident().frame(width:30,height:34);PLONNWordmark(size:20)}}}
 struct Panel<Content:View>:View{let content:Content;init(@ViewBuilder content:()->Content){self.content=content()};var body:some View{content.padding().frame(maxWidth:.infinity,alignment:.leading).background(navySurface,in:RoundedRectangle(cornerRadius:18))}}
 struct Metric:View{let title:String;let value:String;var body:some View{VStack(alignment:.leading,spacing:7){StatLabel(title:title).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary);Text(value).font(.system(.title3, design: .monospaced).weight(.semibold)).monospacedDigit().foregroundStyle(charcoalAccent).minimumScaleFactor(0.7)}.frame(maxWidth:.infinity,alignment:.leading)}}
-struct MarketCard:View{@EnvironmentObject var store:Store;let m:Market;var body:some View{Panel{VStack(alignment:.leading,spacing:12){HStack{Text(m.sport+" / "+(m.kind=="prop" ? "PLAYER PROP":"TEAM")).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary);Spacer();Text(m.mode=="demo" ? "SAMPLE":"ODDS SNAPSHOT").font(.system(.caption2, design: .monospaced)).foregroundStyle(charcoalAccent)};HStack(spacing:12){if m.kind == "prop" { PlayerPortrait(market:m) };Text(m.name).font(.system(.title3, design: .monospaced).bold())};Text(m.eventLabel ?? ("vs "+m.opponent)).font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary);Text(m.label);HStack{Metric(title:"Sportsbook",value:odds(m.price));Metric(title:"Model",value:probability(m.p));Metric(title:"Model fair",value:odds(fair(m.p)))};Text(m.book+" · "+(m.updated ?? "Illustrative prices")).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary);HStack{NavigationLink("Analysis"){DetailView(m:m)};Spacer();Button(store.legs.contains(where:{$0.id==m.id}) ? "Added":"+ Parlay"){store.add(m)};Button{store.toggleSave(m)}label:{Image(systemName:store.saved.contains(where:{$0.id==m.id}) ? "star.fill":"star")}.accessibilityLabel("Save "+m.name)}}}}}
+struct MarketCard:View{@EnvironmentObject var store:Store;let m:Market;var body:some View {AccountRequiredView(feature:.odds){protectedBody}}
+ private var protectedBody:some View {Panel{VStack(alignment:.leading,spacing:12){HStack{Text(m.sport+" / "+(m.kind=="prop" ? "PLAYER PROP":"TEAM")).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary);Spacer();Text(m.mode=="demo" ? "SAMPLE":"ODDS SNAPSHOT").font(.system(.caption2, design: .monospaced)).foregroundStyle(charcoalAccent)};HStack(spacing:12){if m.kind == "prop" { PlayerPortrait(market:m) };Text(m.name).font(.system(.title3, design: .monospaced).bold())};Text(m.eventLabel ?? ("vs "+m.opponent)).font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary);Text(m.label);HStack{Metric(title:"Sportsbook",value:odds(m.price));Metric(title:"Model",value:probability(m.p));Metric(title:"Model fair",value:odds(fair(m.p)))};Text(m.book+" · "+(m.updated ?? "Illustrative prices")).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary);HStack{NavigationLink("Analysis"){DetailView(m:m)};Spacer();Button(store.legs.contains(where:{$0.id==m.id}) ? "Added":"+ Parlay"){store.add(m)};Button{store.toggleSave(m)}label:{Image(systemName:store.saved.contains(where:{$0.id==m.id}) ? "star.fill":"star")}.accessibilityLabel("Save "+m.name)}}}}}
 // Keep existing deep links pointing at the new historical analytics surface.
 struct ExploreView: View {
  let initialSport:String
@@ -584,7 +694,7 @@ private struct ExploreMatchupMarkets: View {
          Text("Implied "+marketImpliedProbability(market.price)).font(.system(.caption2,design:.monospaced)).foregroundStyle(.secondary)
         }
        }.buttonStyle(.plain)
-       Button {store.add(market)} label: {Image(systemName:store.legs.contains{$0.id == market.id} ? "checkmark.circle.fill":"plus.circle").frame(width:44,height:44)}.buttonStyle(.plain).accessibilityLabel("Add "+label(market)+" to selections")
+       Button {store.add(market)} label: {Image(systemName:store.legs.contains{$0.id == market.id} ? "checkmark.circle.fill":"plus.circle").frame(width:44,height:44)}.plonnGlassButton().accessibilityLabel("Add "+label(market)+" to selections")
       }
      }
     }
@@ -599,7 +709,8 @@ private struct ExploreMarketRow: View {
  @EnvironmentObject var store: Store
  let m: Market
 
- var body: some View {
+ var body:some View {AccountRequiredView(feature:.odds){protectedBody}}
+ private var protectedBody:some View {
   VStack(alignment: .leading, spacing: 12) {
    NavigationLink {
     DetailView(m: m)
@@ -639,14 +750,15 @@ private struct ExploreMarketRow: View {
      Image(systemName: store.saved.contains(where: { $0.id == m.id }) ? "bookmark.fill" : "bookmark")
       .font(.system(.body, design: .monospaced)).frame(minWidth: 44, minHeight: 44)
     }.accessibilityLabel((store.saved.contains(where: { $0.id == m.id }) ? "Unsave " : "Save ") + m.name)
-   }.buttonStyle(.plain)
+   }.plonnGlassButton().plonnGlassGroup()
   }.padding(14).background(ExploreTeamSurface(m:m))
  }
 }
 struct DetailView:View {
  @EnvironmentObject var store:Store
  let m:Market
- var body:some View {
+ var body:some View {AccountRequiredView(feature:.odds){protectedBody}}
+ private var protectedBody:some View {
   ScrollView {
    VStack(alignment:.leading,spacing:16) {
     HStack(spacing:14) {
@@ -685,112 +797,65 @@ struct DetailView:View {
    }
  }
 }
-struct WatchView:View{@EnvironmentObject var store:Store;var body:some View{NavigationStack{ScrollView{LazyVStack(spacing:16){if store.saved.isEmpty{ContentUnavailableView("Nothing saved yet",systemImage:"star",description:Text("Choose a team or player in Analytics."))};ForEach(store.saved){MarketCard(m:$0)}}.padding()}.background(navy).navigationTitle("Watchlist")}}}
+struct WatchView:View{@EnvironmentObject var store:Store;var body:some View {AccountRequiredView(feature:.savedResearch){protectedBody}}
+ private var protectedBody:some View {NavigationStack{ScrollView{LazyVStack(spacing:16){if store.saved.isEmpty{ContentUnavailableView("Nothing saved yet",systemImage:"star",description:Text("Choose a team or player in Analytics."))};ForEach(store.saved){MarketCard(m:$0)}}.padding()}.background(navy).navigationTitle("Watchlist")}}}
 struct BuilderView: View {
+ let openAnalytics:()->Void
+ @EnvironmentObject private var account:AccountStore
  @EnvironmentObject private var store:Store
- @State private var didLoadDraft=false
- @State private var draftBlocked=false
- @State private var pendingDraft:[Market]?
- @State private var notice=""
+ private var notice:String {store.builderDraftIssue}
  @State private var confirmClear=false
- @State private var browse:BuilderBrowse?
- private let storage=BuilderDraftStorage(defaults:.standard)
- private enum BuilderBrowse:String,Identifiable {case explore,saved;var id:String {rawValue}}
- var body:some View {
+ var body:some View {AccountRequiredView(feature:.savedResearch){protectedBody}}
+ private var protectedBody:some View {
   NavigationStack {
    ScrollView {
     VStack(alignment:.leading,spacing:20) {
-     Text("Selection calculator").font(.system(.title2,design:.monospaced).bold())
      HStack(alignment:.firstTextBaseline) {
-      Text("Your parlay").font(.system(.title2,design:.monospaced,weight:.semibold))
+      Text("Builder").font(.system(.title2,design:.monospaced,weight:.semibold))
       Spacer()
       Text("\(store.legs.count)/8 legs").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)
      }
-     Text("Research draft · No bets are placed").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)
      if !notice.isEmpty {
       Label(notice,systemImage:"info.circle").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary).accessibilityIdentifier("builder-notice")
      }
-     if draftBlocked {
-      Button("Reset unreadable saved draft",role:.destructive) {storage.clear();draftBlocked=false;notice="Saved draft reset. Current selections are unchanged.";persistDraft()}
-     }
-     if let draft=pendingDraft {
-      VStack(alignment:.leading,spacing:10) {
-       Text("A saved draft has \(draft.count) legs").font(.system(.subheadline, design: .monospaced).weight(.semibold))
-       Text("Choose which draft to keep. Your current selections have not overwritten it.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-       Button("Restore saved draft") {store.legs=draft;pendingDraft=nil;reconcileDraft()}
-       Button("Keep current selections") {pendingDraft=nil;persistDraft()}
-      }.padding(14).background(navySurface,in:RoundedRectangle(cornerRadius:14))
+     if store.builderDraftBlocked {
+      Button("Reset unreadable saved draft",role:.destructive) {store.resetBuilderDraft()}
      }
      if store.legs.isEmpty { emptyState }
      else {
       TimelineView(.periodic(from:.now,by:30)) { context in
        VStack(alignment:.leading,spacing:14) {
+        BuilderPricePanel(legs:store.legs,now:context.date)
         ForEach(store.legs) { market in
          BuilderLegCard(market:market,now:context.date) {store.legs.removeAll{$0.id==market.id}}
         }
-        BuilderPricePanel(legs:store.legs,now:context.date)
        }
       }
       HStack(spacing:12) {
-       Button {browse = .explore} label:{Label("Add selections",systemImage:"plus").frame(minHeight:44)}
-        .plonnGlassButton().disabled(store.legs.count>=BuilderLogic.limit)
+       Button(action:openAnalytics) {Label("Add picks",systemImage:"plus").frame(minHeight:44)}
+        .plonnGlassButton().disabled(store.legs.count>=BuilderLogic.limit).accessibilityIdentifier("builder-open-analytics")
        Spacer(minLength:0)
        Button("Clear draft",role:.destructive) {confirmClear=true}.frame(minHeight:44)
       }
-      Text("Stored on this device after you open the calculator. Snapshots are retained as recorded; they do not refresh automatically.")
+      Text("Saved on this device · No bets placed in PLONN")
        .font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
      }
     }.padding(16)
-   }.background(ModelLandscape(accent:.gray)).navigationTitle("PLONN").navigationBarTitleDisplayMode(.inline).toolbar { ToolbarItem(placement:.principal) {Brand()} }
-    .task {loadDraft()}
-    .onChange(of:store.legs) {_,_ in if didLoadDraft {reconcileDraft()}}
+   }.scrollDismissesKeyboard(.interactively).background(LeagueBackdrop(league:"All")).navigationTitle("PLONN").navigationBarTitleDisplayMode(.inline).toolbar { ToolbarItem(placement:.principal) {Brand()} }
     .confirmationDialog("Clear all selections and the local draft?",isPresented:$confirmClear,titleVisibility:.visible) {
-     Button("Clear draft",role:.destructive) {pendingDraft=nil;draftBlocked=false;storage.clear();store.legs=[];notice="Draft cleared."}
-    }
-    .sheet(item:$browse) { destination in
-     Group {
-      if destination == .explore {ExploreView()}
-      else {WatchView()}
-     }.safeAreaInset(edge:.bottom) {
-      VStack(spacing:8) {
-       if !notice.isEmpty {Text(notice).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-       Button("Back to calculator · \(store.legs.count) legs") {browse=nil}
-        .font(.system(.subheadline,design:.monospaced,weight:.semibold)).frame(maxWidth:.infinity,minHeight:44)
-      }.padding(12).background(navy)
-     }
+     Button("Clear draft",role:.destructive) {store.clearBuilderDraft()}
     }
   }
  }
  private var emptyState:some View {
   VStack(alignment:.leading,spacing:16) {
    Image(systemName:"square.stack").font(.system(size:30,weight:.light,design:.monospaced)).foregroundStyle(.secondary)
-   Text("Start with a selection").font(.system(.title3,design:.monospaced,weight:.semibold))
-   Text("Review team or player history in Analytics, or add saved research. Compare individual prices before building a combination.")
+   Text("Build your parlay").font(.system(.title3,design:.monospaced,weight:.semibold))
+   Text("Add picks from Analytics to see combined odds and your potential return.")
     .font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
-   Button {browse = .explore} label:{Label("Analytics",systemImage:"chart.xyaxis.line").frame(maxWidth:.infinity,minHeight:44)}
-    .plonnGlassButton(prominent:true).foregroundStyle(.primary)
-   Button("Browse saved research") {browse = .saved}.frame(maxWidth:.infinity,minHeight:44).plonnGlassButton()
+   Button(action:openAnalytics) {Label("Find picks in Analytics",systemImage:"plus").frame(maxWidth:.infinity,minHeight:44)}
+    .plonnGlassButton(prominent:true).foregroundStyle(.primary).accessibilityIdentifier("builder-open-analytics")
   }.padding(20).frame(maxWidth:.infinity,alignment:.leading).background(navySurface,in:RoundedRectangle(cornerRadius:18))
- }
- private func loadDraft() {
-  guard !didLoadDraft else{return}
-  didLoadDraft=true
-  do {
-   let restored=try storage.load()
-   if store.legs.isEmpty {store.legs=restored}
-   else if !restored.isEmpty,restored != store.legs {pendingDraft=restored}
-   reconcileDraft()
-  } catch {draftBlocked=true;notice="The saved draft could not be read. Reset it to resume local saving. Current selections are unchanged."}
- }
- private func reconcileDraft() {
-  let result=BuilderLogic.sanitized(store.legs)
-  if !result.notices.isEmpty {notice=result.notices.joined(separator:"\n")}
-  if result.legs != store.legs {store.legs=result.legs}
-  persistDraft()
- }
- private func persistDraft() {
-  guard didLoadDraft,!draftBlocked,pendingDraft == nil else{return}
-  do {try storage.save(store.legs)} catch {notice="Draft could not be saved on this device. Your current selections remain available."}
  }
 }
 private struct BuilderLegCard:View {
@@ -812,7 +877,7 @@ private struct BuilderLegCard:View {
      .font(.system(.caption2,design:.monospaced,weight:.semibold)).foregroundStyle(.secondary)
     Spacer()
     Button(action:remove) {Image(systemName:"xmark").font(.system(.caption, design: .monospaced).weight(.semibold)).frame(width:44,height:44)}
-     .buttonStyle(.plain).accessibilityLabel("Remove "+market.name+" "+market.label)
+     .plonnGlassButton().accessibilityLabel("Remove "+market.name+" "+market.label)
    }
    NavigationLink {DetailView(m:market)} label: {
     HStack(alignment:.top,spacing:12) {
@@ -841,58 +906,86 @@ private struct BuilderLegCard:View {
       .font(.system(.caption2,design:.monospaced)).foregroundStyle(.secondary)
     }
    }
-   Text(modelText).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
-   Text("Tap selection for analysis").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
+   if market.p != nil {Text(modelText).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)}
   }.padding(14).background(ExploreTeamSurface(m:market))
  }
 }
 private struct BuilderPricePanel:View {
  @AppStorage("oddsFormat") private var oddsFormat="american"
+ @State private var stakeText=""
+ @FocusState private var stakeFocused:Bool
  let legs:[Market]
  let now:Date
+ private func money(_ value:Double)->String {value.formatted(.currency(code:"USD"))}
  var body:some View {
   let result=BuilderLogic.assess(legs,now:now)
-  VStack(alignment:.leading,spacing:14) {
-   HStack {Text("PRICE COMPARISON").font(.system(.caption,design:.monospaced,weight:.semibold));Spacer();Image(systemName:"function").foregroundStyle(.secondary)}
+  let payout=BuilderLogic.returnEstimate(stakeText:stakeText,estimate:result.estimate)
+  VStack(alignment:.leading,spacing:16) {
    if let estimate=result.estimate {
-    Text(result.mixedBooks ? "Cross-book illustration":"Estimated combined odds").font(.system(.headline,design:.monospaced))
-    ViewThatFits(in:.horizontal) {
-     HStack(alignment:.top,spacing:20) {priceMetrics(estimate)}
-     VStack(alignment:.leading,spacing:14) {priceMetrics(estimate)}
+    HStack(alignment:.top) {
+     VStack(alignment:.leading,spacing:5) {
+      Text("Combined odds").font(.caption).foregroundStyle(.secondary)
+      Text(odds(estimate.american)).font(.title2.bold()).monospacedDigit().accessibilityIdentifier("builder-combined-odds")
+     }.frame(maxWidth:.infinity,alignment:.leading)
+     VStack(alignment:.leading,spacing:5) {
+      Text("Implied probability").font(.caption).foregroundStyle(.secondary)
+      Text(estimate.priceImpliedProbability.formatted(.percent.precision(.fractionLength(1)))).font(.title2.bold()).monospacedDigit().accessibilityIdentifier("builder-implied-probability")
+     }.frame(maxWidth:.infinity,alignment:.leading)
     }
-    Text("Price-implied probability: "+String(format:"%.2f%%",estimate.priceImpliedProbability*100))
-     .font(.system(.subheadline,design:.monospaced,weight:.semibold)).monospacedDigit()
-    Text("This is the reciprocal of multiplied decimal prices, including bookmaker margin. It is not a model forecast or the chance these legs all win. Different events may still have dependencies.")
-     .font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+    Text("Estimate from recorded prices · Confirm the final quote at your sportsbook.").font(.caption2).foregroundStyle(.secondary)
    } else {
-    Text("Combined quote unavailable").font(.system(.headline,design:.monospaced))
-    Text(result.blockingReason ?? "Review your selections.").font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
+    Text("Combined odds unavailable").font(.headline)
+    Text(result.blockingReason ?? "Review your picks.").font(.caption).foregroundStyle(.secondary)
    }
-   ForEach(result.warnings,id:\.self) {warning in Label(warning,systemImage:"exclamationmark.circle").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)}
-   Divider()
-   Text("Exact sportsbook parlay quote: not connected").font(.system(.caption, design: .monospaced).weight(.semibold))
-   Text("No joint model probability is available. Confirm eligibility, lines and the final quote at one sportsbook.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
+   HStack {
+    Text("Stake").font(.subheadline)
+    Spacer()
+    Text("$").foregroundStyle(.secondary)
+    TextField("0.00",text:$stakeText).keyboardType(.decimalPad).focused($stakeFocused)
+     .multilineTextAlignment(.trailing).frame(width:120).frame(minHeight:44)
+     .accessibilityLabel("Stake in US dollars").accessibilityIdentifier("builder-stake")
+   }.padding(.horizontal,12).plonnGlassSurface(radius:12,interactive:false)
+   HStack(alignment:.top) {
+    VStack(alignment:.leading,spacing:5) {
+     Text("Potential return").font(.caption).foregroundStyle(.secondary)
+     Text(payout.map {money($0.totalReturn)} ?? "—").font(.title2.bold()).foregroundStyle(brandAccent).monospacedDigit().accessibilityIdentifier("builder-total-return")
+     Text("Includes your stake").font(.caption2).foregroundStyle(.secondary)
+    }.frame(maxWidth:.infinity,alignment:.leading)
+    VStack(alignment:.leading,spacing:5) {
+     Text("Profit").font(.caption).foregroundStyle(.secondary)
+     Text(payout.map {money($0.profit)} ?? "—").font(.title2.bold()).monospacedDigit().accessibilityIdentifier("builder-profit")
+    }.frame(maxWidth:.infinity,alignment:.leading)
+   }
+   if !stakeText.isEmpty,BuilderLogic.stakeAmount(stakeText) == nil {
+    Text("Enter a positive dollar amount with up to two decimal places.").font(.caption).foregroundStyle(.red)
+   }
+   DisclosureGroup("Calculation details") {
+    VStack(alignment:.leading,spacing:10) {
+     Text("Potential return assumes every pick wins. Odds are multiplied for different games; actual sportsbook pricing can differ. Implied probability comes from those prices, includes bookmaker margin and is not a model prediction.")
+     ForEach(result.warnings,id:\.self) {Text($0)}
+    }.font(.caption).foregroundStyle(.secondary).padding(.top,8)
+   }
+   if result.mixedBooks {Text("Picks use different sportsbooks.").font(.caption).foregroundStyle(.orange)}
   }.padding(16).frame(maxWidth:.infinity,alignment:.leading).background(navySurface,in:RoundedRectangle(cornerRadius:16))
- }
- @ViewBuilder private func priceMetrics(_ estimate:BuilderPriceEstimate)->some View {
-  VStack(alignment:.leading,spacing:4) {Text(oddsFormat == "decimal" ? "DECIMAL":"AMERICAN").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary);Text(odds(estimate.american)).font(.system(.title2,design:.monospaced,weight:.semibold)).monospacedDigit()}
-  VStack(alignment:.leading,spacing:4) {Text("DECIMAL").font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary);Text(String(format:"%.3f",estimate.decimal)).font(.system(.title2,design:.monospaced,weight:.semibold)).monospacedDigit()}
+   .toolbar {ToolbarItemGroup(placement:.keyboard) {Spacer();Button("Done") {stakeFocused=false}}}
  }
 }
+
+
 #if DEBUG
 struct ResultsView:View{@EnvironmentObject var store:Store;var settled:[HistoryRow]{store.history.filter{["W","L"].contains($0.result) && Double($0.profit) != nil}};var body:some View{NavigationStack{List{Section{Text("Imported local ledger, unaudited. Includes losses. Not evidence validating sample predictions.").font(.system(.caption, design: .monospaced));HStack{Metric(title:"Settled",value:String(settled.count));Metric(title:"Wins",value:String(settled.filter{$0.result=="W"}.count));Metric(title:"Net recorded",value:String(format:"%.2f",settled.reduce(0){$0+(Double($1.profit) ?? 0)}))}};Section("All imported records"){ForEach(Array(store.history.enumerated()),id:\.offset){_,r in HStack{VStack(alignment:.leading){Text(r.pick_team+" vs "+r.opponent);Text(r.date).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)};Spacer();Text(r.result).foregroundStyle(r.result=="W" ? charcoalAccent:Color.red);Text(r.profit)}}}}.navigationTitle("Recorded results")}}}
 #endif
-struct SettingsView:View{@AppStorage("oddsFormat") private var oddsFormat="american";@AppStorage("preferredSportsbook") private var preferredBook="Ask each time";@AppStorage("appearanceMode") private var appearanceMode="system";@EnvironmentObject var store:Store;var body:some View{NavigationStack{Form{Section("Odds"){Picker("Odds format",selection:$oddsFormat){Text("American (+150)").tag("american");Text("Decimal (2.50)").tag("decimal")}.pickerStyle(.segmented)};Section("Account"){SportsbookSelector(selection:$preferredBook,options:["Ask each time","DraftKings","FanDuel","Hard Rock Bet","BetMGM","Caesars","Fanatics","BetRivers"]);Text("Used for Models line selection when a quote is available. Saved on this device.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary);NavigationLink("Account & sync"){AccountView()}
+struct SettingsView:View{@AppStorage("oddsFormat") private var oddsFormat="american";@AppStorage("preferredSportsbook") private var preferredBook="Ask each time";@EnvironmentObject var store:Store;var body:some View{NavigationStack{Form{Section("Odds"){Picker("Odds format",selection:$oddsFormat){Text("American (+150)").tag("american");Text("Decimal (2.50)").tag("decimal")}.pickerStyle(.segmented)};Section("Account"){SportsbookSelector(selection:$preferredBook,options:["Ask each time","DraftKings","FanDuel","Hard Rock Bet","BetMGM","Caesars","Fanatics","BetRivers"]);Text("Preferred sportsbook for model lines. Saved on this device.").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary);NavigationLink("Account"){AccountView()}
 #if DEBUG
-NavigationLink("Purchases & access"){SubscriptionView()}
+NavigationLink("Subscription"){SubscriptionView()}
 #else
-if PurchaseConfiguration.salesEnabled {NavigationLink("Purchases & access"){SubscriptionView()}}
+if PurchaseConfiguration.salesEnabled {NavigationLink("Subscription"){SubscriptionView()}}
 #endif
 NavigationLink("Saved research"){WatchView()}
 #if DEBUG
 NavigationLink("Recorded results"){ResultsView()}
 #endif
-};ProSubscriptionSection();Section("Privacy"){NavigationLink("Privacy & data"){PrivacyDataView()};Text("Your saved watchlist stays on this device unless you choose to sync it through your account. Live odds requests include the selected sport. Research drafts stay on this device.");Button("Clear saved watchlist"){store.clearWatchlist()}};Section("Appearance"){Picker("Theme",selection:$appearanceMode){Text("System").tag("system");Text("Light").tag("light");Text("Dark").tag("dark")}.pickerStyle(.segmented)}}.navigationTitle("Settings")}}}
+};ProSubscriptionSection();Section("Privacy"){NavigationLink("Privacy & data"){PrivacyDataView()};Text("Your saved watchlist stays on this device unless you choose to sync it through your account. Live odds requests include the selected sport. Research drafts stay on this device.");Button("Clear saved watchlist"){store.clearWatchlist()}}}.navigationTitle("Settings")}}}
 
 private actor ExploreTeams {
  static let shared=ExploreTeams()
@@ -925,6 +1018,7 @@ private struct ExploreIdentity:View {
   }.task(id:m.id) {if m.kind != "prop" {team=await ExploreTeams.shared.team(m)}}
  }
 }
+
 private struct ExploreTeamSurface:View {
  let m:Market
  @Environment(\.colorScheme) private var scheme
@@ -952,7 +1046,8 @@ private struct ExploreParlayDetail:View {
  @EnvironmentObject var store:Store
  let legs:[Market]
  @ObservedObject var evidence:ParlayEvidenceStore
- var body:some View {
+ var body:some View {AccountRequiredView(feature:.savedResearch){protectedBody}}
+ private var protectedBody:some View {
   ScrollView {VStack(alignment:.leading,spacing:20) {
    Text("Estimated combined odds").font(.system(.headline, design: .monospaced))
    Text(estimatedParlayOdds(legs)).font(.system(size:38,weight:.bold,design:.monospaced)).monospacedDigit()
@@ -1013,7 +1108,7 @@ struct PLONNWordmark:View {
       path.closeSubpath()
      }
     }
-   }.fill(Color.primary,style:FillStyle(eoFill:true))
+   }.fill(PLONNPalette.highlight,style:FillStyle(eoFill:true))
   }.frame(width:size*5.9,height:size).accessibilityLabel("PLONN")
  }
 }
@@ -1031,7 +1126,7 @@ struct PrivacyDataView:View {
     Section("PLONN information") {Link("PLONN privacy policy",destination:PLONNServicePolicy.privacyURL);Link("PLONN support",destination:PLONNServicePolicy.supportURL)}
    }
    Section("Tracking and payments") {Text("This build contains no advertising or analytics SDK and does not accept wagers. In-app purchases are disabled until App Store products are configured. If enabled, Apple processes payment and receives an account token linking the transaction to your PLONN account.")}
-   Section("Delete your data") {Text("Use Account & sync → Delete account to remove your account, saved cloud research, and hosted runs and artifacts. Quota metadata may remain to prevent abuse. Clear the device watchlist and device-only setups separately. Signing out does not delete your account or your device selections.")}
+   Section("Delete your data") {Text("Use Account → Delete account to remove your account, saved cloud research, and hosted runs and artifacts. Account-linked usage is removed; anonymous shared-service totals may remain. Clear the device watchlist and device-only setups separately. Deleting your account does not cancel an Apple subscription. Signing out does not delete your account or your device selections.")}
   }.navigationTitle("Privacy & data").navigationBarTitleDisplayMode(.inline)
  }
 }
@@ -1190,7 +1285,7 @@ struct BlinkingSquares:View {
 }
 // Original native terrain preview inspired by the Landscape visual direction.
 struct ModelLandscape:View {
- var accent:Color = brandFuchsia
+ var accent:Color = brandAccent
  var showsBase:Bool = true
  @Environment(\.accessibilityReduceMotion) private var reduceMotion
  @Environment(\.scenePhase) private var scenePhase
@@ -1302,27 +1397,46 @@ extension View {
 
 private struct PLONNGlassButton: ViewModifier {
  let prominent: Bool
- @ViewBuilder func body(content: Content) -> some View {
-  if #available(iOS 26.0, *) {
-   if prominent { content.buttonStyle(.glass).buttonBorderShape(.roundedRectangle(radius:12)) }
-   else { content.buttonStyle(.glass).buttonBorderShape(.roundedRectangle(radius:12)) }
-  } else {
-   content.buttonStyle(.bordered).buttonBorderShape(.roundedRectangle(radius:12))
-  }
+ func body(content: Content) -> some View {
+  content.buttonStyle(PLONNGlassButtonStyle(prominent:prominent))
+ }
+}
+/// Shared by app actions; system navigation and menus retain their native glass.
+struct PLONNGlassButtonStyle: ButtonStyle {
+ var prominent = false
+ @Environment(\.isEnabled) private var isEnabled
+ @Environment(\.accessibilityReduceMotion) private var reduceMotion
+ func makeBody(configuration:Configuration) -> some View {
+  configuration.label
+   .fontWeight(prominent ? .semibold:nil)
+   .foregroundStyle(configuration.role == .destructive ? Color.red:Color.primary)
+   .padding(.horizontal,14).padding(.vertical,8).frame(minHeight:44)
+   .plonnGlassSurface(selected:prominent,radius:18)
+   .contentShape(RoundedRectangle(cornerRadius:18))
+   .opacity(isEnabled ? 1:0.45)
+   .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98:1)
+   .animation(reduceMotion ? nil:.easeOut(duration:0.16),value:configuration.isPressed)
  }
 }
 private struct PLONNGlassSurface: ViewModifier {
  let selected: Bool
  let radius: CGFloat
+ let interactive: Bool
  @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+ @Environment(\.accessibilityReduceMotion) private var reduceMotion
+ @Environment(\.colorSchemeContrast) private var contrast
  @ViewBuilder func body(content: Content) -> some View {
-  if reduceTransparency {
-   content.background(selected ? Color.accentColor.opacity(0.25):navySurface,in:RoundedRectangle(cornerRadius:radius))
+  if reduceTransparency || contrast == .increased {
+   content.background(selected ? Color(red:0.21,green:0.16,blue:0.35):navySurface,in:RoundedRectangle(cornerRadius:radius))
+    .overlay(RoundedRectangle(cornerRadius:radius).strokeBorder(selected ? brandAccent:Color.primary.opacity(0.35)).allowsHitTesting(false))
   } else if #available(iOS 26.0, *) {
-   content.glassEffect(.regular.tint(selected ? Color.accentColor.opacity(0.3):Color.clear).interactive(),in:.rect(cornerRadius:radius))
+   content.background(PLONNPalette.gradient.opacity(selected ? 0.06:0),in:RoundedRectangle(cornerRadius:radius))
+    .glassEffect(.regular.interactive(interactive && !reduceMotion),in:.rect(cornerRadius:radius))
+    .overlay(RoundedRectangle(cornerRadius:radius).strokeBorder(PLONNPalette.highlight.opacity(selected ? 0.34:0.10),lineWidth:1).allowsHitTesting(false))
   } else {
-   content.background(.ultraThinMaterial,in:RoundedRectangle(cornerRadius:radius))
-    .overlay(RoundedRectangle(cornerRadius:radius).strokeBorder(selected ? Color.accentColor:Color.primary.opacity(0.15)))
+   content.background(.regularMaterial,in:RoundedRectangle(cornerRadius:radius))
+    .background(PLONNPalette.gradient.opacity(selected ? 0.06:0),in:RoundedRectangle(cornerRadius:radius))
+    .overlay(RoundedRectangle(cornerRadius:radius).strokeBorder(PLONNPalette.highlight.opacity(selected ? 0.34:0.10)).allowsHitTesting(false))
   }
  }
 }
@@ -1334,6 +1448,6 @@ private struct PLONNGlassGroup: ViewModifier {
 }
 extension View {
  func plonnGlassButton(prominent:Bool=false) -> some View {modifier(PLONNGlassButton(prominent:prominent))}
- func plonnGlassSurface(selected:Bool=false,radius:CGFloat=12) -> some View {modifier(PLONNGlassSurface(selected:selected,radius:radius))}
+ func plonnGlassSurface(selected:Bool=false,radius:CGFloat=12,interactive:Bool=true) -> some View {modifier(PLONNGlassSurface(selected:selected,radius:radius,interactive:interactive))}
  func plonnGlassGroup() -> some View {modifier(PLONNGlassGroup())}
 }

@@ -132,8 +132,9 @@ actor PlayerHistoryService {
         return (Self.finalizedMLBGames(games: games, payload: ["dates": [["games": scheduleGames]]]), sourceURLs)
     }
 
-    func load(market: Market, includeOpponent: Bool = false, seasonCount: Int = 3, now: Date = Date()) async -> PlayerHistoryResult {
+    func load(market: Market, includeOpponent: Bool = false, seasonCount: Int = 3, now: Date = Date(), maximumGames: Int = 10) async -> PlayerHistoryResult {
         let source = market.sport == "MLB" ? "MLB Stats API" : "ESPN"
+        let gameLimit = min(max(maximumGames, 1), 2_000)
         // Request-local state: concurrent loads cannot inherit each other's provenance.
         var sourceURLs: [String] = []
         func record(_ path: String) { if !sourceURLs.contains(path) { sourceURLs.append(path) } }
@@ -239,10 +240,10 @@ actor PlayerHistoryService {
                 } catch is CancellationError { throw CancellationError() }
                 catch { warnings.append("\(season) season could not be loaded or verified; available seasons are shown.") }
                 let unique = try Self.uniqueGames(allGames)
-                if !includeOpponent, unique.count >= 10 { break }
+                if !includeOpponent, unique.count >= gameLimit { break }
             }
             let sorted = try Self.uniqueGames(allGames)
-            let games = Array(sorted.prefix(10))
+            let games = Array(sorted.prefix(gameLimit))
             var context: OpponentHistoryContext?
             var opponentGames: [PlayerGame] = []
             if includeOpponent, let opponent, let target {

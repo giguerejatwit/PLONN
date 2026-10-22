@@ -1,0 +1,8 @@
+{
+  "version": "plonn_pro_daily_v1",
+  "aiRequestsPerDay": 20,
+  "modelRunsPerDay": 5,
+  "resetTimeZone": "UTC",
+  "rollover": false,
+  "counting": "started_attempts"
+}

@@ -32,6 +32,40 @@ private actor FeedRequestRecorder {
 }
 
 final class AnalyticsFeedServiceTests: XCTestCase {
+    func testSelectedResearchReadsExactRecordedGameAcrossSports() async throws {
+        let stamp = ISO8601DateFormatter().string(from: now)
+        let start = now.addingTimeInterval(3600)
+        let startText = ISO8601DateFormatter().string(from: start)
+        for (sport, key) in [("NFL", "player_pass_yds"), ("NBA", "player_points"), ("NHL", "player_shots_on_goal"), ("MLB", "batter_hits")] {
+            let phase: NBARecordedOddsPhase? = sport == "NBA" ? .regular : nil
+            let event = AnalyticsEvent(sport: sport, providerID: "stats-game", home: "Fixture Home", away: "Fixture Away", start: start, homeID: "1", awayID: "2", seasonType: 2)
+            let proof = AnalyticsFeedVerifiedSubject(sport: sport, subject: .player, name: "Fixture Player", providerID: "77", teamName: event.home, teamID: "1", marketKeys: [key], event: event, sourceURL: "https://site.api.espn.com/apis/site/v2/sports/" + PlayerHistoryService.leaguePath(sport) + "/teams/1/roster", verifiedAt: now)
+            let original = try XCTUnwrap(AnalyticsFeedCore.build(snapshots: [], verifiedSubjects: [proof], now: now).candidates.first)
+            let metadata = RecordedEventMetadata(id: "odds-game", code: try XCTUnwrap(RecordedEventSelection.providerCode(sport: sport, phase: phase)), homeTeam: event.home, awayTeam: event.away, commence: startText)
+            let quote = Market(id: "recorded-line", event: metadata.id, sport: sport, kind: "prop", name: proof.name, opponent: event.away, label: "Over 10.5", aliases: "", price: -113, market: key, book: "Fixture Book", quotes: [], updated: stamp, mode: "live", line: 10.5, eventLabel: event.away + " at " + event.home, commence: startText, side: "over")
+            let snapshot = AnalyticsFeedService.RecordedSnapshot(markets: [quote], events: [metadata], cacheOnly: true, fetchedAt: stamp, servedAt: stamp)
+            let resolved = try await AnalyticsFeedService.recordedSelection(original, read: { requestedSport, requestedPhase, requestedEvent in
+                XCTAssertEqual(requestedSport, sport)
+                XCTAssertEqual(requestedPhase, phase)
+                if requestedEvent == nil { return .init(markets: [], events: [metadata], cacheOnly: true, fetchedAt: stamp, servedAt: stamp) }
+                XCTAssertEqual(requestedEvent, metadata.id)
+                return snapshot
+            }, now: now)
+            let result = try XCTUnwrap(resolved)
+            XCTAssertEqual(result.id, original.id)
+            XCTAssertEqual(result.verifiedSubject, original.verifiedSubject)
+            XCTAssertEqual(result.quotes, [quote])
+            XCTAssertTrue(result.recordedSnapshot)
+            var history = AnalyticsHistoryEngine.statistics(market: original.market, observations: [.init(id: "past", date: now.addingTimeInterval(-86400), opponent: "Other", value: 12)], now: now)
+            history.verifiedPlayerID = proof.providerID
+            XCTAssertEqual(AnalyticsFeedCore.cardOdds(candidate: result, history: history, now: now), [quote])
+            let wrong = RecordedEventMetadata(id: metadata.id, code: metadata.code, homeTeam: "Other Home", awayTeam: event.away, commence: startText)
+            let unmatched = try await AnalyticsFeedService.recordedSelection(original, read: { _,_,_ in
+                .init(markets: [quote], events: [wrong], cacheOnly: true, fetchedAt: stamp, servedAt: stamp)
+            }, now: now)
+            XCTAssertNil(unmatched)
+        }
+    }
     func testSourceArtworkStaysBoundToVerifiedRosterIdentity() throws {
         let photo = "https://a.espncdn.com/i/headshots/nba/players/full/123.png"
         let logo = "https://a.espncdn.com/i/teamlogos/nba/500/atl.png"
@@ -159,35 +193,83 @@ final class AnalyticsFeedServiceTests: XCTestCase {
         XCTAssertTrue(subjects.isEmpty)
     }
 
-    func testInitialDiscoveryUsesAtMostTenPublicReadsAndOnlyReturnedSubjects() async throws {
+    private func publicStatisticsPayload(_ requested: URL) -> [String: Any] {
+        let sport = requested.host == "statsapi.mlb.com" ? "MLB" : requested.path.contains("/nfl/") ? "NFL" : requested.path.contains("/nhl/") ? "NHL" : "NBA"
+        if requested.path.hasSuffix("/scoreboard") { return ["events": []] }
+        if requested.path.hasSuffix("/schedule") { return ["dates": []] }
+        if requested.path.hasSuffix("/roster") {
+            if sport == "MLB" { return ["teamId": 1, "roster": [["person": ["id": 77, "fullName": "MLB Returned Player"], "position": ["abbreviation": "OF"]]]] }
+            return ["team": ["id": "1", "displayName": sport + " Returned Team"],
+                "athletes": [["id": "77", "fullName": sport + " Returned Player", "position": ["abbreviation": sport == "NFL" ? "QB" : "C"]]]]
+        }
+        if sport == "MLB" { return ["teams": [["id": 1, "name": "MLB Returned Team", "sport": ["id": 1]]]] }
+        return ["sports": [["leagues": [["abbreviation": sport, "teams": [["team": ["id": "1", "displayName": sport + " Returned Team"]]]]]]]]
+    }
+    func testGuestDiscoveryPopulatesTeamsAndPlayersForEverySportUsingOnlyPublicReads() async throws {
         let recorder = FeedRequestRecorder()
-        let reader = AnalyticsFeedPublicReader(transport: { requested in
+        let service = AnalyticsFeedService(reader: AnalyticsFeedPublicReader(transport: { requested in
             await recorder.record(requested)
-            let components = requested.path.split(separator: "/").map(String.init)
-            let slug = components[components.count - (requested.path.hasSuffix("/roster") ? 4 : 2)]
-            let sport = ["nba": "NBA", "mlb": "MLB", "nfl": "NFL", "nhl": "NHL"][slug] ?? ""
-            let payload: [String: Any]
-            if requested.path.hasSuffix("/scoreboard") { payload = ["events": []] }
-            else if requested.path.hasSuffix("/roster") {
-                payload = ["team": ["id": "1", "displayName": sport + " Returned Team"], "athletes": []]
-            } else {
-                payload = ["sports": [["leagues": [["abbreviation": sport, "teams": [["team": ["id": "1", "displayName": sport + " Returned Team"]]]]]]]]
-            }
-            return try JSONSerialization.data(withJSONObject: payload)
-        })
-        let service = AnalyticsFeedService(reader: reader)
-        let result = await service.load(snapshots: [], now: now)
+            return try JSONSerialization.data(withJSONObject: self.publicStatisticsPayload(requested))
+        }))
+        // A retained account quote cannot seed or attach odds to the public feed.
+        let privateQuote = Market(id: "private", event: "private-event", sport: "NFL", kind: "team", name: "Private Team", opponent: "Other", label: "Moneyline", aliases: "", p: nil, price: -110, market: "h2h", book: "Private Book", quotes: [], updated: nil, mode: "live")
+        let result = await service.load(snapshots: [privateQuote], now: now)
         let calls = await recorder.urls
-        XCTAssertEqual(calls.count, 10)
-        XCTAssertEqual(calls.filter { $0.path.hasSuffix("/scoreboard") }.count, 4)
+        XCTAssertEqual(calls.count, 12)
+        XCTAssertEqual(calls.filter { $0.path.hasSuffix("/scoreboard") || $0.path.hasSuffix("/schedule") }.count, 4)
         XCTAssertEqual(calls.filter { $0.path.hasSuffix("/teams") }.count, 4)
-        XCTAssertEqual(calls.filter { $0.path.hasSuffix("/roster") }.count, 2)
-        XCTAssertTrue(calls.allSatisfy { $0.host == "site.api.espn.com" })
-        XCTAssertEqual(Set(result.candidates.map { $0.market.name }), Set(["NBA Returned Team", "MLB Returned Team", "NFL Returned Team", "NHL Returned Team"]))
-        XCTAssertTrue(result.candidates.allSatisfy { $0.subject == .team && $0.quotes.isEmpty })
+        XCTAssertEqual(calls.filter { $0.path.hasSuffix("/roster") }.count, 4)
+        XCTAssertTrue(calls.allSatisfy { ["site.api.espn.com", "statsapi.mlb.com"].contains($0.host) })
+        for sport in ["NFL", "NBA", "MLB", "NHL"] {
+            let candidates = AnalyticsFeedCore.visibleCandidates(result.candidates, sport: sport, query: "", histories: [:], now: now)
+            XCTAssertEqual(Set(candidates.map { $0.subject.rawValue }), ["team", "player"], sport)
+            XCTAssertEqual(Set(candidates.map { $0.market.name }), [sport + " Returned Team", sport + " Returned Player"])
+        }
+        XCTAssertTrue(result.warnings.isEmpty, result.warnings.joined(separator: "; "))
+        XCTAssertTrue(result.candidates.allSatisfy { $0.quotes.isEmpty && !$0.recordedSnapshot })
+        let mlb = try XCTUnwrap(result.candidates.first { $0.market.sport == "MLB" && $0.subject == .player })
+        XCTAssertEqual(URL(string: mlb.verifiedSubject!.sourceURL)?.host, "statsapi.mlb.com")
+        XCTAssertTrue(AnalyticsFeedService.acceptsPlayerHistory(candidate: mlb, history: identityHistory(source: "MLB Stats API", name: "MLB Returned Player")))
         _ = await service.load(snapshots: [], now: now)
         let cachedCalls = await recorder.urls
-        XCTAssertEqual(cachedCalls.count, 10)
+        XCTAssertEqual(cachedCalls.count, 12)
+    }
+    func testPublicPlayerFailureLeavesTeamsAndOtherLeaguesAvailable() async throws {
+        let service = AnalyticsFeedService(reader: AnalyticsFeedPublicReader(transport: { requested in
+            if requested.path.contains("/nfl/"), requested.path.hasSuffix("/roster") { throw URLError(.notConnectedToInternet) }
+            return try JSONSerialization.data(withJSONObject: self.publicStatisticsPayload(requested))
+        }))
+        let result = await service.load(snapshots: [], now: now)
+        XCTAssertEqual(result.candidates.filter { $0.market.sport == "NFL" }.map(\.subject), [.team])
+        XCTAssertEqual(result.candidates.filter { $0.subject == .player }.count, 3)
+        XCTAssertEqual(result.warnings, ["NFL: player statistics could not be loaded for NFL Returned Team."])
+    }
+    func testGuestSelectedLeagueLoadsWithoutFetchingHiddenLeagues() async throws {
+        for sport in ["NFL", "NBA", "MLB", "NHL"] {
+            let recorder = FeedRequestRecorder()
+            let service = AnalyticsFeedService(reader: AnalyticsFeedPublicReader(transport: { url in
+                await recorder.record(url)
+                return try JSONSerialization.data(withJSONObject: self.publicStatisticsPayload(url))
+            }))
+            let result = await service.load(snapshots: [], now: now, sport: sport)
+            let calls = await recorder.urls
+            XCTAssertEqual(calls.count, 3)
+            XCTAssertFalse(result.candidates.isEmpty)
+            XCTAssertTrue(result.candidates.allSatisfy { $0.market.sport == sport && $0.quotes.isEmpty })
+            XCTAssertEqual(Set(result.candidates.map(\.subject)), [.team, .player])
+            _ = await service.load(snapshots: [], now: now, sport: sport)
+            let repeated = await recorder.urls
+            XCTAssertEqual(repeated.count, 3, "Reopening a league reuses fresh public data")
+        }
+    }
+    func testMLBPublicDirectoryExcludesOtherSportsAndMalformedIdentities() throws {
+        let payload: [String: Any] = ["teams": [
+            ["id": 1, "name": "Major League Team", "sport": ["id": 1]],
+            ["id": 2, "name": "Minor League Team", "sport": ["id": 11]],
+            ["id": "invalid", "name": "Bad ID", "sport": ["id": 1]]
+        ]]
+        let subjects = try AnalyticsFeedService.mlbDirectorySubjects(payload: payload, sourceURL: "https://statsapi.mlb.com/api/v1/teams?sportId=1", now: now)
+        XCTAssertEqual(subjects.map(\.name), ["Major League Team"])
     }
     private func identityCandidate(sport: String = "NBA", proof: Bool = true) throws -> AnalyticsFeedCandidate {
         let subject = AnalyticsFeedVerifiedSubject(sport: sport, subject: .player, name: "Fixture Player", providerID: "77",

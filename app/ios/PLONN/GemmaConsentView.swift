@@ -9,24 +9,25 @@ struct GemmaConsentView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Enable Gemma4").font(.title2.bold())
-                Text("Gemma4 is a temporary beta service. Your questions, recent conversation, and research you ask AI to explain will be sent to PLONN’s AI service. Player and model attachments are optional. Avoid including sensitive personal information.")
+            ScrollView { VStack(alignment: .leading, spacing: 20) {
+                Text("Enable AI research").font(.title2.bold())
+                Text(AccountAIConsentPolicy.disclosure)
                     .accessibilityIdentifier("gemma-consent-disclosure")
                 Text("Up to 5 requests per account each UTC day, with 20 shared across the beta. Accepted requests count even if generation fails. Availability can change.")
                     .font(.subheadline).foregroundStyle(.secondary)
                 Link("PLONN privacy policy", destination: PLONNServicePolicy.privacyURL)
+                Link("Ollama privacy policy", destination: URL(string: "https://ollama.com/privacy")!)
                 Link("PLONN support", destination: PLONNServicePolicy.supportURL)
-                Button("Enable Gemma4") {
+                Button("Enable AI research") {
                     guard let ownerID, account.allowChat(for: ownerID) else { return }
                     onAllowed()
-                }.buttonStyle(.borderedProminent)
+                }.plonnGlassButton(prominent:true)
                     .accessibilityIdentifier("gemma-consent-allow")
                     .disabled(ownerID == nil || ownerID != account.user?.id || account.user?.isAnonymous != false || !CloudConfiguration.servicePolicy.chatAvailable)
-                Button("Use research without AI", action: onDeclined).buttonStyle(.bordered)
+                Button("Use research without AI", action: onDeclined).plonnGlassButton()
                     .accessibilityIdentifier("gemma-consent-decline")
                 Spacer()
-            }.padding(24).navigationTitle("AI research").navigationBarTitleDisplayMode(.inline)
+            }.padding(24) }.navigationTitle("AI research").navigationBarTitleDisplayMode(.inline)
         }
     }
 }

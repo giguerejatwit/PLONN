@@ -293,6 +293,20 @@ final class PlayerHistoryServiceTests: XCTestCase {
             label: "Over 10.5", aliases: "", p: nil, price: -110, market: "player_pass_yds", book: "Fixture", quotes: [], mode: "live",
             line: 10.5, eventLabel: label, commence: start, side: "Over")
     }
+    func testAnalyticsCanRetainTwoSeasonsWhileExistingConsumersKeepTenGames() async throws {
+        let service = PlayerHistoryService(transport: try fixtureTransport())
+        let recent = await service.load(market: historyMarket(), seasonCount: 2, now: cutoff)
+        XCTAssertEqual(recent.games.count, 10)
+        let research = await service.load(market: historyMarket(), seasonCount: 2, now: cutoff, maximumGames: 2_000)
+        XCTAssertEqual(research.games.count, 20)
+        XCTAssertEqual(Set(research.games.map(\.season)), [2026, 2025])
+        XCTAssertEqual(research.games.prefix(10).map(\.id), recent.games.map(\.id))
+        XCTAssertEqual(research.games.prefix(10).map(\.value), recent.games.map(\.value))
+        let stillRecent = await service.load(market: historyMarket(), seasonCount: 2, now: cutoff)
+        XCTAssertEqual(stillRecent.games.map(\.id), recent.games.map(\.id), "Cached raw provider data must not change each caller’s requested window")
+        let firstOnly = await service.load(market: historyMarket(), seasonCount: 2, now: cutoff, maximumGames: 0)
+        XCTAssertEqual(firstOnly.games.count, 1)
+    }
     func testOpponentHistoryFetchesOlderSeasonsRatherThanFilteringRecentTen() async throws {
         let service = PlayerHistoryService(transport: try fixtureTransport())
         let result = await service.load(market: historyMarket(), includeOpponent: true, now: cutoff)

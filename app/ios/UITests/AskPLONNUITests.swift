@@ -18,7 +18,7 @@ final class ReleaseReadinessUITests: XCTestCase {
     func testReleaseChatHasHonestAvailabilityAndNoRuntimeDiagnostics() {
         let app = launchRelease()
         defer { app.terminate() }
-        let tab = app.tabBars.buttons["LLM"]
+        let tab = app.tabBars.buttons["Ask PLONN"]
         XCTAssertTrue(tab.waitForExistence(timeout: 30))
         let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: tab)
         XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 30), .completed)
@@ -39,7 +39,7 @@ final class ReleaseReadinessUITests: XCTestCase {
     func testReleaseGuestCanReachAccountWithoutUnconfiguredSocialButtons() {
         let app = launchRelease()
         defer { app.terminate() }
-        let tab = app.tabBars.buttons["LLM"]
+        let tab = app.tabBars.buttons["Ask PLONN"]
         XCTAssertTrue(tab.waitForExistence(timeout:30))
         let ready = XCTNSPredicateExpectation(predicate:NSPredicate(format:"isHittable == true"),object:tab)
         XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:30),.completed)
@@ -68,7 +68,7 @@ final class ReleaseReadinessUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["Recorded results"].exists)
         XCTAssertFalse(app.buttons["Purchases & access"].exists)
-        XCTAssertTrue(app.buttons["Account & sync"].exists)
+        XCTAssertTrue(app.buttons["Account"].exists)
         XCTAssertTrue(app.buttons["Privacy & data"].exists)
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "Release settings"; screenshot.lifetime = .keepAlways; add(screenshot)
@@ -85,12 +85,12 @@ final class AskPLONNUITests: XCTestCase {
         if let recipeFixture { app.launchEnvironment["PLONN_ASK_RECIPES_FIXTURE"] = recipeFixture }
         if let marketFixture { app.launchEnvironment["PLONN_ASK_MARKETS_FIXTURE"] = marketFixture }
         app.launch()
-        let tab = app.tabBars.buttons["LLM"]
+        let tab = app.tabBars.buttons["Ask PLONN"]
         XCTAssertTrue(tab.waitForExistence(timeout: 30), app.debugDescription)
         let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: tab)
         XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 30), .completed)
         tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        let heading = app.staticTexts["LLM"]
+        let heading = app.staticTexts["Ask PLONN"]
         if !heading.waitForExistence(timeout: 3) {
             // The existing launch transition can expose tab geometry before it settles.
             tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()

@@ -1,0 +1,75 @@
+{
+  "identifier": "AEB6990E",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_applicationInternalID": "6821990305",
+    "_developerTeamID": "R9G3K6TK2Y",
+    "_locale": "en_US",
+    "_storefront": "USA",
+    "_failTransactionsEnabled": false
+  },
+  "subscriptionGroups": [
+    {
+      "id": "22489302",
+      "localizations": [
+        {
+          "description": "PLONN Pro",
+          "displayName": "PLONN Pro",
+          "locale": "en_US"
+        }
+      ],
+      "name": "PLONN Pro",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "15",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6824103227",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "AI research and model testing.",
+              "displayName": "PLONN Pro Monthly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.oakas.plonn.pro.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "PLONN Pro Monthly",
+          "subscriptionGroupID": "22489302",
+          "type": "RecurringSubscription",
+          "winBackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "150",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6824103228",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "AI research and model testing.",
+              "displayName": "PLONN Pro Yearly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.oakas.plonn.pro.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "PLONN Pro Yearly",
+          "subscriptionGroupID": "22489302",
+          "type": "RecurringSubscription",
+          "winBackOffers": []
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

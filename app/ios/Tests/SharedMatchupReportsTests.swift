@@ -43,19 +43,48 @@ final class SharedMatchupReportsTests: XCTestCase {
         let path="/Users/indoorgeo/Dev/PLONN/app/contracts/shared-insights-presentation-v1.json"
         let cases=try JSONDecoder().decode(Fixture.self,from:Data(contentsOf:URL(fileURLWithPath:path))).cases
         XCTAssertEqual(cases.count,91)
+        #if !DEBUG
+        XCTAssertTrue(SharedMatchupPresentationCopy.proofs.isEmpty, "Release must not bundle historical proof data")
+        #endif
         var count=0
         for item in cases {
             let value=try SharedMatchupPresentationCopy.project(Data(item.rawUTF8.utf8),now:SharedMatchupReportValidator.date(item.validatedAt))
-            XCTAssertEqual(value,item.expected,item.expected.event.eventID)
+            XCTAssertEqual(value,expectedPresentation(item.expected),item.expected.event.eventID)
             count += value.sections.count
         }
         XCTAssertEqual(count,118)
+    }
+    private func expectedPresentation(_ historical:SharedMatchupPresentation)->SharedMatchupPresentation {
+        #if DEBUG
+        return historical
+        #else
+        // The frozen contract includes audited development-only league proofs.
+        // Release preserves every other field, but cannot claim full-league coverage.
+        let sections=historical.sections.map { item in
+            let comparison=item.comparisonText?.replacingOccurrences(
+                of:#"^[A-Z]+ sample average: (.+) across all [0-9]+ teams \(([0-9]+) team-game observations\)\.$"#,
+                with:"Recorded comparison: $1; $2 team-game observations. Full-league coverage is not verified.",
+                options:.regularExpression)
+            return SharedMatchupPresentationSection(id:item.id,title:item.title,evidenceLines:item.evidenceLines,
+                comparisonText:comparison,periodText:item.periodText,takeaway:item.takeaway,
+                uncertainty:item.uncertainty,factIDs:item.factIDs,sourceIDs:item.sourceIDs,
+                sampleWindow:item.sampleWindow,mapped:item.mapped)
+        }
+        return .init(presentationVersion:historical.presentationVersion,originalSHA256:historical.originalSHA256,
+            event:historical.event,generatedAt:historical.generatedAt,sourceCheckedAt:historical.sourceCheckedAt,
+            sections:sections,provenance:historical.provenance)
+        #endif
     }
     func testPresentationProofFallbackAndRounding() throws {
         XCTAssertEqual(SharedMatchupPresentationCopy.number(1.005),"1.01")
         XCTAssertEqual(SharedMatchupPresentationCopy.number(23.3164556962),"23.32")
         XCTAssertEqual(SharedMatchupPresentationCopy.number(21.0),"21")
-        let proof=try XCTUnwrap(SharedMatchupPresentationCopy.proofs.first)
+        let fact=SharedMatchupFact(id:"test:league:pointsPerGame",team:"league",role:"reference",
+            metric:"pointsPerGame",unit:"points per game",period:"Synthetic test season",
+            windowStart:"2026-01-01T00:00:00Z",windowEnd:"2026-01-02T00:00:00Z",
+            value:21,sample:32,sourceIDs:["test-source"])
+        let proof=SharedMatchupPresentationCopy.Proof(sport:"NFL",method:"sum_totals_divided_by_sum_team_games",
+            referenceFact:fact,teamCount:32,teamGames:32,total:672)
         XCTAssertTrue(SharedMatchupPresentationCopy.comparison(proof.referenceFact,sport:proof.sport,proofs:[]).contains("Full-league coverage is not verified"))
         XCTAssertTrue(SharedMatchupPresentationCopy.comparison(proof.referenceFact,sport:proof.sport,proofs:[proof]).contains("across all 32 teams"))
         let original=try example(), raw=try data(original)

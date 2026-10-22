@@ -5,6 +5,44 @@ import FoundationNetworking
 #endif
 
 final class HostedAskPLONNProviderTests: XCTestCase {
+    func testModelCreationWireAndValidatedDraft() async throws {
+        let draft = AskPLONNModelDraft(league: "NFL", target: "Player", subject: "Example Player", stat: "Rec Yds", line: 60.5, side: "Over")
+        let previous = AskPLONNModelDraft(league: "NFL", target: "Player", subject: "Example Player", stat: "Rec Yds")
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(draft)) as? [String: Any])
+        let expected = try transport(envelope(["draft": object]))
+        let provider = HostedAskPLONNProvider(tokenProvider: { Self.token }, transport: { http in
+            let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: http.httpBody!) as? [String: Any])
+            XCTAssertEqual(parsed["purpose"] as? String, "modelCreation")
+            XCTAssertNil(parsed["matchup_teams"])
+            XCTAssertNil(parsed["ownerID"])
+            XCTAssertEqual((parsed["evidence"] as? [Any])?.count, 0)
+            XCTAssertEqual(Set((parsed["model_draft"] as? [String: Any] ?? [:]).keys), AskPLONNModelDraft.wireKeys)
+            XCTAssertTrue((parsed["model_draft"] as? [String: Any])?["line"] is NSNull)
+            XCTAssertEqual((parsed["prior_turns"] as? [[String: Any]])?.first?["question"] as? String, "Create an NFL receiving yards model for Example Player")
+            return try await expected(http)
+        })
+        let answer = try await provider.answer(AskPLONNRequest(question: "Over 60.5", intent: .generalChat, evidence: [],
+            ownerID: "private-owner", priorTurns: [.init(question: "Create an NFL receiving yards model for Example Player", intent: .generalChat)],
+            researchPurpose: .modelCreation, modelDraft: previous))
+        XCTAssertEqual(answer.modelDraft, draft)
+        XCTAssertEqual(answer.text, draft.guidance)
+        XCTAssertTrue(answer.evidence.isEmpty)
+        XCTAssertNil(answer.matchupSummary)
+    }
+
+    func testModelCreationRejectsInvalidDraftAndUnexpectedClaims() async throws {
+        let draft = AskPLONNModelDraft(league: "NBA", target: "Player", subject: "Example Player", stat: "Points", line: 25.5, side: "Over")
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(draft)) as? [String: Any])
+        let request = AskPLONNRequest(question: "Create a model", intent: .generalChat, evidence: [], researchPurpose: .modelCreation)
+        var invalidStat = object; invalidStat["stat"] = "Rec Yds"
+        var boolLine = object; boolLine["line"] = true
+        var gameID = object; gameID["game_id"] = "12345"
+        for response: [String: Any] in [["draft": invalidStat], ["draft": boolLine], ["draft": gameID],
+                                       ["draft": object, "prediction": 0.9], ["kind": "explanation", "message": "Created a model"]] {
+            do { _ = try await provider(envelope(response)).answer(request); XCTFail("Accepted invalid model draft") }
+            catch { XCTAssertEqual(error as? HostedAskPLONNError, .invalidResponse) }
+        }
+    }
     private static let token = "fixture.access.token"
     private static let matchupSummary = "Bruins recorded lower scoring than Sabres despite higher shot volume in the supplied sample. The limited sample supports a cautious comparison of recorded patterns."
     private func matchupRequest() -> AskPLONNRequest {
@@ -20,8 +58,10 @@ final class HostedAskPLONNProviderTests: XCTestCase {
                                                "summary": Self.matchupSummary]))
         let provider = HostedAskPLONNProvider(tokenProvider: { Self.token }, transport: { http in
             let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: http.httpBody!) as? [String: Any])
-            XCTAssertEqual(Set(parsed.keys), Set(["schema_version", "question", "intent", "evidence", "prior_turns", "purpose", "matchup_teams"]))
+            XCTAssertEqual(Set(parsed.keys), Set(["consent_version", "request_id", "schema_version", "question", "intent", "evidence", "prior_turns", "purpose", "matchup_teams"]))
             XCTAssertEqual(parsed["schema_version"] as? Int, 1)
+            XCTAssertEqual(parsed["consent_version"] as? String, AccountAIConsentPolicy.version)
+            XCTAssertNotNil(UUID(uuidString: parsed["request_id"] as? String ?? ""))
             XCTAssertEqual(parsed["purpose"] as? String, "matchupInsights")
             XCTAssertEqual(parsed["matchup_teams"] as? [String], ["Bruins", "Sabres"])
             XCTAssertEqual(parsed["intent"] as? String, "recentForm")
@@ -179,8 +219,8 @@ final class HostedAskPLONNProviderTests: XCTestCase {
         AskPLONNRequest(question: question, intent: .generalChat, evidence: [], ownerID: "private-owner")
     }
     private func envelope(_ result: [String: Any], model: String = HostedAskPLONNProvider.modelName,
-                          digest: String = HostedAskPLONNProvider.pinnedDigest) -> [String: Any] {
-        ["schema_version": 1, "model": model, "digest": digest, "response": result]
+                          providerName: String = "ollama_cloud") -> [String: Any] {
+        ["schema_version": 2, "model": model, "provider": providerName, "response": result]
     }
     private func transport(_ payload: [String: Any]? = nil, status: Int = 200, url: URL? = nil) throws -> HostedAskPLONNProvider.Transport {
         let data = try JSONSerialization.data(withJSONObject: payload ?? envelope(["supported": true, "evidence_ids": ["fact"]]))
@@ -247,8 +287,10 @@ final class HostedAskPLONNProviderTests: XCTestCase {
             let body = try XCTUnwrap(request.httpBody)
             XCTAssertLessThanOrEqual(body.count, 16 * 1024)
             let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
-            XCTAssertEqual(Set(parsed.keys), Set(["schema_version", "question", "intent", "evidence", "prior_turns"]))
+            XCTAssertEqual(Set(parsed.keys), Set(["consent_version", "request_id", "schema_version", "question", "intent", "evidence", "prior_turns"]))
             XCTAssertEqual(parsed["schema_version"] as? Int, 1)
+            XCTAssertEqual(parsed["consent_version"] as? String, AccountAIConsentPolicy.version)
+            XCTAssertNotNil(UUID(uuidString: parsed["request_id"] as? String ?? ""))
             let evidence = try XCTUnwrap(parsed["evidence"] as? [[String: Any]])
             XCTAssertEqual(evidence.count, 1)
             XCTAssertEqual(Set(evidence[0].keys), Set(["id", "kind", "title", "text", "source", "source_urls"]))
@@ -267,7 +309,7 @@ final class HostedAskPLONNProviderTests: XCTestCase {
         XCTAssertEqual(answer.text, "Verified data summary\n\n" + current.text)
         XCTAssertEqual(answer.evidence, [current])
         XCTAssertEqual(answer.mode, .provider)
-        XCTAssertEqual(answer.providerLabel, "Gemma4 26B")
+        XCTAssertEqual(answer.providerLabel, "Gemma 4 31B")
     }
 
     func testResearchSelectionPreservesExactOriginalTextAndRejectsUnsafeSelections() async throws {
@@ -296,13 +338,13 @@ final class HostedAskPLONNProviderTests: XCTestCase {
 
     func testResponseIdentityAndEnvelopeKeysArePinned() async throws {
         let result: [String: Any] = ["supported": true, "evidence_ids": ["fact"]]
-        for payload in [envelope(result, model: "gemma3:12b"), envelope(result, model: "gemma4:26b-cloud"), envelope(result, digest: "wrong")] {
+        for payload in [envelope(result, model: "gemma3:12b"), envelope(result, model: "gemma4:26b-cloud"), envelope(result, providerName: "wrong")] {
             do { _ = try await provider(payload).answer(research()); XCTFail("Unverified model accepted") }
             catch { XCTAssertEqual(error as? HostedAskPLONNError, .unverifiedModel) }
         }
         var additional = envelope(result); additional["owner"] = "private-owner"
-        var missing = envelope(result); missing.removeValue(forKey: "digest")
-        for version: Any in [true, 2, "1", NSNull()] {
+        var missing = envelope(result); missing.removeValue(forKey: "provider")
+        for version: Any in [true, 1, "2", NSNull()] {
             var payload = envelope(result); payload["schema_version"] = version
             do { _ = try await provider(payload).answer(research()); XCTFail("Invalid schema version accepted") }
             catch { XCTAssertEqual(error as? HostedAskPLONNError, .invalidResponse) }
@@ -336,7 +378,7 @@ final class HostedAskPLONNProviderTests: XCTestCase {
         let explained = try await provider(envelope(["kind": "explanation", "message": explanation])).answer(general())
         XCTAssertEqual(explained.text, explanation)
         XCTAssertEqual(explained.mode, .generalExplanation)
-        XCTAssertEqual(explained.providerLabel, "Gemma4 26B")
+        XCTAssertEqual(explained.providerLabel, "Gemma 4 31B")
         XCTAssertTrue(explained.evidence.isEmpty)
         for kind in ["needs_research", "unsupported"] {
             let answer = try await provider(envelope(["kind": kind, "message": "The player scored 999 points."])).answer(general())
@@ -493,6 +535,56 @@ final class HostedAskPLONNProviderTests: XCTestCase {
         }
     }
 
+    func testStructured429SeparatesDailyAllowanceFromTemporaryRateLimitsWithoutRetry() async throws {
+        for (raw, expected) in [
+            (#"{"status":"unavailable","reason":"chat_quota_exceeded","message":"private account details"}"#, HostedAskPLONNError.dailyAllowance),
+            (#"{"status":"unavailable","reason":"chat_provider_rate_limited"}"#, .rateLimited),
+            (#"{"status":"unavailable","reason":"unknown"}"#, .rateLimited),
+            (#"{"status":"unavailable","reason":"chat_quota_exceeded","reason":"unknown"}"#, .rateLimited),
+            (#"{"reason":"chat_quota_exceeded"}"#, .rateLimited),
+            ("<html>429 Too Many Requests</html>", .rateLimited)
+        ] {
+            let attempts = TokenSequence()
+            let provider = HostedAskPLONNProvider(tokenProvider: { Self.token }, transport: { request in
+                _ = await attempts.next()
+                return (Data(raw.utf8), HTTPURLResponse(url: request.url!, statusCode: 429, httpVersion: nil, headerFields: nil)!)
+            })
+            do { _ = try await provider.answer(general()); XCTFail("429 accepted") }
+            catch {
+                XCTAssertEqual(error as? HostedAskPLONNError, expected)
+                XCTAssertFalse(AskPLONNFailureDiagnostic.matchupMessage(for: error).contains("private account details"))
+            }
+            let count = await attempts.count()
+            XCTAssertEqual(count, 1)
+        }
+        XCTAssertFalse(HostedAskPLONNError.rateLimited.userFacingMessage.contains("daily"))
+        XCTAssertFalse(HostedAskPLONNError.rateLimited.userFacingMessage.contains("beta"))
+        XCTAssertTrue(HostedAskPLONNError.dailyAllowance.userFacingMessage.contains("midnight UTC"))
+        XCTAssertEqual(AskPLONNFailureDiagnostic.category(for: HostedAskPLONNError.dailyAllowance), "daily_allowance")
+    }
+
+    func testStreamingDelegateReadsQuota429ButStillBoundsErrorBodies() async throws {
+        let raw = Data(#"{"status":"unavailable","reason":"chat_quota_exceeded"}"#.utf8)
+        let (data, response) = try await streamed { delegate, session, task in
+            let response = HTTPURLResponse(url: HostedAskPLONNProvider.endpointURL, statusCode: 429, httpVersion: nil, headerFields: nil)!
+            delegate.urlSession(session, dataTask: task, didReceive: response) { XCTAssertEqual($0, .allow) }
+            delegate.urlSession(session, dataTask: task, didReceive: raw)
+            delegate.urlSession(session, task: task, didCompleteWithError: nil)
+        }
+        XCTAssertEqual(data, raw)
+        XCTAssertThrowsError(try HostedAskPLONNProvider.validateStatus(response.statusCode, body: data)) {
+            XCTAssertEqual($0 as? HostedAskPLONNError, .dailyAllowance)
+        }
+        do {
+            _ = try await streamed { delegate, session, task in
+                let response = HTTPURLResponse(url: HostedAskPLONNProvider.endpointURL, statusCode: 429, httpVersion: nil, headerFields: nil)!
+                delegate.urlSession(session, dataTask: task, didReceive: response) { XCTAssertEqual($0, .allow) }
+                delegate.urlSession(session, dataTask: task, didReceive: Data(repeating: 65, count: 32769))
+            }
+            XCTFail("Oversized rate-limit body accepted")
+        } catch { XCTAssertEqual(error as? HostedAskPLONNError, .oversizedPayload) }
+    }
+
     func testStreamingDelegateCollectsBounded502ForStructuredClassification() async throws {
         let raw = Data(#"{"status":"unavailable","reason":"chat_response_invalid"}"#.utf8)
         let (data, response) = try await streamed { delegate, session, task in
@@ -513,8 +605,8 @@ final class HostedAskPLONNProviderTests: XCTestCase {
         XCTAssertEqual(HostedAskPLONNConnectionState.resolve(serviceAvailable: true, signedIn: true, consented: false), .consentRequired)
         XCTAssertEqual(HostedAskPLONNConnectionState.resolve(serviceAvailable: true, signedIn: true, consented: true), .ready)
         XCTAssertTrue(HostedAskPLONNConnectionState.signInRequired.statusText.contains("Sign in"))
-        XCTAssertTrue(HostedAskPLONNConnectionState.consentRequired.statusText.contains("Enable Gemma4 26B"))
-        XCTAssertTrue(HostedAskPLONNConnectionState.ready.statusText.contains("Ready when you send"))
+        XCTAssertTrue(HostedAskPLONNConnectionState.consentRequired.statusText.contains("Enable Gemma 4 31B"))
+        XCTAssertTrue(HostedAskPLONNConnectionState.ready.statusText.contains("Hosted AI"))
         XCTAssertFalse(HostedAskPLONNConnectionState.ready.statusText.contains("connected"))
     }
 
@@ -536,12 +628,16 @@ final class HostedAskPLONNProviderTests: XCTestCase {
             for secret in ["private-owner", Self.token, "999"] { XCTAssertFalse(answer.text.contains(secret)) }
             let calls = await attempts.count()
             XCTAssertEqual(calls, 1)
-            let generalAnswer = try await conversation.ask(question: general().question, intent: .generalChat, evidence: [],
-                                                             ownerID: "private-owner", contextID: "fixture-general", provider: provider)
-            XCTAssertEqual(generalAnswer.mode, .generalExplanation)
-            XCTAssertNil(generalAnswer.providerLabel)
-            XCTAssertTrue(generalAnswer.evidence.isEmpty)
-            XCTAssertTrue(generalAnswer.text.contains("unavailable"))
+            do {
+                _ = try await conversation.ask(question: general().question, intent: .generalChat, evidence: [],
+                                               ownerID: "private-owner", contextID: "fixture-general", provider: provider)
+                XCTFail("General chat failures require explicit retry")
+            } catch {
+                guard let failure = error as? HostedAskPLONNError else { return XCTFail("Wrong error type") }
+                for secret in ["private-owner", Self.token, "999"] { XCTAssertFalse(failure.userFacingMessage.contains(secret)) }
+            }
+            let history = await conversation.history()
+            XCTAssertTrue(history.isEmpty)
             let allCalls = await attempts.count()
             XCTAssertEqual(allCalls, 2)
         }
@@ -605,7 +701,7 @@ final class HostedAskPLONNProviderTests: XCTestCase {
         let provider = HostedAskPLONNProvider(tokenProvider: { Self.token }, transport: { request in
             XCTAssertEqual(request.url, HostedAskPLONNProvider.endpointURL)
             let wire = try XCTUnwrap(JSONSerialization.jsonObject(with: request.httpBody!) as? [String: Any])
-            XCTAssertEqual(Set(wire.keys), Set(["schema_version", "question", "intent", "evidence", "prior_turns", "purpose", "matchup_teams"]))
+            XCTAssertEqual(Set(wire.keys), Set(["consent_version", "request_id", "schema_version", "question", "intent", "evidence", "prior_turns", "purpose", "matchup_teams"]))
             XCTAssertEqual(wire["purpose"] as? String, "matchupInsights")
             XCTAssertEqual(wire["matchup_teams"] as? [String], ["Fixture Home", "Fixture Away"])
             XCTAssertEqual((wire["prior_turns"] as? [Any])?.count, 0)

@@ -8,16 +8,17 @@ import FoundationNetworking
 #endif
 
 enum HostedAskPLONNError: Error, Equatable {
-    case invalidEndpoint, authenticationRequired, capacity, rateLimited, unavailable
+    case invalidEndpoint, authenticationRequired, capacity, rateLimited, dailyAllowance, unavailable
     case oversizedPayload, invalidResponse, unverifiedModel
 
     var userFacingMessage: String {
         switch self {
         case .invalidEndpoint: return "AI chat is unavailable in this build. Recorded research is still available."
-        case .authenticationRequired: return "Sign in again to use Gemma4 26B. Recorded research is still available."
-        case .capacity: return "Gemma4 26B is busy or paused. Recorded research is still available."
-        case .rateLimited: return "Gemma4 26B’s beta request limit has been reached. Try later; recorded research is still available."
-        case .unavailable: return "Gemma4 26B is temporarily unavailable. Recorded research is still available."
+        case .authenticationRequired: return "Sign in again to use Gemma 4 31B. Recorded research is still available."
+        case .capacity: return "AI is handling another request. Try again shortly. Recorded research is still available."
+        case .rateLimited: return "AI is receiving too many requests. Try again shortly. Recorded research is still available."
+        case .dailyAllowance: return "AI’s daily request allowance has been reached. It resets at midnight UTC. Recorded research is still available."
+        case .unavailable: return "AI couldn’t complete this request. Please try again. Recorded research is still available."
         case .oversizedPayload: return "This request or response exceeded AI chat limits. Recorded research is still available."
         case .invalidResponse, .unverifiedModel: return "The AI response could not be verified. Recorded research is still available."
         }
@@ -35,6 +36,7 @@ enum AskPLONNFailureDiagnostic {
             case .authenticationRequired: return "authentication"
             case .capacity: return "capacity"
             case .rateLimited: return "rate_limit"
+            case .dailyAllowance: return "daily_allowance"
             case .unavailable: return "service_unavailable"
             case .oversizedPayload: return "payload_limit"
             case .invalidResponse: return "response_schema"
@@ -75,7 +77,7 @@ enum AskPLONNFailureDiagnostic {
     }
 }
 
-/// Readiness is local eligibility, not a claim that the intermittent beta is online.
+/// Local account eligibility; service availability is confirmed when a request completes.
 enum HostedAskPLONNConnectionState: Equatable {
     case unavailable, signInRequired, consentRequired, ready
 
@@ -87,9 +89,9 @@ enum HostedAskPLONNConnectionState: Equatable {
     var statusText: String {
         switch self {
         case .unavailable: return "AI chat unavailable in this build · Research summaries available"
-        case .signInRequired: return "Sign in to use Gemma4 26B · Research summaries available"
-        case .consentRequired: return "Enable Gemma4 26B to chat · Research summaries available"
-        case .ready: return "Gemma4 26B · Beta · Ready when you send"
+        case .signInRequired: return "Sign in to use Gemma 4 31B · Research summaries available"
+        case .consentRequired: return "Enable Gemma 4 31B to chat · Research summaries available"
+        case .ready: return "Gemma 4 31B · Beta · Hosted AI"
         }
     }
 }
@@ -99,13 +101,13 @@ enum HostedAskPLONNConnectionState: Equatable {
 struct HostedAskPLONNProvider: AskPLONNProvider {
     typealias TokenProvider = @Sendable () async throws -> String
     typealias Transport = @Sendable (URLRequest) async throws -> (Data, HTTPURLResponse)
-    static let endpointURL = URL(string: "https://api.oakas.ai/plonn/v1/chat")!
-    static let modelName = "gemma4:26b"
+    static let endpointURL = URL(string: "https://api.oakas.ai/plonn/v1/chat/cloud")!
+    static let modelName = "gemma4:31b"
     static let pinnedDigest = "08ae7ec1744bd7f451c4a530afb39d2673ad9d07a8369b8a33a3613b41212a68"
     static let maximumRequestBytes = 16 * 1024
     static let maximumResponseBytes = 32 * 1024
     static let timeout: TimeInterval = 45
-    var displayName: String { "Gemma4 26B" }
+    var displayName: String { "Gemma 4 31B" }
     private let endpoint: URL
     private let tokenProvider: TokenProvider
     private let transport: Transport
@@ -142,12 +144,15 @@ struct HostedAskPLONNProvider: AskPLONNProvider {
     }
     private struct WireRequest: Encodable {
         let schema_version = 1
+        let consent_version = AccountAIConsentPolicy.version
+        let request_id = UUID().uuidString.lowercased()
         let question: String
         let intent: AskPLONNIntent
         let evidence: [WireEvidence]
         let prior_turns: [WireTurn]
         let purpose: AskPLONNResearchPurpose?
         let matchup_teams: [String]?
+        let model_draft: AskPLONNModelDraft?
     }
 
     private static func wireText(_ value: String, maximum: Int) -> Bool {
@@ -181,7 +186,7 @@ struct HostedAskPLONNProvider: AskPLONNProvider {
         else { throw AskPLONNError.invalidHistory }
         let body = try JSONEncoder().encode(WireRequest(question: request.question, intent: request.intent,
                                                        evidence: facts.map(WireEvidence.init), prior_turns: prior.map(WireTurn.init),
-                                                       purpose: request.researchPurpose, matchup_teams: request.matchupTeams))
+                                                       purpose: request.researchPurpose, matchup_teams: request.matchupTeams, model_draft: request.modelDraft))
         guard body.count <= Self.maximumRequestBytes else { throw HostedAskPLONNError.oversizedPayload }
         try Task.checkCancellation()
         let token: String
@@ -214,15 +219,25 @@ struct HostedAskPLONNProvider: AskPLONNProvider {
             guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw HostedAskPLONNError.invalidResponse }
             payload = object
         } catch { throw HostedAskPLONNError.invalidResponse }
-        guard Set(payload.keys) == Set(["schema_version", "model", "digest", "response"]),
+        guard Set(payload.keys) == Set(["schema_version", "model", "provider", "response"]),
               let version = payload["schema_version"] as? NSNumber,
               CFGetTypeID(version) != CFBooleanGetTypeID(),
-              !["f", "d"].contains(String(cString: version.objCType)), version.intValue == 1,
+              !["f", "d"].contains(String(cString: version.objCType)), version.intValue == 2,
               let response = payload["response"] as? [String: Any] else { throw HostedAskPLONNError.invalidResponse }
-        guard payload["model"] as? String == Self.modelName, payload["digest"] as? String == Self.pinnedDigest
+        guard payload["model"] as? String == Self.modelName, payload["provider"] as? String == "ollama_cloud"
         else { throw HostedAskPLONNError.unverifiedModel }
         let answer: AskPLONNAnswer
-        if request.intent == .generalChat {
+        if request.researchPurpose == .modelCreation {
+            guard Set(response.keys) == ["draft"], let value = response["draft"] as? [String: Any],
+                  Set(value.keys) == AskPLONNModelDraft.wireKeys else { throw HostedAskPLONNError.invalidResponse }
+            if let line = value["line"] as? NSNumber, CFGetTypeID(line) == CFBooleanGetTypeID() { throw HostedAskPLONNError.invalidResponse }
+            let draft: AskPLONNModelDraft
+            do { draft = try JSONDecoder().decode(AskPLONNModelDraft.self, from: JSONSerialization.data(withJSONObject: value)) }
+            catch { throw HostedAskPLONNError.invalidResponse }
+            guard draft.isValid else { throw HostedAskPLONNError.invalidResponse }
+            answer = AskPLONNAnswer(text: draft.guidance, evidence: [], mode: .generalExplanation,
+                                   providerLabel: displayName, modelDraft: draft)
+        } else if request.intent == .generalChat {
             guard Set(response.keys) == Set(["kind", "message"]),
                   let rawKind = response["kind"] as? String, let kind = AskPLONNGeneralResponseKind(rawValue: rawKind),
                   let message = response["message"] as? String,
@@ -266,15 +281,20 @@ struct HostedAskPLONNProvider: AskPLONNProvider {
     }
 
     static func validateStatus(_ status: Int, body: Data? = nil) throws {
-        // Only the gateway's fixed wire reason changes presentation. Never surface
-        // its free-form message, and keep unknown/malformed 502 bodies unavailable.
-        if status == 502, let body, body.count <= maximumResponseBytes {
+        // Only a known gateway reason changes presentation. Proxy/provider 429s
+        // are temporary rate limits, not proof that a daily allowance was used.
+        // Never surface server text; malformed/duplicate JSON uses the fallback.
+        if (status == 502 || status == 429), let body, body.count <= maximumResponseBytes {
             var shape = HostedChatJSONShape(data: body)
             if (try? shape.validate()) != nil,
                let payload = (try? JSONSerialization.jsonObject(with: body)) as? [String: Any],
-               payload["status"] as? String == "unavailable",
-               payload["reason"] as? String == "chat_response_invalid" {
-                throw HostedAskPLONNError.invalidResponse
+               payload["status"] as? String == "unavailable" {
+                if status == 502, payload["reason"] as? String == "chat_response_invalid" {
+                    throw HostedAskPLONNError.invalidResponse
+                }
+                if status == 429, payload["reason"] as? String == "chat_quota_exceeded" {
+                    throw HostedAskPLONNError.dailyAllowance
+                }
             }
         }
         switch status {
@@ -419,9 +439,11 @@ final class BoundedHostedChatResponse: NSObject, URLSessionDataDelegate, @unchec
         do {
             guard let http = response as? HTTPURLResponse, http.url?.absoluteString == expectedURL.absoluteString
             else { throw HostedAskPLONNError.invalidResponse }
-            // A 502 has one recognized structured failure reason. Collect only its
-            // bounded body before final classification; other errors still fail early.
-            if http.statusCode != 502 { try HostedAskPLONNProvider.validateStatus(http.statusCode) }
+            // These statuses have known structured reasons. Read their bounded
+            // bodies before classification; other failures still fail early.
+            if http.statusCode != 502 && http.statusCode != 429 {
+                try HostedAskPLONNProvider.validateStatus(http.statusCode)
+            }
             guard response.expectedContentLength <= HostedAskPLONNProvider.maximumResponseBytes
             else { throw HostedAskPLONNError.oversizedPayload }
             lock.lock()

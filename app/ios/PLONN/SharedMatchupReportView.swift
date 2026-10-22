@@ -6,12 +6,16 @@ struct SharedMatchupReportCard: View {
  let client: SharedMatchupReportClient?
  let accessIdentity: String
  var narrativeClient: MatchupNarrativeClient? = nil
+ var markets: [Market] = []
+ var currentFacts: [MatchupOutlookSelection.Fact] = []
+ var sourceLoading = false
  var ready = true
  var embedded = false
  var unavailableMessage = "Matchup outlook is unavailable."
  @Environment(\.scenePhase) private var scenePhase
  @State private var narrative: MatchupNarrativeV4.Result?
  @State private var narrativeNotice: String?
+ @State private var outlookFacts: [MatchupOutlookSelection.Fact] = []
  @State private var response: SharedMatchupReportResponse?
  @State private var responseEvent: SharedMatchupEvent?
  @State private var responseReadKey: String?
@@ -25,14 +29,15 @@ struct SharedMatchupReportCard: View {
  var body: some View {
   VStack(alignment:.leading,spacing:12) {
    Label("Matchup outlook",systemImage:"sparkles").font(.headline).accessibilityIdentifier("matchup-outlook-heading")
+   if !currentFacts.isEmpty || (narrative != nil && responseEvent == event && responseReadKey == readKey) || currentResponse?.report != nil {
+    MatchupOutlookLeadView(event:event,facts:currentFacts.isEmpty ? outlookFacts:currentFacts,markets:markets,clock:client?.now ?? {Date()}).id(readKey)
+   }
    if let narrative, responseEvent == event, responseReadKey == readKey {
+    DisclosureGroup("Supporting context") {
     MatchupNarrativeContent(result:narrative)
-   } else if let response=currentResponse, let report=response.report {
-    if let narrativeNotice {Text(narrativeNotice).font(.caption).foregroundStyle(.orange)}
-    if response.status == .stale {
-     Text("This outlook is out of date. Current conditions may differ.")
-      .font(.subheadline).foregroundStyle(.orange).accessibilityIdentifier("shared-report-status")
     }
+   } else if let response=currentResponse, let report=response.report {
+    DisclosureGroup("Supporting context") {
     if report.outlook.isEmpty {
      Text("No supported outlook is available from this evidence.").font(.subheadline)
     }
@@ -47,8 +52,11 @@ struct SharedMatchupReportCard: View {
     }
     ForEach(Array(Set(sections.map(\.uncertainty))).sorted(),id:\.self) {Text($0).font(.caption).foregroundStyle(.secondary)}
     if response.refreshing {Text("An updated outlook is being prepared.").font(.caption).foregroundStyle(.secondary)}
+    }
+   } else if !currentFacts.isEmpty {
+    Text("Based on current season team statistics. Player availability may change; this is not a live prediction.").font(.caption).foregroundStyle(.secondary)
    } else {
-    Text(loading ? "Loading outlook…" : (message ?? unavailableMessage))
+    Text(loading || sourceLoading ? "Loading outlook…" : (message ?? unavailableMessage))
      .font(.subheadline).foregroundStyle(.secondary).accessibilityIdentifier("shared-report-status")
    }
   }.padding(embedded ? 0:14).background(embedded ? Color.clear:Color(uiColor:.systemBackground),in:RoundedRectangle(cornerRadius:18))
@@ -73,6 +81,7 @@ struct SharedMatchupReportCard: View {
        guard readKey==key else{return}
        let aged=try SharedMatchupDisplayClock.update(value,now:client?.now() ?? Date())
        response=aged
+       if aged.status != .ready {outlookFacts=[]}
        if aged.reason == "event_started" {message="Pregame outlook is no longer available for this event.";return}
       } else {return}
      } catch is CancellationError {return}
@@ -88,14 +97,16 @@ struct SharedMatchupReportCard: View {
  }
  @MainActor private func readReport() async {
   let key=readKey
-  let ticket=UUID();requestID=ticket;response=nil;responseEvent=nil;responseReadKey=nil;message=nil;loading=false;narrative=nil;narrativeNotice=nil
+  let ticket=UUID();requestID=ticket;response=nil;responseEvent=nil;responseReadKey=nil;message=nil;loading=false;narrative=nil;narrativeNotice=nil;outlookFacts=[]
   guard ready,scenePhase == .active else{return}
   loading=true
   if let narrativeClient {
    do {
     if let value=try await narrativeClient.fetch(event:event) {
+     let now=narrativeClient.now()
+     let facts=await Task.detached(priority:.utility) {MatchupOutlookSelection.facts(value,now:now)}.value
      guard !Task.isCancelled,requestID==ticket,readKey==key else{return}
-     narrative=value;responseEvent=event;responseReadKey=key;loading=false;return
+     outlookFacts=facts;narrative=value;responseEvent=event;responseReadKey=key;loading=false;return
     }
    } catch {
     guard !Task.isCancelled,requestID==ticket,readKey==key else{return}
@@ -110,6 +121,7 @@ struct SharedMatchupReportCard: View {
    let value=try await client.fetch(event:event)
    guard !Task.isCancelled,requestID==ticket,readKey==key else{return}
    response=value;responseEvent=event;responseReadKey=key
+   outlookFacts=MatchupOutlookSelection.facts(value,now:client.now())
    if value.status == .missing {
     switch value.reason {
     case "event_started": message="Pregame outlook is no longer available for this event."
@@ -127,6 +139,63 @@ struct SharedMatchupReportCard: View {
   guard requestID==ticket,readKey==key else{return};loading=false
  }
 
+}
+
+private struct MatchupOutlookLeadView: View {
+ let event:SharedMatchupEvent
+ let facts:[MatchupOutlookSelection.Fact]
+ let markets:[Market]
+ let clock:@Sendable ()->Date
+ @State private var directions:[MatchupOutlookSelection.Direction]=[]
+ @State private var settled=false
+ private struct Input:Hashable {let event:SharedMatchupEvent;let facts:[MatchupOutlookSelection.Fact];let markets:[Market]}
+ private var input:Input {Input(event:event,facts:facts,markets:markets)}
+ var body:some View {
+  VStack(alignment:.leading,spacing:8) {
+   if let lead=directions.first?.lead {
+    Text(lead.title).font(.subheadline.bold()).accessibilityIdentifier("matchup-outlook-lead-title")
+    Text(lead.selection).font(.headline).accessibilityIdentifier("matchup-outlook-selection")
+    Text(lead.explanation).font(.subheadline).accessibilityIdentifier("matchup-outlook-reason")
+    if let date=lead.quoteDate {Text(MatchupOutlookSelection.quoteCaption(date)).font(.caption).foregroundStyle(.secondary)}
+    Text(lead.qualification).font(.caption).foregroundStyle(.secondary)
+    if directions.count > 1 {
+     Divider()
+     Text("Also supported").font(.subheadline.bold()).accessibilityIdentifier("matchup-outlook-alternatives-heading")
+     ForEach(Array(directions.dropFirst().enumerated()),id:\.element.id) { index,direction in
+      VStack(alignment:.leading,spacing:5) {
+       Text("\(index+2). "+direction.lead.selection).font(.subheadline.bold()).accessibilityIdentifier("matchup-outlook-alternative")
+       Text(direction.lead.shortReason).font(.caption).accessibilityIdentifier("matchup-outlook-alternative-reason")
+       if let date=direction.lead.quoteDate {Text(MatchupOutlookSelection.quoteCaption(date)).font(.caption2).foregroundStyle(.secondary)}
+       if direction.lead.edge == nil {Text("Historical direction; no measured betting edge.").font(.caption2).foregroundStyle(.secondary)}
+       if let note=direction.correlationNote {Text(note).font(.caption2).foregroundStyle(.secondary).accessibilityIdentifier("matchup-outlook-correlation")}
+      }.padding(.top,4)
+     }
+    }
+   } else {
+    Text(settled ? MatchupOutlookSelection.noDirection : "Comparing supported directions…").font(.subheadline).accessibilityIdentifier("matchup-outlook-no-edge")
+   }
+  }.task(id:input) {
+   let value=input
+   directions=[];settled=false
+   while !Task.isCancelled {
+    let now=clock()
+    let selected=await Task.detached(priority:.utility) {MatchupOutlookSelection.directions(event:value.event,facts:value.facts,markets:value.markets,now:now)}.value
+    guard !Task.isCancelled else{return}
+    directions=selected;settled=true
+    // Recompute on price/model expiry, event start, and clock changes without a fetch.
+    var deadlines=[now.addingTimeInterval(30)]
+    if let start=sportsDate(value.event.startISO) {deadlines.append(start)}
+    for market in value.markets {
+     if let stamp=market.modelUpdated.flatMap(sportsDate) {deadlines.append(stamp.addingTimeInterval(120.001))}
+     for stamp in ([market.updated] + market.quotes.map(\.updated)).compactMap({$0.flatMap(sportsDate)}) {
+      deadlines.append(stamp.addingTimeInterval(120.001));deadlines.append(stamp.addingTimeInterval(86400.001))
+     }
+    }
+    let next=deadlines.filter{$0>now}.min() ?? now.addingTimeInterval(30)
+    do {try await Task.sleep(nanoseconds:UInt64(max(0.001,next.timeIntervalSince(now))*1_000_000_000))} catch {return}
+   }
+  }
+ }
 }
 
 
@@ -191,8 +260,9 @@ struct SharedReportOfflineFixtureView:View {
     let client=SharedMatchupReportClient(endpoint:URL(string:"https://api.oakas.ai/plonn/v1/insights/report")!,tokenProvider:{"offline.fixture"},transport:{request in
      (body,HTTPURLResponse(url:request.url!,statusCode:status,httpVersion:nil,headerFields:nil)!)
     },now:{now})
+    let markets=(root["markets"].flatMap {try? JSONSerialization.data(withJSONObject:$0)}).flatMap {try? JSONDecoder().decode([Market].self,from:$0)} ?? []
     Text(event.sport+" · "+event.awayTeam+" at "+event.homeTeam).font(.headline)
-    SharedMatchupReportCard(event:event,client:client,accessIdentity:"offline-fixture")
+    SharedMatchupReportCard(event:event,client:client,accessIdentity:"offline-fixture",markets:markets)
    } else {Text("Invalid offline fixture")}
   }.padding()}.navigationTitle(SharedReportOfflineFixture.recorded ? "Matchup outlook" : "Shared report fixture")}
  }

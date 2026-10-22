@@ -90,7 +90,7 @@ final class AnalyticsLifecycleTests: XCTestCase {
             XCTAssertTrue(AnalyticsFeedCore.visibleCandidates(candidates, sport: sport, query: other, histories: histories, now: now).isEmpty)
         }
         XCTAssertTrue(AnalyticsFeedCore.visibleCandidates(candidates, sport: "All", query: "", histories: histories, now: now).isEmpty)
-        XCTAssertTrue(AnalyticsFeedCore.visibleCandidates(candidates, sport: "NFL", query: "", histories: [:], now: now).isEmpty)
+        XCTAssertEqual(AnalyticsFeedCore.visibleCandidates(candidates, sport: "NFL", query: "", histories: [:], now: now).count, 2, "Statistics cards stay visible while history loads, independently of odds.")
         XCTAssertEqual(AnalyticsFeedCore.visibleCandidates(candidates, sport: "NFL", query: "Player", histories: [:], now: now).count, 1, "Explicit search still permits general statistics.")
     }
     func testArchiveFlagIsOmittedForOrdinaryRequests() throws {

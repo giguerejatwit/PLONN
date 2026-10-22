@@ -24,8 +24,9 @@ struct LabRecipe: Codable, Identifiable {
     var modelType:String? = "logistic_regression"
     var book:String? = nil
     var historicalEventID:String? = nil
+    var propOptions:[String:String]? = nil
     var resolvedModelType:String { modelType ?? "logistic_regression" }
-    enum CodingKeys: String, CodingKey { case id, name, player, quarterback, opponent, features, line, side, sport, stat, targetKind, advanced, training, modelType, book, historicalEventID, created }
+    enum CodingKeys: String, CodingKey { case id, name, player, quarterback, opponent, features, line, side, sport, stat, targetKind, advanced, training, modelType, book, historicalEventID, propOptions, created }
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         try c.encode(id, forKey: .id)
@@ -44,6 +45,7 @@ struct LabRecipe: Codable, Identifiable {
         try c.encodeIfPresent(modelType, forKey: .modelType)
         try c.encodeIfPresent(book, forKey: .book)
         try c.encodeIfPresent(historicalEventID, forKey: .historicalEventID)
+        try c.encodeIfPresent(propOptions, forKey: .propOptions)
         try c.encode(created.timeIntervalSinceReferenceDate, forKey: .created)
     }
 
@@ -72,6 +74,7 @@ struct LabCapabilities: Decodable {
         var historical_event_required: Bool? = nil
         var target_kind: String? = nil
         var market: String? = nil
+        var historical_event_source: String? = nil
         func supports(_ model: String) -> Bool { (model_types ?? ["logistic_regression"]).contains(model) }
     }
     let supported: [Support]
@@ -90,6 +93,65 @@ struct LabCapabilities: Decodable {
         guard enabled != false, service_enabled != false, ["Player","Team"].contains(target) else { return nil }
         guard let canonical = LabPropCatalog.serviceStat(league:league,target:target,label:stat) else{return nil}
         return (supported_data_targets ?? supported).first { $0.league == league && $0.stat == canonical && ($0.target_kind ?? "player") == target.lowercased() }
+    }
+}
+
+/// The guided flow and its submit action use the same availability rules.
+enum LabCreationPolicy {
+    enum Availability: Equatable {
+        case checking, offline, paused, needsUpdate, unsupported, ready
+        var title: String {
+            switch self {
+            case .checking: return "Checking model testing…"
+            case .offline: return "Model testing couldn’t connect"
+            case .paused: return "Model testing is paused"
+            case .needsUpdate: return "Model testing is temporarily unavailable"
+            case .unsupported: return "Historical testing isn’t connected for this setup"
+            case .ready: return "Ready to test on past games"
+            }
+        }
+        var detail: String {
+            switch self {
+            case .checking: return "We’re checking which models can run."
+            case .ready: return "Your model will be saved privately, then tested using earlier game data. Enough history is required."
+            case .unsupported: return "You can save this setup privately. No model test will run for this selection."
+            default: return "You can create and save your model now. Run its historical test when the service is available."
+            }
+        }
+    }
+    static func availability(_ capabilities: LabCapabilities?, loading: Bool, support: LabCapabilities.Support?) -> Availability {
+        if loading { return .checking }
+        guard let capabilities else { return .offline }
+        guard capabilities.enabled != false, capabilities.service_enabled != false else { return .paused }
+        guard capabilities.idempotency == true else { return .needsUpdate }
+        return support == nil ? .unsupported : .ready
+    }
+    static func recommendedFeatures(_ support: LabCapabilities.Support?, fullGame: Bool) -> Set<String> {
+        let preferred: Set<String> = fullGame ? ["recent", "season", "homeAway"] : ["recent", "season", "workload"]
+        guard let support else { return preferred }
+        let connected = preferred.intersection(Set(support.features))
+        return connected.isEmpty ? Set(support.features.prefix(3)) : connected
+    }
+    static func recommendedModel(_ support: LabCapabilities.Support?) -> String {
+        SavedModelType.allCases.first { support?.supports($0.rawValue) ?? ($0 == .logistic) }?.rawValue ?? SavedModelType.logistic.rawValue
+    }
+    static func questions(league: String, target: String, capabilities: LabCapabilities?) -> [String] {
+        let teamQuestions = league == "NFL" ? ["Spread", "Game total", "Moneyline"] : ["Moneyline", "Spread", "Game total"]
+        let fallback = target == "Team" ? teamQuestions : LabPropCatalog.options(league: league, target: target).filter { $0 != "Custom stat" }
+        guard target == "Team", let capabilities else { return fallback }
+        let connected = (capabilities.supported_data_targets ?? capabilities.supported).filter {
+            $0.league == league && ($0.target_kind ?? "player") == target.lowercased()
+        }.map(\.stat)
+        return fallback.filter(connected.contains)
+    }
+    static func question(_ stat: String, target: String) -> String {
+        guard target == "Team" else { return LabPropCatalog.isYesNo(stat) ? LabPropCatalog.displayName(stat):"Over or under \(LabPropCatalog.displayName(stat).lowercased())?" }
+        switch stat {
+        case "Moneyline": return "Would this team win?"
+        case "Spread": return "Would this team cover?"
+        case "Game total": return "Would the total go over or under?"
+        default: return stat
+        }
     }
 }
 extension LabRecipe {
@@ -142,13 +204,97 @@ enum LabPropCatalog {
             }
         }
         switch league {
-        case "NBA":return ["Points","Rebounds","Assists","3-pointers","Steals","Blocks","Turnovers","Pts + Reb + Ast","Pts + Reb","Pts + Ast","Reb + Ast","Custom stat"]
-        case "MLB":return ["Hits","Total bases","Home runs","RBI","Runs","Stolen bases","Walks","Batter strikeouts","Pitcher strikeouts","Pitcher outs","Earned runs","Hits allowed","Walks allowed","Custom stat"]
-        case "NHL":return ["Shots on goal","Goals","Assists","Points","Blocked shots","Saves","Goals allowed","Custom stat"]
-        case "NFL":return ["Rec Yds","Receptions","Rush Yds","Pass Yds","Pass TDs","Interceptions thrown","Rush + Rec Yds","Rush attempts","Pass attempts","Completions","Touchdowns","Tackles","Sacks","Custom stat"]
+        case "NBA":return ["Points","Rebounds","Assists","3-pointers","Steals","Blocks","Turnovers","Pts + Reb + Ast","Pts + Reb","Pts + Ast","Reb + Ast","Field goals made","Free throws made","Free throw attempts","Blocks + Steals","Double-double","Triple-double","First basket scorer","First team basket scorer","1st-quarter points","1st-quarter rebounds","1st-quarter assists","Fantasy points","Method of first basket","Custom stat"]
+        case "MLB":return ["Hits","Total bases","Home runs","RBI","Runs","Stolen bases","Walks","Batter strikeouts","Pitcher strikeouts","Pitcher outs","Earned runs","Hits allowed","Walks allowed","Singles","Doubles","Triples","Hits + Runs + RBI","First home run scorer","Pitcher win","Batter fantasy points","Custom stat"]
+        case "NHL":return ["Shots on goal","Goals","Assists","Points","Blocked shots","Saves","Goals allowed","Power play points","Faceoffs won","Time on ice","Anytime goal scorer","First goal scorer","Last goal scorer","Custom stat"]
+        case "NFL":return ["Rec Yds","Receptions","Rush Yds","Pass Yds","Pass TDs","Interceptions thrown","Rush + Rec Yds","Rush attempts","Pass attempts","Completions","Touchdowns","Tackles","Sacks","Longest pass completion","1st-quarter passing yards","Receiving touchdowns","Longest reception","Rushing touchdowns","Longest rush","Pass + Rush Yds","Pass + Rush + Rec Yds","Rush + Rec TDs","Pass + Rush + Rec TDs","Anytime touchdown scorer","First touchdown scorer","Last touchdown scorer","Solo tackles","Assisted tackles","Tackles + Assists","Defensive interceptions","Field goals made","Kicking points","Extra points made","Custom stat"]
         default:return []
         }
     
+    }
+    struct PropGroup: Identifiable {
+        let title:String
+        let props:[String]
+        var id:String {title}
+    }
+    static func playerGroups(league:String, search:String="") -> [PropGroup] {
+        let groups:[PropGroup]
+        switch league {
+        case "NBA": groups=[
+            .init(title:"Scoring",props:["Points","3-pointers","Field goals made","Free throws made","Free throw attempts"]),
+            .init(title:"Rebounds & assists",props:["Rebounds","Assists"]),
+            .init(title:"Defense & turnovers",props:["Steals","Blocks","Blocks + Steals","Turnovers"]),
+            .init(title:"Combinations",props:["Pts + Reb + Ast","Pts + Reb","Pts + Ast","Reb + Ast"]),
+            .init(title:"Milestones & scorers",props:["Double-double","Triple-double","First basket scorer","First team basket scorer"]),
+            .init(title:"First quarter",props:["1st-quarter points","1st-quarter rebounds","1st-quarter assists"]),
+            .init(title:"Special formats",props:["Fantasy points","Method of first basket"])
+        ]
+        case "NFL": groups=[
+            .init(title:"Passing",props:["Pass Yds","Pass TDs","Pass attempts","Completions","Interceptions thrown","Longest pass completion","1st-quarter passing yards"]),
+            .init(title:"Receiving",props:["Rec Yds","Receptions","Receiving touchdowns","Longest reception"]),
+            .init(title:"Rushing",props:["Rush Yds","Rush attempts","Rushing touchdowns","Longest rush"]),
+            .init(title:"Combinations",props:["Rush + Rec Yds","Pass + Rush Yds","Pass + Rush + Rec Yds","Rush + Rec TDs","Pass + Rush + Rec TDs"]),
+            .init(title:"Touchdowns",props:["Touchdowns","Anytime touchdown scorer","First touchdown scorer","Last touchdown scorer"]),
+            .init(title:"Defense",props:["Tackles","Solo tackles","Assisted tackles","Tackles + Assists","Sacks","Defensive interceptions"]),
+            .init(title:"Kicking",props:["Field goals made","Kicking points","Extra points made"])
+        ]
+        case "MLB": groups=[
+            .init(title:"Hitting",props:["Hits","Total bases","Home runs","RBI","Singles","Doubles","Triples","Walks","Batter strikeouts","Hits + Runs + RBI"]),
+            .init(title:"Baserunning",props:["Runs","Stolen bases"]),
+            .init(title:"Pitching",props:["Pitcher strikeouts","Pitcher outs","Earned runs","Hits allowed","Walks allowed"]),
+            .init(title:"Milestones",props:["First home run scorer","Pitcher win"]),
+            .init(title:"Special formats",props:["Batter fantasy points"])
+        ]
+        case "NHL": groups=[
+            .init(title:"Skaters",props:["Shots on goal","Goals","Assists","Points","Power play points","Blocked shots","Faceoffs won","Time on ice"]),
+            .init(title:"Goalies",props:["Saves","Goals allowed"]),
+            .init(title:"Goal scorers",props:["Anytime goal scorer","First goal scorer","Last goal scorer"])
+        ]
+        default: groups=[]
+        }
+        let query=search.trimmingCharacters(in:.whitespacesAndNewlines)
+        guard !query.isEmpty else{return groups}
+        return groups.compactMap {group in
+            let props=group.props.filter { displayName($0).localizedCaseInsensitiveContains(query) || $0.localizedCaseInsensitiveContains(query) || group.title.localizedCaseInsensitiveContains(query) }
+            return props.isEmpty ? nil:PropGroup(title:group.title,props:props)
+        }
+    }
+    static func displayName(_ stat:String) -> String {
+        ["Rec Yds":"Receiving yards","Rush Yds":"Rushing yards","Pass Yds":"Passing yards","Pass TDs":"Passing touchdowns",
+         "Pass attempts":"Passing attempts","Rush attempts":"Rushing attempts","Completions":"Passing completions",
+         "Rush + Rec Yds":"Rushing + receiving yards","Pass + Rush Yds":"Passing + rushing yards",
+         "Pass + Rush + Rec Yds":"Passing + rushing + receiving yards","Rush + Rec TDs":"Rushing + receiving touchdowns",
+         "Pass + Rush + Rec TDs":"Passing + rushing + receiving touchdowns",
+         "Pts + Reb + Ast":"Points + rebounds + assists","Pts + Reb":"Points + rebounds","Pts + Ast":"Points + assists","Reb + Ast":"Rebounds + assists",
+         "RBI":"Runs batted in","Hits + Runs + RBI":"Hits + runs + RBIs","Tackles":"Total tackles" ][stat] ?? stat
+    }
+    static func isYesNo(_ stat:String) -> Bool {
+        ["Double-double","Triple-double","First basket scorer","First team basket scorer","Method of first basket","Anytime touchdown scorer","First touchdown scorer","Last touchdown scorer","First home run scorer","Pitcher win","Anytime goal scorer","First goal scorer","Last goal scorer"].contains(stat)
+    }
+    static func configurationLimitation(_ stat:String) -> String? { nil }
+    static func isFantasy(_ stat:String) -> Bool {["Fantasy points","Batter fantasy points"].contains(stat)}
+    static func validOptions(stat:String,options:[String:String]) -> Bool {
+        if isFantasy(stat) {return Set(options.keys)==["scoring_preset"] && ["draftkings_classic","fanduel_classic"].contains(options["scoring_preset"] ?? "")}
+        if stat == "Method of first basket" {return Set(options.keys)==["first_basket_method"] && ["two_pointer","three_pointer","free_throw"].contains(options["first_basket_method"] ?? "")}
+        return options.isEmpty
+    }
+    static func optionsLabel(_ options:[String:String]?) -> String? {
+        if let preset=options?["scoring_preset"] {return preset == "draftkings_classic" ? "DraftKings Classic scoring":"FanDuel Classic scoring"}
+        if let method=options?["first_basket_method"] {return ["two_pointer":"Two-pointer","three_pointer":"Three-pointer","free_throw":"Free throw"][method]}
+        return nil
+    }
+    static func propNote(_ stat:String) -> String? {
+        if ["First basket scorer","First team basket scorer","Method of first basket"].contains(stat) {return "First score includes free throws. Method tests whether this player scores first using the selected method."}
+        if ["Anytime touchdown scorer","First touchdown scorer","Last touchdown scorer","Touchdowns"].contains(stat) {return "Counts touchdowns scored by this player, including returns. Passing touchdowns belong to the receiver."}
+        if stat == "Time on ice" {return "Enter the line in minutes. For example, 20.5 means 20 minutes, 30 seconds."}
+        if stat == "Sacks" {return "Half-sacks count. You can enter a quarter-point line, such as 0.75."}
+        return nil
+    }
+    static func testingStatus(league:String,stat:String,capabilities:LabCapabilities?) -> String {
+        if configurationLimitation(stat) != nil {return "Not configurable"}
+        guard let capabilities else{return "Availability unverified"}
+        if capabilities.enabled == false || capabilities.service_enabled == false {return "Testing paused"}
+        return capabilities.idempotency == true && capabilities.match(league:league,stat:stat,target:"Player") != nil ? "Testing available":"Save setup only"
     }
     static func serviceStat(league:String,target:String,label:String) -> String? {
         guard label != "Custom stat" else{return nil}
@@ -172,7 +318,16 @@ enum LabServiceContract {
         case "book_required": return "Choose a sportsbook before running this setup."
         case "training_dataset_missing", "verified_target_missing", "insufficient_training_rows", "insufficient_holdout_rows":
             return "There isn’t enough verified historical data for this setup. Adjust the selection and try again."
+        case "historical_player_target_missing": return "This player has no verified appearance in the selected game. Check the player and matchup."
+        case "completed_regular_season_required": return "Choose a completed regular-season game for this test."
+        case "incomplete_player_event_history": return "The play-by-play history is incomplete for this player and prop. No estimate was produced. Try another player or game."
+        case "insufficient_history_minimum_40_feature_complete_starts", "insufficient_training_or_holdout_rows", "insufficient_prior_starts": return "There aren’t enough verified player appearances to train and test this setup. Choose a player with more history or a later game."
+        case "insufficient_training_class_coverage": return "This player’s history doesn’t contain enough different outcomes for this line. Try another line or player."
+        case "prop_options_required": return "Choose a scoring preset or scoring method before testing."
         case "stale_target": return "The selected matchup data has expired. Refresh it before running."
+        case "game_not_completed_historical_target": return "This game is too recent for historical testing. Choose an earlier completed game."
+        case "insufficient_game_training_class_coverage_tie": return "There aren’t enough historical ties to test this NFL win model. Try a spread or game total."
+        case "insufficient_game_training_or_holdout_rows": return "There isn’t enough verified game history for this setup. Choose another matchup."
         case "adapter_not_supported", "unsupported_model", "unsupported_model_type", "unsupported_hosted_coverage", "unsupported_features", "advanced_access_required":
             return "This model or feature selection is unavailable. Adjust the setup and try again."
         case "training_interrupted": return "Training was interrupted. Choose Retrain with new data to try again."
@@ -180,7 +335,11 @@ enum LabServiceContract {
         case "rate_limit", "quota_exceeded", "owner_busy", "training_capacity_busy", "training_quota_exceeded":
             return "The model service is busy or your run limit has been reached. Try again later."
         case "hosted_training_disabled": return "Model runs are temporarily unavailable. You can still save this setup."
-        default: return "The model service couldn’t complete this setup. Check your selection and try again later."
+        default:
+            if reason?.hasPrefix("insufficient_game_training_class_coverage_") == true {
+                return "There aren’t enough varied historical results to test this line. Try another line or matchup."
+            }
+            return "The model service couldn’t complete this setup. Check your selection and try again later."
         }
     }
     static func gameMarket(target:String?,stat:String?) -> String? {
@@ -188,12 +347,18 @@ enum LabServiceContract {
         return ["Game total":"total","Spread":"spread","Moneyline":"moneyline"][stat ?? ""]
     }
     static func validLine(_ line:Double?,target:String?,stat:String?) -> Bool {
+        if target == "Player",LabPropCatalog.isYesNo(stat ?? "") {return line == 0.5}
         let market=gameMarket(target:target,stat:stat)
         if market == "moneyline" {return line == nil || line == 0}
-        guard let line,line.isFinite,line * 2 == (line * 2).rounded() else{return false}
+        guard let line,line.isFinite else{return false}
+        let precision = market == nil ? 100.0:2.0
+        guard abs(line * precision - (line * precision).rounded()) < 0.000001 else{return false}
         return market == "spread" ? (-1000...1000).contains(line) : (0...(market == nil ? 10000.0:1000.0)).contains(line)
     }
     static func probabilityLabel(_ recipe:LabRecipe) -> String {
+        if recipe.targetKind == "Player",LabPropCatalog.isYesNo(recipe.stat ?? "") {
+            return "Historical estimate · \(LabPropCatalog.displayName(recipe.stat ?? "")): \(recipe.side == "Under" ? "No":"Yes")"
+        }
         switch gameMarket(target:recipe.targetKind,stat:recipe.stat) {
         case "moneyline":return "Historical estimate · \(recipe.player) to win"
         case "spread":return "Historical estimate · \(recipe.player) to cover \(recipe.line.map { String(format:"%+.1f",$0) } ?? "")"
@@ -215,6 +380,7 @@ enum LabServiceContract {
               Set(recipe.features).count == recipe.features.count,
               Set(recipe.features).isSubset(of:Set(support.features)),
               validLine(recipe.line,target:recipe.targetKind,stat:recipe.stat),
+              LabPropCatalog.validOptions(stat:recipe.stat ?? "",options:recipe.propOptions ?? [:]),
               let side=recipe.side,["Over","Under"].contains(side),
               let book=recipe.book,!book.isEmpty,book != "Ask each time",
               !recipe.player.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty,
@@ -229,6 +395,7 @@ enum LabServiceContract {
             "player":recipe.player,"opponent":recipe.opponent,"book":book,"line":recipe.line ?? 0,"side":side,"features":recipe.features.sorted(),
             "training":["epochs":settings.epochs,"learning_rate":settings.learningRate,"l2":settings.regularization,"validation_fraction":settings.validationShare]]
         if recipe.targetKind == "Team" {body["targetKind"]="Team"}
+        if let options=recipe.propOptions,!options.isEmpty {body["prop_options"]=options}
         if let event=recipe.historicalEventID,!event.isEmpty {body["historical_event_id"]=event}
         if let mode=support.evaluation_mode {body["evaluation_mode"]=mode}
         return body
@@ -255,6 +422,7 @@ enum LabServiceContract {
                       let target=inference["target"] as? [String:Any],target["event_id"] as? String == event,
                       body["live_prediction"] as? Bool == false else {throw ContractError.mismatchedResult}
             }
+            if let options=recipe.propOptions,!options.isEmpty,body["prop_options"] as? [String:String] != options {throw ContractError.mismatchedResult}
             if let prop=body["target_prop"] as? String,prop != recipe.stat {throw ContractError.mismatchedResult}
             if let threshold=inference["threshold"] as? Double,threshold != recipe.line {throw ContractError.mismatchedResult}
             if let book=body["requested_book"] as? String,book != recipe.book {throw ContractError.mismatchedResult}
@@ -303,6 +471,10 @@ enum LabServiceContract {
                 comparison = score < baselineScore ? " Lower error than the simple baseline in this test; still experimental." :
                     " Did not beat the simple baseline in this test. Experimental only."
             } else {comparison=" Baseline comparison unavailable. Experimental only."}
+        }
+        if let provenance=body["provenance"] as? [String:Any],let coverage=provenance["event_history_coverage"] as? [String:Any],
+           let verified=coverage["verified_games"] as? Int,let total=coverage["window_games"] as? Int,total>0,verified<=total {
+            comparison += " Verified event details for \(verified) of \(total) prior games."
         }
         return Result(probability:probability,push:push,tie:tie,baseline:baselineValue,count:count,brier:brier,
             validation:validates ? ((validation["label"] as? String ?? "Held-out validation reported; profitability is not established.") + comparison) : "Validation unavailable: " + (validation["reason"] as? String ?? "not supplied"))
@@ -379,6 +551,7 @@ extension LabRecipe {
         modelType = try c.decodeIfPresent(String.self, forKey: .modelType)
         book = try c.decodeIfPresent(String.self, forKey: .book)
         historicalEventID = try c.decodeIfPresent(String.self, forKey: .historicalEventID)
+        propOptions = try c.decodeIfPresent([String:String].self, forKey: .propOptions)
         created = Date(timeIntervalSinceReferenceDate: try c.decode(Double.self, forKey: .created))
     }
 }
@@ -442,6 +615,12 @@ final class LabSubmissionStore {
     func record(owner: UUID, payload: Data) -> Record? {
         records.first { $0.owner == owner && $0.payload == payload }
     }
+    func deleteAccountRecords(owner: UUID) {
+        records = records.filter { $0.owner != owner }
+    }
+    func forgetCompleted(owner: UUID, payload: Data) {
+        records = records.filter { !($0.owner == owner && $0.payload == payload && $0.terminal) }
+    }
     func hasOutstanding(owner: UUID, payload: Data) -> Bool {
         record(owner: owner, payload: payload)?.terminal == false
     }
@@ -464,5 +643,23 @@ final class LabSubmissionStore {
         guard let index = all.firstIndex(where: { $0.key == record.key && $0.owner == record.owner }) else { return }
         if let jobID { all[index].jobID = jobID }
         all[index].terminal = terminal; records = all
+    }
+}
+
+/// Shared name matching for model selectors. Every typed word must match a
+/// player/team label; accents, case and extra spaces do not affect selection.
+enum LabNameSearch {
+    static func normalized(_ text:String)->String {
+        text.folding(options:[.caseInsensitive,.diacriticInsensitive],locale:Locale(identifier:"en_US_POSIX"))
+            .split(whereSeparator:{$0.isWhitespace}).joined(separator:" ")
+    }
+    static func matches(query:String,name:String,detail:String="")->Bool {
+        let terms=normalized(query).split(separator:" ")
+        let target=normalized(name+" "+detail)
+        return !terms.isEmpty && terms.allSatisfy {target.contains($0)}
+    }
+    static func rank(query:String,name:String)->String {
+        let q=normalized(query),n=normalized(name)
+        return (n==q ? "0":n.hasPrefix(q) ? "1":"2")+n
     }
 }

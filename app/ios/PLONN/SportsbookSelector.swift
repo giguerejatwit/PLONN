@@ -97,8 +97,7 @@ struct SportsbookSelector: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-            .background(selection == book ? Color.primary.opacity(0.08) : Color.clear,
-                        in: RoundedRectangle(cornerRadius: 8))
+            .plonnGlassSurface(selected:selection == book,radius:12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
