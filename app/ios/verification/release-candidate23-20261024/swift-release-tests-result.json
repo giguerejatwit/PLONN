@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "tests": 843,
+  "skipped": 20,
+  "failures": 0,
+  "log": "../player-outlook-fix-20261024/swift-tests.log"
+}

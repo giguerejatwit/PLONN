@@ -28,7 +28,6 @@ enum BuilderQuoteAge: Equatable {
     }
 }
 enum BuilderLogic {
-    static let limit = 8
     static func stakeAmount(_ stakeText: String) -> Double? {
         let text = stakeText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard text.range(of: #"^(?:[0-9]+(?:\.[0-9]{0,2})?|\.[0-9]{1,2})$"#, options: .regularExpression) != nil,
@@ -91,7 +90,6 @@ enum BuilderLogic {
             if key == "spreads", !sameSubject, let a = leg.line, let b = candidate.line, a + b <= 0 {
                 return "These opposing spreads cannot both win." }
         }
-        if existing.count >= limit { return "A research draft supports up to eight legs." }
         return nil
     }
     static func sanitized(_ candidates: [Market]) -> (legs: [Market], notices: [String]) {
@@ -179,4 +177,47 @@ struct BuilderDraftStorage {
         defaults.set(data, forKey: Self.key)
     }
     func clear() { defaults.removeObject(forKey: Self.key) }
+}
+
+struct SavedBuilderParlay: Codable, Identifiable, Equatable {
+    let id: UUID
+    var name: String
+    let createdAt: Date
+    var legs: [Market]
+    var stake: String
+}
+
+/// Saved slips are scoped to the signed-in owner and never replace the legacy draft.
+struct BuilderParlayStorage {
+    let defaults: UserDefaults
+    struct Collection: Codable, Equatable {
+        var version=1
+        var parlays:[SavedBuilderParlay]=[]
+        var draftStake=""
+    }
+    enum StorageError: Error {case invalidCollection}
+    private func key(_ owner: UUID) -> String {"builderParlays.v1."+owner.uuidString}
+    func load(owner: UUID) throws -> Collection {
+        guard let bytes=defaults.data(forKey:key(owner)) else {return Collection()}
+        guard bytes.count <= 3_000_000 else {throw StorageError.invalidCollection}
+        let collection=try JSONDecoder().decode(Collection.self,from:bytes)
+        try validate(collection)
+        return collection
+    }
+    func save(_ collection: Collection, owner: UUID) throws {
+        try validate(collection)
+        let bytes=try JSONEncoder().encode(collection)
+        guard bytes.count <= 3_000_000 else {throw StorageError.invalidCollection}
+        defaults.set(bytes,forKey:key(owner))
+    }
+    private func validate(_ collection: Collection) throws {
+        guard collection.version == 1,
+              collection.draftStake.count <= 40,
+              Set(collection.parlays.map(\.id)).count == collection.parlays.count,
+              collection.parlays.allSatisfy({ parlay in
+                  !parlay.name.isEmpty && parlay.name.count <= 80 && parlay.stake.count <= 40 &&
+                  !parlay.legs.isEmpty &&
+                  BuilderLogic.sanitized(parlay.legs).legs == parlay.legs
+              }) else {throw StorageError.invalidCollection}
+    }
 }

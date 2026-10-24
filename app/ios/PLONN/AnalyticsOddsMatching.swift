@@ -166,9 +166,15 @@ enum AnalyticsOddsMatcher {
         }
         let labels = Set(["\(normalized(event.away)) at \(normalized(event.home))", "\(normalized(event.away)) @ \(normalized(event.home))"])
         let pair = markets.filter { $0.sport == target.sport && $0.eventLabel.map { labels.contains(normalized($0)) } == true }
-        let starts = pair.compactMap { quote -> (String, Date)? in quote.commence.flatMap(sportsDate).map { (quote.event, $0) } }
+        // Thousands of player contracts usually share a single provider start.
+        // Preserve every distinct event/time identity without parsing and checking
+        // that same instant once for every contract against every other contract.
+        let dates = Dictionary(uniqueKeysWithValues: Set(pair.compactMap(\.commence)).compactMap { text -> (String, Date)? in sportsDate(text).map { (text, $0) } })
+        let starts = Dictionary(grouping: pair, by: \.event).flatMap { id, rows in
+            Set(rows.compactMap(\.commence)).compactMap { text -> (String, Date)? in dates[text].map { (id, $0) } }
+        }
         func matchesStart(_ quote: Market) -> Bool {
-            guard let start = quote.commence.flatMap(sportsDate) else { return false }
+            guard let text = quote.commence, let start = dates[text] else { return false }
             if recordedSnapshot { return RecordedStartPolicy.accepts(eventID: quote.event, quoteStart: start, start: event.start, sport: event.sport, candidates: starts, now: now, includeStarted: recordedArchive && event.allowsRecorded(now: now, archive: true)) }
             return abs(start.timeIntervalSince(event.start)) <= 60
         }
@@ -179,10 +185,10 @@ enum AnalyticsOddsMatcher {
         }
         let sameIDs = markets.filter { $0.event == id && $0.market == target.marketKey }
         let stamp = ISO8601DateFormatter().string(from: now)
-        // For recorded NHL prices, use the unique provider puck-drop time already
+        // For recorded prices, use the unique provider start time already
         // validated by RecordedStartPolicy. Retain the ESPN event/subject identity.
         var matchingEvent = event
-        if recordedSnapshot, let first = candidates.first, let start = first.commence.flatMap(sportsDate) {
+        if recordedSnapshot, let text = candidates.first?.commence, let start = dates[text] {
             matchingEvent = AnalyticsEvent(sport: event.sport, providerID: event.providerID, home: event.home, away: event.away, start: start, homeID: event.homeID, awayID: event.awayID, seasonType: event.seasonType, lifecycle: event.lifecycle, statusVerifiedAt: event.statusVerifiedAt)
         }
         let response = AnalyticsScopedOddsResponse(schemaVersion: 1, coverage: AnalyticsOddsCoverage(sport: target.sport, eventID: id, home: event.home, away: event.away, commence: ISO8601DateFormatter().string(from: matchingEvent.start), markets: [target.marketKey]), markets: sameIDs, fetchedAt: stamp, expiresAt: stamp, stale: true)
@@ -190,20 +196,26 @@ enum AnalyticsOddsMatcher {
         return AnalyticsOddsMatchResult(markets: result.markets, freshness: result.markets.isEmpty ? .unavailable : .stale, fetchedAt: nil, expiresAt: nil, availability: result.markets.isEmpty ? result.availability : "Cached matching lines; snapshot freshness is unverified. Each quote retains its own update time.")
     }
     static func match(target: AnalyticsStatsTarget, event: AnalyticsEvent, response: AnalyticsScopedOddsResponse, now: Date = Date(), recordedSnapshot: Bool = false, recordedArchive: Bool = false) -> AnalyticsOddsMatchResult {
-        let fetched = sportsDate(response.fetchedAt), expires = sportsDate(response.expiresAt)
+        var parsedDates: [String: Date] = [:]
+        func date(_ text: String) -> Date? {
+            if let cached = parsedDates[text] { return cached }
+            guard let parsed = sportsDate(text) else { return nil }
+            parsedDates[text] = parsed; return parsed
+        }
+        let fetched = date(response.fetchedAt), expires = date(response.expiresAt)
         func empty(_ message: String) -> AnalyticsOddsMatchResult { AnalyticsOddsMatchResult(markets: [], freshness: .unavailable, fetchedAt: fetched, expiresAt: expires, availability: message) }
         guard eligible(target: target, event: event, now: now, recordedSnapshot: recordedSnapshot, recordedArchive: recordedArchive) else { return empty("A unique same-day open event and verified subject membership are required.") }
         let scope = response.coverage
         guard response.schemaVersion == 1, scope.sport == target.sport, !scope.eventID.isEmpty,
               normalized(scope.home) == normalized(event.home), normalized(scope.away) == normalized(event.away),
-              let start = sportsDate(scope.commence), abs(start.timeIntervalSince(event.start)) <= 60,
+              let start = date(scope.commence), abs(start.timeIntervalSince(event.start)) <= 60,
               scope.markets == [target.marketKey], response.markets.count <= 500,
               let fetched, let expires, fetched <= now, expires >= fetched else { return empty("Scoped coverage or freshness metadata does not match this event and stat.") }
         // Reject cross-event rows and reused/conflicting event IDs before subject filtering.
         let labels = Set(["\(normalized(event.away)) at \(normalized(event.home))", "\(normalized(event.away)) @ \(normalized(event.home))"])
         guard response.markets.allSatisfy({ quote in
             quote.event == scope.eventID && quote.sport == scope.sport && quote.market == target.marketKey &&
-            quote.commence.flatMap(sportsDate).map { abs($0.timeIntervalSince(event.start)) <= 60 } == true &&
+            quote.commence.flatMap(date).map { abs($0.timeIntervalSince(event.start)) <= 60 } == true &&
             quote.eventLabel.map { labels.contains(normalized($0)) } == true
         }) else { return empty("Conflicting or unrelated event rows were excluded.") }
         let groups = Dictionary(grouping: response.markets, by: \.id)
@@ -213,7 +225,7 @@ enum AnalyticsOddsMatcher {
         for copies in groups.values {
             guard let quote = copies.first, quote.mode == "live", quote.line.map({ $0.isFinite }) != false, !quote.book.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   quote.price.isFinite, abs(quote.price) >= 100,
-                  let updated = quote.updated.flatMap(sportsDate), updated <= now,
+                  let updated = quote.updated.flatMap(date), updated <= now,
                   (!recordedArchive || updated <= event.start),
                   !["post", "final", "completed", "canceled", "cancelled", "postponed", "suspended", "in", "live"].contains(normalized(quote.eventState ?? "")) else { continue }
             let label = normalized(quote.label)

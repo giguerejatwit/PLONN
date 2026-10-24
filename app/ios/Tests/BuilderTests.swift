@@ -94,13 +94,13 @@ final class BuilderTests:XCTestCase {
         XCTAssertNil(BuilderLogic.rejection(for:b,existing:[a]))
         XCTAssertNil(BuilderLogic.assess([a,b],now:now).estimate)
     }
-    func testSampleMixCapacityAndFinishedEvents() {
+    func testSampleMixUnlimitedPicksAndFinishedEvents() {
         var sample=leg("sample","s");sample.mode="demo"
         XCTAssertEqual(BuilderLogic.quoteAge(sample,now:now),.sample)
         XCTAssertNotNil(BuilderLogic.rejection(for:sample,existing:[leg("a","a")]))
-        let nine=(0..<9).map{leg("\($0)","event\($0)")}
-        XCTAssertEqual(BuilderLogic.sanitized(nine).legs.count,8)
-        XCTAssertNil(BuilderLogic.assess(nine,now:now).estimate)
+        let many=(0..<40).map{leg("\($0)","event\($0)")}
+        XCTAssertEqual(BuilderLogic.sanitized(many).legs,many)
+        XCTAssertNotNil(BuilderLogic.assess(many,now:now).estimate)
         var final=leg("done","done");final.eventState="post"
         XCTAssertNil(BuilderLogic.assess([final,leg("a","a")],now:now).estimate)
         XCTAssertNil(BuilderLogic.assess([],now:now).estimate)

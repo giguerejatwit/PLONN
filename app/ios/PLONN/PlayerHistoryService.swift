@@ -69,12 +69,12 @@ actor PlayerHistoryService {
         #endif
     }
 
-    func read(_ url: URL) async throws -> Data {
+    func read(_ url: URL, refresh: Bool = false) async throws -> Data {
         try Task.checkCancellation()
         guard Self.allowedURL(url) else { throw PlayerHistoryError.invalidURL }
         let timestamp = clock()
         cache = cache.filter { $0.value.expires > timestamp }
-        if let hit = cache[url] {
+        if !refresh, let hit = cache[url] {
             cache[url] = Cached(data: hit.data, expires: hit.expires, touched: timestamp)
             return hit.data
         }

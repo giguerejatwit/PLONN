@@ -88,6 +88,13 @@ enum MatchupInsightSources {
                 offense[key] = own[key]
                 if opponent["teamGamesPlayed"] == games { allowed[key] = opponent[key] }
             }
+            // ESPN repeats scoring rates at different precisions (22.67 / 22.667).
+            // Reconcile them against the season count instead of discarding the rate
+            // as a conflict or arbitrarily taking the last category's value.
+            offense["totalPointsPerGame"] = nflScoringRate(stats["categories"], games: games)
+            if opponent["teamGamesPlayed"] == games {
+                allowed["totalPointsPerGame"] = nflScoringRate(results["opponent"], games: games)
+            }
             offense["rushingAttemptsPerGame"] = own["rushingAttempts"].map { $0 / games }
             offense["passingAttemptsPerGame"] = own["passingAttempts"].map { $0 / games }
             if opponent["teamGamesPlayed"] == games {
@@ -190,6 +197,25 @@ enum MatchupInsightSources {
         if let wrapper = categories as? [String: Any] { list = wrapper["categories"] as? [[String: Any]] ?? [] }
         else { list = categories as? [[String: Any]] ?? [] }
         return list.flatMap { $0["stats"] as? [[String: Any]] ?? [] }
+    }
+
+    private static func nflScoringRate(_ categories: Any?, games: Double) -> Double? {
+        let rows = entries(categories)
+        let values = metrics(categories)
+        guard rows.contains(where: { $0["name"] as? String == "totalPoints" }) else {
+            return values["totalPointsPerGame"]
+        }
+        guard let points = values["totalPoints"], points >= 0, points.rounded() == points else { return nil }
+        let rate = points / games
+        let representations = [rate, (rate * 100).rounded() / 100, (rate * 1000).rounded() / 1000]
+        let reported = rows.filter { $0["name"] as? String == "totalPointsPerGame" }
+        guard reported.allSatisfy({ row in
+            guard let value = number(row["value"]) else { return false }
+            // Accept the provider's two/three-decimal representations, not an
+            // arbitrary nearby value that could conceal a genuine disagreement.
+            return representations.contains { abs(value - $0) <= 1e-9 }
+        }) else { return nil }
+        return rate
     }
 
     private static func metrics(_ categories: Any?) -> [String: Double] {

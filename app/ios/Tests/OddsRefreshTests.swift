@@ -304,6 +304,15 @@ import XCTest
         XCTAssertFalse(Store.matchesRecordedEvent(row,sport:"NHL",home:"Home",away:"Away",start:start.addingTimeInterval(300),candidates:[row,competing],now:now))
         XCTAssertFalse(Store.matchesRecordedEvent(row,sport:"NHL",home:"Home",away:"Away",start:start.addingTimeInterval(601),candidates:[row],now:now))
     }
+    func testNBARecordedTipOffMatchesWithoutRescanningEveryProp() throws {
+        let quoteStart=try XCTUnwrap(sportsDate("2099-09-30T22:00:00Z")),start=quoteStart.addingTimeInterval(-600),now=start.addingTimeInterval(-3600)
+        let rows=(0..<2000).map {market("prop-\($0)",sport:"NBA")}
+        XCTAssertEqual(Store.recordedEventMarkets(rows,sport:"NBA",home:"Home",away:"Away",start:start,now:now).count,rows.count)
+        var duplicate=rows[0];duplicate.id="competing";duplicate.event="different-event"
+        XCTAssertTrue(Store.recordedEventMarkets(rows+[duplicate],sport:"NBA",home:"Home",away:"Away",start:start,now:now).isEmpty)
+        XCTAssertTrue(Store.recordedEventMarkets(rows,sport:"NBA",home:"Away",away:"Home",start:start,now:now).isEmpty)
+        XCTAssertTrue(Store.recordedEventMarkets(rows,sport:"NBA",home:"Home",away:"Away",start:start,now:start).isEmpty)
+    }
 
     func testPropsWithWrongScheduledStartCannotJoinMatchingGame() async {
         let account=account(),store=store()

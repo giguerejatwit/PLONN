@@ -58,6 +58,8 @@ struct SportsItem:Sendable {var id:String;var name:String="Game";var live=false;
 @MainActor final class TestClient { let functions=TestFunctions() }
 @MainActor final class AccountStore: ObservableObject {
  @Published var user: TestUser?
+ let access=AccountAccessCoordinator()
+ var hasSignedInAccount:Bool {AccountAccessPolicy.permits(ownerID:user?.id,isAnonymous:user?.isAnonymous)}
  let client=TestClient()
  init(owner: UUID) { user=TestUser(id:owner) }
 }
@@ -71,7 +73,7 @@ with tempfile.TemporaryDirectory(prefix='plonn-odds-tests-') as directory:
     (core / 'Store.swift').write_text('import SwiftUI\nimport Combine\n' + headers + '\n' + source[start:end])
     (core / 'TransportDouble.swift').write_text(stubs)
     (core / 'AllGamesStore.swift').write_text('import SwiftUI\nimport Combine\n'+slate_source)
-    for name in ['WatchlistStorage.swift', 'Probability.swift', 'PLONNServicePolicy.swift']:
+    for name in ['WatchlistStorage.swift', 'Probability.swift', 'PLONNServicePolicy.swift', 'BuilderLogic.swift', 'AccountAccess.swift']:
         (core / name).write_text(((args.source_dir/name) if (args.source_dir/name).exists() else (root/'PLONN'/name)).read_text())
     for name in ['OddsRefreshTests.swift','AllGamesOddsTests.swift','RecordedOddsSnapshotTests.swift']:
         if (root/'Tests'/name).exists():

@@ -2,6 +2,16 @@ import Foundation
 import XCTest
 @testable import PLONNCore
 final class RecordedEventSelectionTests:XCTestCase {
+func testNBAScheduledTimeAndProviderTipOffResolveSameMatchup() throws {
+ let start=sportsDate("2026-10-23T23:00:00Z")!,now=start.addingTimeInterval(-3600)
+ let row=RecordedEventMetadata(id:"0d34c898f6cbb990077ae9f0a2773513",code:"basketball_nba",homeTeam:"Boston Celtics",awayTeam:"New York Knicks",commence:"2026-10-23T23:10:00Z")
+ func select(_ rows:[RecordedEventMetadata])->RecordedEventMetadata? {
+  RecordedEventSelection.select(rows,sport:"NBA",phase:.regular,home:"Boston Celtics",away:"New York Knicks",start:start,now:now)
+ }
+ XCTAssertEqual(select([row])?.id,row.id)
+ XCTAssertNil(select([row,.init(id:"second",code:row.code,homeTeam:row.homeTeam,awayTeam:row.awayTeam,commence:row.commence)]))
+ XCTAssertNil(select([.init(id:row.id,code:row.code,homeTeam:row.awayTeam,awayTeam:row.homeTeam,commence:row.commence)]))
+}
 func testStrictMetadataSelection() throws {
 let f=ISO8601DateFormatter();let now=f.date(from:"2026-10-14T12:00:00Z")!;let start=f.date(from:"2026-10-14T23:30:00Z")!
 func row(_ id:String="one",_ code:String="icehockey_nhl",_ home:String="Washington Capitals",_ away:String="Montréal Canadiens",_ time:String="2026-10-14T23:40:00Z")->RecordedEventMetadata{.init(id:id,code:code,homeTeam:home,awayTeam:away,commence:time)}

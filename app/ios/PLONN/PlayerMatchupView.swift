@@ -311,7 +311,7 @@ struct PlayerMatchupView: View {
                     if !running {
                         if purchases.mayUseProFeatures {
                             if (setup.start ?? .distantPast) > Date() {
-                                Button(forecast == nil ? (attempted ? "Resume or try again" : "Build matchup outlook") : "Update outlook") { Task { await run(retrain: forecast != nil || retryIsNewRun) } }.plonnGlassButton(prominent: true)
+                                Button(forecast == nil ? (retryIsNewRun ? "Try again" : attempted ? "Resume outlook" : "Build matchup outlook") : "Update outlook") { Task { await run(retrain: forecast != nil || retryIsNewRun) } }.plonnGlassButton(prominent: true)
                                 if forecast != nil { Text("Updating uses another model run.").font(.caption).foregroundStyle(.secondary) }
                             }
                         } else { Button("Unlock matchup outlooks with Pro") { showPro = true }.plonnGlassButton(prominent: true) }

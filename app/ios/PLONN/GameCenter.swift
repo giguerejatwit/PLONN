@@ -607,7 +607,7 @@ private struct TodayGameDetail: View {
     @State private var search = ""
     private var matchupMarkets: [Market] {
         guard !LiveMatchupPolicy.showsGameContext(event:event,state:game.state,snapshot:liveSnapshot,now:Date()),account.hasSignedInAccount,let start=sportsDate(game.start) else {return []}
-        return markets.live.filter { Store.matchesRecordedEvent($0,sport:sport,home:game.home,away:game.away,start:start,candidates:markets.live) }
+        return Store.recordedEventMarkets(markets.live,sport:sport,home:game.home,away:game.away,start:start)
     }
     private var matching: [Market] {
         guard !LiveMatchupPolicy.showsGameContext(event:event,state:game.state,snapshot:liveSnapshot,now:Date()),account.hasSignedInAccount,let start=sportsDate(game.start) else {return []}
@@ -1538,10 +1538,15 @@ private struct MatchupAdvantagesView:View {
    }
    Text("Team comparison").font(.system(.headline, design: .monospaced))
    ScrollView(.horizontal,showsIndicators:false) {
-    HStack {ForEach(groups,id:\.self) {group in
-     Button(group){selectedGroup=group}.font(.system(.caption, design: .monospaced).bold()).padding(.horizontal,12).padding(.vertical,9)
-      .background(activeGroup==group ? charcoalAccent:navySurface,in:Capsule()).foregroundStyle(activeGroup==group ? navy:charcoalAccent)
-    }}
+    HStack(spacing:8) {ForEach(groups,id:\.self) {group in
+     Button {selectedGroup=group} label: {
+      Text(group).font(.system(.caption,design:.monospaced).bold())
+       .foregroundStyle(activeGroup==group ? brandAccent:Color.primary)
+       .padding(.horizontal,12).frame(minHeight:44)
+       .plonnGlassSurface(selected:activeGroup==group,radius:22)
+     }.buttonStyle(.plain)
+      .accessibilityAddTraits(activeGroup==group ? .isSelected:[])
+    }}.plonnGlassGroup()
    }
    if researchLoading || data.loading || loadedResearchSignature != researchSignature {PLONNLoader("Comparing teams…")}
    ForEach(loadedResearchSignature == researchSignature ? data.teams:[]) { team in
@@ -1877,8 +1882,11 @@ struct StatLabel:View {
   HStack(spacing:4) {
    Text(title)
    if let explanation {
-    Button {showing=true} label: {Image(systemName:"questionmark.circle").font(.system(.caption, design: .monospaced)).padding(.vertical,6)}
-     .plonnGlassButton().accessibilityLabel("Define "+title)
+    Button {showing=true} label: {
+     Image(systemName:"questionmark").font(.system(.caption,design:.monospaced))
+      .frame(width:28,height:28).plonnGlassSurface(radius:14)
+      .frame(width:44,height:44).contentShape(Rectangle())
+    }.buttonStyle(.plain).accessibilityLabel("Define "+title)
      .sheet(isPresented:$showing) {
       NavigationStack {
        ScrollView {VStack(alignment:.leading,spacing:16) {Text(explanation);if let matchupContext {Text("Matchup context").font(.system(.headline, design: .monospaced)).foregroundStyle(brandAccent);Text(matchupContext)}}.font(.system(.body, design: .monospaced)).frame(maxWidth:.infinity,alignment:.leading).padding(24)}

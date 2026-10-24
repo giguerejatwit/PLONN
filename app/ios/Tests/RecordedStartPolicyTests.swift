@@ -8,7 +8,18 @@ final class RecordedStartPolicyTests:XCTestCase {
   XCTAssertTrue(accepts(600,rows));XCTAssertFalse(accepts(601,[("one",start.addingTimeInterval(601))]))
   XCTAssertFalse(accepts(600,rows+[("two",start)]));XCTAssertFalse(accepts(600,[]))
   XCTAssertFalse(accepts(600,rows,clock:start));XCTAssertFalse(accepts(600,rows,sport:"NFL"))
-  XCTAssertTrue(accepts(0,rows,sport:"MLB"));XCTAssertFalse(accepts(600,rows,sport:"NBA"))
+  XCTAssertTrue(accepts(0,rows,sport:"MLB"));XCTAssertTrue(accepts(600,rows,sport:"NBA"))
+ }
+ func testNBATipOffRequiresSingleExactPairCandidateAndStaysPregame() {
+  let start=sportsDate("2026-10-23T23:00:00Z")!,quote=sportsDate("2026-10-23T23:10:00Z")!,now=start.addingTimeInterval(-3600)
+  func match(_ rows:[(String,Date)],_ time:Date?=nil)->Bool {
+   RecordedStartPolicy.accepts(eventID:"knicks-celtics",quoteStart:quote,start:start,sport:"NBA",candidates:rows,now:time ?? now)
+  }
+  let rows=[("knicks-celtics",quote)]
+  XCTAssertTrue(match(rows));XCTAssertFalse(match([]))
+  XCTAssertFalse(match(rows+[("another-game",start)]))
+  XCTAssertFalse(match(rows,start));XCTAssertFalse(match(rows,quote))
+  XCTAssertFalse(RecordedStartPolicy.accepts(eventID:"knicks-celtics",quoteStart:quote.addingTimeInterval(1),start:start,sport:"NBA",candidates:rows,now:now))
  }
  func testCrossUTCDayRejected() {
   let start=Date(timeIntervalSince1970:86400-300),quote=Date(timeIntervalSince1970:86400+300)

@@ -2,6 +2,10 @@ import XCTest
 @testable import PLONNCore
 
 final class LabServiceContractTests:XCTestCase {
+    func testWorkerFailureExplainsRetryWithoutBlamingValidSelection() {
+        let body: [String: Any] = ["reason": "training_worker_failed", "message": "private server details"]
+        XCTAssertEqual(PlayerMatchupSetup.failure(body), "The model service stopped before finishing. Try again with the same selection.")
+    }
     func testRetainedInferenceRemainsAvailableWhenTrainingIsDisabled() throws {
         var catalog=try capabilities()
         catalog.enabled=false;catalog.service_enabled=false;catalog.retained_artifacts=true

@@ -7,6 +7,7 @@ struct PlayerMatchupEvent: Equatable, Identifiable {
     let homeID: String
     let awayID: String
     var seasonType: Int? = nil
+    var isLive = false
     var id: String { game.id }
 }
 struct PlayerMatchupPlayer: Equatable, Identifiable {

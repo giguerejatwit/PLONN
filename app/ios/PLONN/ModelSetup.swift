@@ -332,6 +332,7 @@ enum LabServiceContract {
             return "This model or feature selection is unavailable. Adjust the setup and try again."
         case "training_interrupted": return "Training was interrupted. Choose Retrain with new data to try again."
         case "training_time_limit": return "Training took too long. Adjust the setup or retry later."
+        case "training_worker_failed": return "The model service stopped before finishing. Try again with the same selection."
         case "rate_limit", "quota_exceeded", "owner_busy", "training_capacity_busy", "training_quota_exceeded":
             return "The model service is busy or your run limit has been reached. Try again later."
         case "hosted_training_disabled": return "Model runs are temporarily unavailable. You can still save this setup."

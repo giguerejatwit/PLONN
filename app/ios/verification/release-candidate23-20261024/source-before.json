@@ -1,0 +1,1070 @@
+[
+  {
+    "path": "PLONN/AILab.swift",
+    "sha256": "e66db8ba7c69a69c8de85aaee3adc374c66f3d2bd53215ae2d874cb989809191"
+  },
+  {
+    "path": "PLONN/Account.swift",
+    "sha256": "8544625b56304c24739828415129788ea04da441ad88de550440c7bd660976db"
+  },
+  {
+    "path": "PLONN/AccountAccess.swift",
+    "sha256": "1c0753c6a2d3b2dde5007abe9a97a77c9340168210b0ce5bc62ba6bc47fd3336"
+  },
+  {
+    "path": "PLONN/AnalyticsFeedController.swift",
+    "sha256": "7d136eb50655431c477d887cce582218fa339ac4fbb5db7844fa7e7b8f96377f"
+  },
+  {
+    "path": "PLONN/AnalyticsFeedCore.swift",
+    "sha256": "0847f10e6c31823cc24332e5d2bb099de2d102a7e61c7bddab4ddc1f4b1e6969"
+  },
+  {
+    "path": "PLONN/AnalyticsFeedService.swift",
+    "sha256": "d360fc28c78aedffbfe544ffca5dd19a6fc3c9101c33e9701129e7c2933b1a98"
+  },
+  {
+    "path": "PLONN/AnalyticsHistory.swift",
+    "sha256": "1861e407932d2b3708d0fccd57ab73d29a38916723d5ef64e3e14f1aa60ad298"
+  },
+  {
+    "path": "PLONN/AnalyticsOddsMatching.swift",
+    "sha256": "7d33b6a22f0e8b1327643e4fee37c3bbb3b6dfd4c9b87617d4574562b18e7fd7"
+  },
+  {
+    "path": "PLONN/AnalyticsTrendInsights.swift",
+    "sha256": "4c94b17c4b5ef103a9ac4f3bbac65ad28aa662fc2cf00f57118a4ded26d1981f"
+  },
+  {
+    "path": "PLONN/AnalyticsView.swift",
+    "sha256": "61ff0fd5a4295f0c25d2918b6659b90ba5ecfa1aeb5d80ade1876dad52bab897"
+  },
+  {
+    "path": "PLONN/AskPLONNContextResolver.swift",
+    "sha256": "c402b0250c2ca58c0f5a273bf97dbd7b1f5cdc9d2163c1801cc7266ed8a50705"
+  },
+  {
+    "path": "PLONN/AskPLONNContextService.swift",
+    "sha256": "b9aae4d1db7458fe78b35ee7a72da9d50bb99bb6a318d1fb88b3411f6dd7c1c1"
+  },
+  {
+    "path": "PLONN/AskPLONNCore.swift",
+    "sha256": "58ea8cb5bfa1416db0d2a3befc402590e3a89b8d2ea27b07ebae7436d76347ea"
+  },
+  {
+    "path": "PLONN/AskPLONNModelDraft.swift",
+    "sha256": "36760bae69c50077566b3468e0d7e2a6cc26d43745c52a03031a5cb19dbd7cdf"
+  },
+  {
+    "path": "PLONN/AskPLONNResearch.swift",
+    "sha256": "7b1f1589613dd2a24c0ab3ece278845fec06615821e440981fc9312d5fccd4ae"
+  },
+  {
+    "path": "PLONN/AskPLONNView.swift",
+    "sha256": "0272018ad3ce817b450b7673bbb1831a75004200e7868294a538ab61b3ab33c0"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
+    "sha256": "dde32157cd554bda5f60fbf74aef1e22aa68e227f6fe58ac98db12c1461614f5"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/AppIcon.appiconset/Contents.json",
+    "sha256": "08a48c4d87c37a4463ea6121539b4b468350b5d6216fdd2229d19e54f4063b95"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/Contents.json",
+    "sha256": "47d7e4a36c59b0f8829154abe3a7f6b7ef0c5ea5cf8a9bfccbc6bdf85e811d1b"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/league-nhl.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/league-nhl.imageset/logo.png",
+    "sha256": "18995deb5b726f87e58163159de8bfc383129cd29c3056c641082cf914e40586"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-anaheim-ducks.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-anaheim-ducks.imageset/logo.png",
+    "sha256": "3b94f09309431a7fbaee2947bf07b99df9c0aac8d61eaba3634e2078a13c5cdc"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-boston-bruins.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-boston-bruins.imageset/logo.png",
+    "sha256": "70f79a2352abcf9ea24bcab9e4863ddfcf1a4d329c9edecb3b64bfbda24409ed"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-buffalo-sabres.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-buffalo-sabres.imageset/logo.png",
+    "sha256": "c5ff4ae23f112f73eca9569801e9f5b82366fafaa9f1f3dae535f9cafd673148"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-calgary-flames.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-calgary-flames.imageset/logo.png",
+    "sha256": "8e1638154eaae178588702673410e00938831f0a9b05512a0c8727c6e45e76a6"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-carolina-hurricanes.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-carolina-hurricanes.imageset/logo.png",
+    "sha256": "8b28b34fbd7b4953c550fc9fde1656f68f1f402088f3d86922e3c6ba514330a0"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-chicago-blackhawks.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-chicago-blackhawks.imageset/logo.png",
+    "sha256": "4e3260f13d674c1ec71e6ac7c08f9c6d4680fe4052a087814b66466ddaca15d9"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-colorado-avalanche.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-colorado-avalanche.imageset/logo.png",
+    "sha256": "01dcc259d7d40935c487a1db0b464d933ebc120db6808bf3d845a2e902d55059"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-columbus-blue-jackets.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-columbus-blue-jackets.imageset/logo.png",
+    "sha256": "a140e93fa031bae0464306c52fa24aef3821fa9d17e92cf66939efb6b0d2a957"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-dallas-stars.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-dallas-stars.imageset/logo.png",
+    "sha256": "58fcc157a3b553bd10c7231118623b1e8ef5303e6b93e490e357ab7f5ca6690d"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-detroit-red-wings.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-detroit-red-wings.imageset/logo.png",
+    "sha256": "a634a4fcd294b2a439ccb16ab4e554227ec57aac2dfc198014f9f112a612c12d"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-edmonton-oilers.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-edmonton-oilers.imageset/logo.png",
+    "sha256": "f8e95d487f02c85aeb65a200f226b795e7a8de95604df49664962ad473d57666"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-florida-panthers.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-florida-panthers.imageset/logo.png",
+    "sha256": "68f45d7aa38031ec83bd985058f943d54274ad890ebf112f4971388ad87d1d4f"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-los-angeles-kings.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-los-angeles-kings.imageset/logo.png",
+    "sha256": "92c3b54fa5e296730885fb0ed63a5a8c062d50c827ae3ab1733c9529974733ff"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-minnesota-wild.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-minnesota-wild.imageset/logo.png",
+    "sha256": "b1d7a8e3e887381d590649665080184cacfc50050f767c0723fcc6524ef95188"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-montreal-canadiens.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-montreal-canadiens.imageset/logo.png",
+    "sha256": "2ab02cb9e6c668e8b981f2b23174be1eb94554b8c3a86dfc5df4f6fb377a8560"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-nashville-predators.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-nashville-predators.imageset/logo.png",
+    "sha256": "4d2e7def5af8332185bcfeb59fc9633f4fb30417262aa05e68095d93e4e12c2d"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-new-jersey-devils.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-new-jersey-devils.imageset/logo.png",
+    "sha256": "9a10cdba30197130eb999bd19e9f40fb34be153599f09e98e6c7f472e41ef242"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-new-york-islanders.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-new-york-islanders.imageset/logo.png",
+    "sha256": "e6bfc0d1b6d437d6fa09028ac465691ac64154cf396584f1d174bbe32be17921"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-new-york-rangers.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-new-york-rangers.imageset/logo.png",
+    "sha256": "7a43515a4551cc0708140f89d2f54d57259dde1498001c29ec28cc5b1d96fa7f"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-ottawa-senators.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-ottawa-senators.imageset/logo.png",
+    "sha256": "05bddfd77b0f30e13cd4a81708e41cc72cfad5b9d136a11f35eb01016b27c849"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-philadelphia-flyers.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-philadelphia-flyers.imageset/logo.png",
+    "sha256": "0411764d10618e764c58e5c9b7e88d9b0dc7c77ebe9813095c338cd485e2dd04"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-pittsburgh-penguins.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-pittsburgh-penguins.imageset/logo.png",
+    "sha256": "1b4dc90de4cb2eef301c0d2f9ffefd5cef2e0de1a8ad7d863e96ef686986e00f"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-san-jose-sharks.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-san-jose-sharks.imageset/logo.png",
+    "sha256": "23c8bb973fc6e9e57c9f63b74fbf7b1a4e325515371e952579d0e0df13d33a5b"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-seattle-kraken.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-seattle-kraken.imageset/logo.png",
+    "sha256": "35208c3044f129338b22b3b4de0ca0bf384a2919468fe4077183ef5bcca87fcf"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-st--louis-blues.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-st--louis-blues.imageset/logo.png",
+    "sha256": "af4f35bdd196d566c9caa33e42dc0cd5284053631cb4a8ef190fb107f9e071b8"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-tampa-bay-lightning.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-tampa-bay-lightning.imageset/logo.png",
+    "sha256": "3f46ba7991bb86ecd35112b65136b507325d023fc43d42e3d8015354363a62b3"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-toronto-maple-leafs.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-toronto-maple-leafs.imageset/logo.png",
+    "sha256": "2c7646270d2e07f5ea16b277d9ebf916ee8ee0718f3049d123402e38f930e9ba"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-utah-mammoth.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-utah-mammoth.imageset/logo.png",
+    "sha256": "260a50b0164256131df4675b558f03a748525f8c0b138c23f54f37f63c0958d8"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-vancouver-canucks.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-vancouver-canucks.imageset/logo.png",
+    "sha256": "306e860f33a92794782c0a365006627d12a73b750e1350afb24592a60b36506c"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-vegas-golden-knights.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-vegas-golden-knights.imageset/logo.png",
+    "sha256": "913da521af36370b9b9a3df6ca6b869c915b54732cc166d369865fbc24197e44"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-washington-capitals.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-washington-capitals.imageset/logo.png",
+    "sha256": "5987a4f5511e6bd443042757522b040d1b7a258a4bc488693a250b658cf43a6d"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-winnipeg-jets.imageset/Contents.json",
+    "sha256": "26f811d796093a8440c2cb8e3c02d37c2eea628577e63a2ede07775860b8f928"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/team-winnipeg-jets.imageset/logo.png",
+    "sha256": "45d1d6176f1753f419671c1a45bf832042e339a8e47163abfff06337933ded8f"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/trident.imageset/Contents.json",
+    "sha256": "0c995104b3b3d4de5433e0cd10be4d0e1e89c638e8ccc16a17228c6e5cbdd04f"
+  },
+  {
+    "path": "PLONN/Assets.xcassets/trident.imageset/trident.png",
+    "sha256": "59274214bfc30c9c9febf58a5e23de402f45d49969fd8c5343b6bb6a0e211058"
+  },
+  {
+    "path": "PLONN/AuthCallbackPolicy.swift",
+    "sha256": "6b866c105a324b7c1b0e9ea1cac3bcb47b5e71c04e2a85820a4fd7d474a2bb9a"
+  },
+  {
+    "path": "PLONN/BasketballSimulation.swift",
+    "sha256": "952e5109602edef17a65dca297dae58c84173ec27cb8999286bea63b5385facf"
+  },
+  {
+    "path": "PLONN/BuilderLogic.swift",
+    "sha256": "5cdc491498624d308ddd79aa12b5e661024da2f39f50e691ba0f88ad46d2d6ac"
+  },
+  {
+    "path": "PLONN/CelticsPistonsSimulation.json",
+    "sha256": "dd14e418366efd7a5f2083dff67eb971eef8ee375ad099c766e346e3ee219599"
+  },
+  {
+    "path": "PLONN/CloudConfiguration.swift",
+    "sha256": "f94c250a9fb72da3bcb20f6c63c926ce212490eebab1ffd93e708d1db944b421"
+  },
+  {
+    "path": "PLONN/EntitlementPolicy.swift",
+    "sha256": "5737f2d93ac07700781b19d9d44ad4eb3fa036ee92decdba84f653a79984baf4"
+  },
+  {
+    "path": "PLONN/ExploreResearch.swift",
+    "sha256": "2bf01757a34acd84e5e932b7c8ed0b90d6582005ed3c060f9ce31180b9d81ea7"
+  },
+  {
+    "path": "PLONN/FrozenMatchupReports-20261013.json",
+    "sha256": "be7c932a32c4f8658b2933c777f740c7a4801370523a849e41c827d09057d321"
+  },
+  {
+    "path": "PLONN/GameCenter.swift",
+    "sha256": "6fc60582af47c5267472f3f0ca9c26806ae06e817a9a1143ad2122c64b0d8407"
+  },
+  {
+    "path": "PLONN/GemmaConsentView.swift",
+    "sha256": "937611e565d850d0298d8f5a50423f2bd6b5562f7d465ad2cd0d37bb09624601"
+  },
+  {
+    "path": "PLONN/GemmaMatchupInsights.swift",
+    "sha256": "2a535b4c82b0c23117c3e7223f9972cad5739a85ae6d228f3cea02d0bc3d2cd5"
+  },
+  {
+    "path": "PLONN/HostedAskPLONNProvider.swift",
+    "sha256": "291c24fdbfcdf4d6226033f4a50db6e344892c77e889a817d95f7c8395c174ec"
+  },
+  {
+    "path": "PLONN/Info.plist",
+    "sha256": "e6df1583148f9f81208325fe147a96c81972f104b2984068627411b2769f013f"
+  },
+  {
+    "path": "PLONN/InterestsCore.swift",
+    "sha256": "05411979e7b2c2c1f62fa366a08709e7aa4f38c1525a5968a15193582e8a3bf3"
+  },
+  {
+    "path": "PLONN/InterestsView.swift",
+    "sha256": "84faa412ba6bd15c089cec47bcf3d61cb2d935a290c6c613f2e04aaf589c5343"
+  },
+  {
+    "path": "PLONN/LabGamePicker.swift",
+    "sha256": "985f8af7556a8d9616269515128790404ca49eee39489aa0259d47abbbae203b"
+  },
+  {
+    "path": "PLONN/LabHistoricalGames.swift",
+    "sha256": "2c1c5bfb6b837db40367a339b9458856f8a7999354a1ed9eadeecedd70cf2482"
+  },
+  {
+    "path": "PLONN/LiveMatchupContext.swift",
+    "sha256": "0f1f365e941719b8a699b9ad62043f85943e30127c6cf247acc2980dbabbcb59"
+  },
+  {
+    "path": "PLONN/LiveMatchupView.swift",
+    "sha256": "7b87fdfe6ed11c144df284c461477da3412604f647d994d956bd4673497e6cec"
+  },
+  {
+    "path": "PLONN/LocalAskPLONNProvider.swift",
+    "sha256": "37ae8e7ec5053733787f0acdd559f4cc07f6080e011e50ee8d2380ee51f7b188"
+  },
+  {
+    "path": "PLONN/LocalStoreKitLab.swift",
+    "sha256": "1bb35c21d8807d6db0b83edd3ccd96abd68a185ff1d62cd564d3d4646ff56f4a"
+  },
+  {
+    "path": "PLONN/MatchupInsightGenerationState.swift",
+    "sha256": "04283a0577a9498b4fc4b2d77dac8a42a4b778580d1e31502ee1fa7b3bc8be68"
+  },
+  {
+    "path": "PLONN/MatchupInsightSources.swift",
+    "sha256": "3f4ff2bb70078ac4563eab7139d60c092a3f321505fcdc5d8490324aa5e0cee7"
+  },
+  {
+    "path": "PLONN/MatchupInsights.swift",
+    "sha256": "d5215ed7b0483c881fbb55f02a28f135895a915b8aa296ff16cccddf839d7ad3"
+  },
+  {
+    "path": "PLONN/MatchupNarrativeClient.swift",
+    "sha256": "a30090113340edf7ec9d6971a24479196b834094077beb78ddddc5e1970356e1"
+  },
+  {
+    "path": "PLONN/MatchupNarrativePresentation.swift",
+    "sha256": "541ca8a827c1eedf8476760c48c3ec7b826bfa8cfb6e0721d54d8381675e5e1d"
+  },
+  {
+    "path": "PLONN/MatchupNarrativeReports-v4.json",
+    "sha256": "3db2a6d6752f3dc1414ea692fd2302c1ab9caad9f52bcb81dc35d10198bf79f8"
+  },
+  {
+    "path": "PLONN/MatchupNarrativeReports-v5.json",
+    "sha256": "52c38edaaed4b44727385cff61f15dfc77ffb24f9994fe0075f2ea7ed14baf05"
+  },
+  {
+    "path": "PLONN/MatchupNarrativeV4.swift",
+    "sha256": "90b55ba017957dc93e891b2c12d06c928be4223d5df24d823e921e67bdbf4d48"
+  },
+  {
+    "path": "PLONN/MatchupNarrativeV5.swift",
+    "sha256": "293666eac475aa4224b59ac3b3bb6e5102b1b42437d82670d25177cb8eee56cf"
+  },
+  {
+    "path": "PLONN/MatchupOutlookSelection.swift",
+    "sha256": "dbe1e953294a662d30324447c860c1243816c9e33a4c3c79e521c4a5e99bd0e6"
+  },
+  {
+    "path": "PLONN/MatchupSimulation.swift",
+    "sha256": "a9e0a7a67d450271dab43c264ca83fa46ce8e6ce7918deb8a4781ec35c896a2b"
+  },
+  {
+    "path": "PLONN/ModelLibrary.swift",
+    "sha256": "e16549a539f7292addd61fc6f7bbab88b8f0aaa0685f72c7254ed10a6eae416a"
+  },
+  {
+    "path": "PLONN/ModelSetup.swift",
+    "sha256": "c6932247b05ad05ed7550f33eb51955c2c047da558d335418ac091f1a646a91f"
+  },
+  {
+    "path": "PLONN/NBAReplayView.swift",
+    "sha256": "e39c4235b010466527961b15cabaf7e9e6cd37ad145c887feecb1d639d6b6b94"
+  },
+  {
+    "path": "PLONN/NarrativeInjuryContext.swift",
+    "sha256": "40a57f29fb576d7dc6083349a2cb4fcddc534e23cd89bb67627c3859ef0a20e4"
+  },
+  {
+    "path": "PLONN/NarrativeInjuryRoleContext.swift",
+    "sha256": "3596f4d01d94b5a6cb1feaaf332a92ffb7b64b29cba6313dedbbc9206548eb78"
+  },
+  {
+    "path": "PLONN/OpponentPropHistory.swift",
+    "sha256": "d2f30619e1ad889dbb5d15b3b1382f193dbef6ea5bcabbe0a532af861fcda217"
+  },
+  {
+    "path": "PLONN/PLONNApp.swift",
+    "sha256": "ac6edc5189823a0b71c851b3545e3b19e4dee6f5f72f688f11fd5740f46987f9"
+  },
+  {
+    "path": "PLONN/PLONNLocal.storekit",
+    "sha256": "2bb25ae10a2b4bd2815f89c5693d6e1fdb2d145e00a83e6ea4996fdd66edc4ca"
+  },
+  {
+    "path": "PLONN/PLONNServicePolicy.swift",
+    "sha256": "630da86b2d8968926757c6d51f503c9d35c34e932af55785f145869a46b07aad"
+  },
+  {
+    "path": "PLONN/PlayerHistoryService.swift",
+    "sha256": "1419c089c40808fa156437da39d13603062e7ab7841f10671cb115ba884fcaac"
+  },
+  {
+    "path": "PLONN/PlayerMatchupCore.swift",
+    "sha256": "8dbe0504b5e2a5381ad9e2e4193d865416f48b8f39e6e436b68fff268484210b"
+  },
+  {
+    "path": "PLONN/PlayerMatchupLibraryView.swift",
+    "sha256": "b5804d454d365b591e7d88dac20ff6bd174a0f57dce5fa9b08cabb7c9bc6a7ab"
+  },
+  {
+    "path": "PLONN/PlayerMatchupSource.swift",
+    "sha256": "678f374055ca28085bd964f11293618334417d7c3ffbb9f0b902d4d41881b6b2"
+  },
+  {
+    "path": "PLONN/PlayerMatchupView.swift",
+    "sha256": "b7e3cc8a0cafca82caf13707ef9e8ff494de31d8c288e352a11c36ff83638a0b"
+  },
+  {
+    "path": "PLONN/PlayerSimulation.swift",
+    "sha256": "502d168cfce0744f0a545eac3b663008c1677ed51a3b848181373547d7297ccb"
+  },
+  {
+    "path": "PLONN/PlayerSimulationView.swift",
+    "sha256": "a3373462c3b1223299b397011b23137459c0e84716250ceb890edf6eb918604a"
+  },
+  {
+    "path": "PLONN/PreviewAccessView.swift",
+    "sha256": "e9200b6942192ff8f1203d5231f91d5cff79b00973b995ab0e2d965cf5bdbcc8"
+  },
+  {
+    "path": "PLONN/PrivacyInfo.xcprivacy",
+    "sha256": "caccf041f708417651193d91a2cd1c59d1a4232df3f5aecf4f075085af2c2cba"
+  },
+  {
+    "path": "PLONN/ProPaywallView.swift",
+    "sha256": "5e3f7e4a9750c0eec734c4236a175bd9a9cff66b32a2e007ee1167e8ccf8e4ac"
+  },
+  {
+    "path": "PLONN/Probability.swift",
+    "sha256": "f876c6abba8381c5d79307863c844bd16ab5b62b67a9164acd85011f810a37a9"
+  },
+  {
+    "path": "PLONN/Purchases.swift",
+    "sha256": "fcb602992e9103eb79aac438986e704b9dadb5ff7ed476d959c762adf43f59c8"
+  },
+  {
+    "path": "PLONN/Referral.swift",
+    "sha256": "a2e7187f7a84500dbe75f9f9151c682da414dfe9bb67bc4e9cfaa91e4f12b4a5"
+  },
+  {
+    "path": "PLONN/RichSportsContext.swift",
+    "sha256": "7598bd96dd3c8a02f1f6e6799642268c047ef860551268e330f385bfff0e81bb"
+  },
+  {
+    "path": "PLONN/SharedMatchupReportView.swift",
+    "sha256": "318b7c82d96b384beff470b81cd51b10fedf6233275412e467c8872db7009e82"
+  },
+  {
+    "path": "PLONN/SharedMatchupReports.swift",
+    "sha256": "6c00b3a09b4332541203e0e5447422360c5a9b62267309ab6d8b14c72994fbcd"
+  },
+  {
+    "path": "PLONN/SimulationAvailability.swift",
+    "sha256": "d32fd4468a3e8bca16d7ff9f53c6ba390b1f24cbf1e99c284572b9915f3125f4"
+  },
+  {
+    "path": "PLONN/SimulationForecast.swift",
+    "sha256": "4da0d334669b765f43394a7251a58a08011fbf967bbf05ac2e5385d4a70f0b25"
+  },
+  {
+    "path": "PLONN/SimulationLive.swift",
+    "sha256": "4b3a85e381534cd227e14e168a9548e6d63e9e8c107eda28c2d8671bfc957ab7"
+  },
+  {
+    "path": "PLONN/SimulationOdds.swift",
+    "sha256": "2b0d7fa42f34ab033795d0daba4694958c5b5ca2f790201789bd7948cf281148"
+  },
+  {
+    "path": "PLONN/SimulatorView.swift",
+    "sha256": "bb6cbf8f3f32c29fb4f09a3951d7f28a2d678673fc5928e742f690cd55b554e9"
+  },
+  {
+    "path": "PLONN/SocialAuthPolicy.swift",
+    "sha256": "4e8f5b354a687c302e5afb2cf3ef86d42f013bd538bd7d6b7a213da9aa641fac"
+  },
+  {
+    "path": "PLONN/SportPlaySimulation.swift",
+    "sha256": "9df181807e8d36da19c9dbbc0d6bd9a1c4951bad4010fce5f69d406efe1a389b"
+  },
+  {
+    "path": "PLONN/SportsbookSelector.swift",
+    "sha256": "b232d638ecbba8e3157bf5e9a10dc2ffff5eb02813f6829b9774a3c829aecafe"
+  },
+  {
+    "path": "PLONN/UpcomingModelCore.swift",
+    "sha256": "f2d9d5777510346c1e03e3cd2a73ec7b36383afe3db1fadd3cd5910388a6f53a"
+  },
+  {
+    "path": "PLONN/UpcomingModelsView.swift",
+    "sha256": "be4f055983df85c82af33236c5160326e230bc6af2cdeac9d7e3e2e8f726f6bf"
+  },
+  {
+    "path": "PLONN/WatchlistStorage.swift",
+    "sha256": "542442798cf0f069f6006b1091bfb15b9e0f4b5dfb8b15d760c706e6ee66ab38"
+  },
+  {
+    "path": "PLONN/history.json",
+    "sha256": "dd13423257656d95da05de5b148a0d2bae54f2cfb2d6a3d5e97900baed9f6971"
+  },
+  {
+    "path": "PLONN/trident.png",
+    "sha256": "59274214bfc30c9c9febf58a5e23de402f45d49969fd8c5343b6bb6a0e211058"
+  },
+  {
+    "path": "PLONN.xcodeproj/project.pbxproj",
+    "sha256": "30408b4368d68d84d5c2d876ef5be3242a892af16213681ae2e5745971a1e7da"
+  },
+  {
+    "path": "PLONN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
+    "sha256": "552ff7b61d06aa72d478db80d8da0afa198b9ee275fac078cda2c05661d91bd7"
+  },
+  {
+    "path": "PLONN.xcodeproj/xcshareddata/xcschemes/PLONN StoreKit Lab.xcscheme",
+    "sha256": "c1ee327ae4b163ab7732f7180349b215da5519179642e1f1f1548c47acff5f89"
+  },
+  {
+    "path": "PLONN.xcodeproj/xcshareddata/xcschemes/PLONN.xcscheme",
+    "sha256": "437f5e02aa359ebb62bd76c9ee1b40baab68af53969476e722e79c2739805404"
+  },
+  {
+    "path": "Tests/AccountAccessTests.swift",
+    "sha256": "70373e9fcd6fae3faccd54d022ab7dbee234ad5f5f753fdb806a2e98415744ad"
+  },
+  {
+    "path": "Tests/AllGamesOddsTests.swift",
+    "sha256": "a8a2bdcebfa814769c1fc7f38b5358b6a7d1dbe46b336ae8d68239403bfcfe59"
+  },
+  {
+    "path": "Tests/AnalyticsCardOddsTests.swift",
+    "sha256": "7dba1767a77d2f4222b5939091494ffc6f196858e692f63cb6b0098ce3a82425"
+  },
+  {
+    "path": "Tests/AnalyticsFeedCoreTests.swift",
+    "sha256": "955bdcb0e40a3128d2bbcdae65bf8251a285c712d1e324202e1d4c50bf754147"
+  },
+  {
+    "path": "Tests/AnalyticsFeedServiceTests.swift",
+    "sha256": "0d757cfe8c368329c5da3c7efb92959952dde633d0e541fa07cb43fd93629215"
+  },
+  {
+    "path": "Tests/AnalyticsHistoryTests.swift",
+    "sha256": "985b6570bfd3f5163e670fd1636341318a1f93ae7e6a6d094e4207c89cb6f61d"
+  },
+  {
+    "path": "Tests/AnalyticsLifecycleTests.swift",
+    "sha256": "7e69edfee91d5572ef7b073e5d512101ed024d2083c3b98f88419b6233abd17b"
+  },
+  {
+    "path": "Tests/AnalyticsOddsMatchingTests.swift",
+    "sha256": "3e6d3179c272a671f8dce0a9838081fefce48a7623eadc0d407b786aaff6f9e9"
+  },
+  {
+    "path": "Tests/AnalyticsPageCacheTests.swift",
+    "sha256": "260eb83756f5d780974febf4e42d0d9508a176044acde48fb2a36419708e23a2"
+  },
+  {
+    "path": "Tests/AnalyticsRecordedFeedTests.swift",
+    "sha256": "91c66cdfebcbad773d8ce04a7dbc3afa3eb4e6d93e2e35644465c834095833ec"
+  },
+  {
+    "path": "Tests/AnalyticsResearchTests.swift",
+    "sha256": "9559c1b76a6fd33e80dbcf647a27194b5613ad31d8957d1264c4f7c0686de4e1"
+  },
+  {
+    "path": "Tests/AnalyticsTrendInsightsTests.swift",
+    "sha256": "56983dad64c4729fe23c5b824ae3ac1c520eb56a84cf7c0ee7d7aae2adb369b6"
+  },
+  {
+    "path": "Tests/AskPLONNContextTests.swift",
+    "sha256": "c1d1215730ceea1489f42ecdfb09c07365531decd06479207361e8bbece2e8af"
+  },
+  {
+    "path": "Tests/AskPLONNCoreTests.swift",
+    "sha256": "ae4b3779fe039784eea7dfb20a31192342cf6998ecd8d902582603a9db74b377"
+  },
+  {
+    "path": "Tests/AskPLONNLocalContractTests.swift",
+    "sha256": "43a8a681faab9061b67d398db1f2c64b72705cb8470780cbe48762d82f0d76d1"
+  },
+  {
+    "path": "Tests/AskPLONNModelDraftTests.swift",
+    "sha256": "cd9240b23efc75ad231d2608c6abeb182442f6e5fa8e63617a67571af9a420ea"
+  },
+  {
+    "path": "Tests/AskPLONNNarrativeContextTests.swift",
+    "sha256": "c0c14a014fe4478f58addc8b83bed72c8effbdfa45ae243a38d80790a2b71c04"
+  },
+  {
+    "path": "Tests/AskPLONNResearchTests.swift",
+    "sha256": "68614c10af4fd510a2902403991cedc2cbb2e44a3db42b1e27738671d1a1cb05"
+  },
+  {
+    "path": "Tests/AskPLONNV5ContextTests.swift",
+    "sha256": "3fba9bafc795e2421821f31eff26c56462c5f86ad3740d318098968a93264d7d"
+  },
+  {
+    "path": "Tests/AuthCallbackPolicyTests.swift",
+    "sha256": "332b81595680dc6456d5ec7ecc9db14a1c58c24eb0def0df33d34f20d4bbcbda"
+  },
+  {
+    "path": "Tests/BasketballSimulationTests.swift",
+    "sha256": "35d8d4423835cfcc515d8a74f2cff3cf60bffec6a8dbd4b6d264163a13c19890"
+  },
+  {
+    "path": "Tests/BasketballV41Tests.swift",
+    "sha256": "ddae3a198ca567142613e93d4faa1b1c3ca45cd8a5a881a5365db01d710339ce"
+  },
+  {
+    "path": "Tests/Build6MatchupContractReproductionTests.swift",
+    "sha256": "bb3ba0b18a4056c43d7e8d1cb853ebb315443170ec32b701f4212d186d62f162"
+  },
+  {
+    "path": "Tests/BuilderParlayStorageTests.swift",
+    "sha256": "1e7f624ae551db0c58357b76a3b70c2f52c123e0ec7aba20f327886402962ce8"
+  },
+  {
+    "path": "Tests/BuilderTests.swift",
+    "sha256": "af0cd4e3ca75de8f32642a535d22d0822c0e074854e0a90d6756c27f3dbdd216"
+  },
+  {
+    "path": "Tests/CurrentMatchupOutlookTests.swift",
+    "sha256": "f485e5475fefdc42bc38d7e5c7b94e49a6730a3ba037d0e8212f33848b6ad3b6"
+  },
+  {
+    "path": "Tests/CurrentRosterSimulationTests.swift",
+    "sha256": "e1bee389474186a9ca74ef215e9b7cc5a2fab417ebfc3c7a58b68885d2ab1141"
+  },
+  {
+    "path": "Tests/EntitlementPolicyTests.swift",
+    "sha256": "2b1952cc5b3f2dbc4f3584268f931a652f809da4e4c6a1b08f5d72c922024c4c"
+  },
+  {
+    "path": "Tests/ExploreResearchTests.swift",
+    "sha256": "18aa423d2c2dff2ccd730339c88a51a8199df4651d5953cf2749add6aa93c68c"
+  },
+  {
+    "path": "Tests/Fixtures/shared-collector-MLB.json",
+    "sha256": "2fae5a0e97cee9b40004fcfc4093870b5a987ac9114efdf19e887fa46874b79c"
+  },
+  {
+    "path": "Tests/Fixtures/shared-collector-NBA.json",
+    "sha256": "c16415561e5f3ac6b5bceb9ea1d9e9f610e4689b93b60eb86ddd391575b7900e"
+  },
+  {
+    "path": "Tests/Fixtures/shared-collector-NFL.json",
+    "sha256": "4808444968950515f992ef8bf09576681b2f85799274bbf38b8f0cee2be16725"
+  },
+  {
+    "path": "Tests/Fixtures/shared-collector-NHL.json",
+    "sha256": "a780f1a98ff9dbe9521ba49473c469440b5d9ddbb8ecfe394dc55c1479d7f293"
+  },
+  {
+    "path": "Tests/FullGameModelTests.swift",
+    "sha256": "e855b042aa01a0be5bec46de9bd22ef94ca02508a5a3a4b26b31f24672594c49"
+  },
+  {
+    "path": "Tests/GemmaMatchupInsightsTests.swift",
+    "sha256": "e3d457ac487f0f90df73a84d6166eee5c1e41678ba1601bdbc21c713425b14cf"
+  },
+  {
+    "path": "Tests/HostedAskPLONNProviderTests.swift",
+    "sha256": "c28833859e98b6367e746cd98cf3151e785d88d5bbb0ba2b55bf02a3924daaca"
+  },
+  {
+    "path": "Tests/HotOddsTests.swift",
+    "sha256": "6499140c5bd9002c882e06e7d9f6d2f708d0c9bab505701311f6136876c77a30"
+  },
+  {
+    "path": "Tests/InterestsTests.swift",
+    "sha256": "c8dbb04299c3f7b5cdc23117e98fb58b23b1b6126f0a6722b44fa659afcfb7da"
+  },
+  {
+    "path": "Tests/LabCreationPolicyTests.swift",
+    "sha256": "d40c74e486c08b4c10e554e30a2d046e4eeea501f6f0c398aef1da678e26af3b"
+  },
+  {
+    "path": "Tests/LabHistoricalGamesTests.swift",
+    "sha256": "7629d4c105767d6b60d0ba6b10514a3683829ba718ea5dc670c7bc48aabd4f8c"
+  },
+  {
+    "path": "Tests/LabServiceContractTests.swift",
+    "sha256": "33b242287272e36f5e00b5d087028c5f9e27bf1c4f1bc2e4b7c7c547002cf29f"
+  },
+  {
+    "path": "Tests/LabSubmissionTests.swift",
+    "sha256": "fafb9114d98ba77cd542579ac2a5f7307fd85c217fdee28313e7b75fe6c504da"
+  },
+  {
+    "path": "Tests/LiveMatchupContextTests.swift",
+    "sha256": "b9dca8eaf2a7aa38deeb19213803e0350411eb1604c8ab3f4a2e4eeab669991f"
+  },
+  {
+    "path": "Tests/LocalAskPLONNProviderTests.swift",
+    "sha256": "631562545f29a67d36c2114ca1ddefb7ebf81762274f4be0dacd092ab42ceae5"
+  },
+  {
+    "path": "Tests/MarketQuoteSelectionTests.swift",
+    "sha256": "ea11fd7af5bf454379d327daaa3a90595d4b3611e671b2327caded0f23986915"
+  },
+  {
+    "path": "Tests/MatchupInsightGenerationStateTests.swift",
+    "sha256": "1f0ee462c7354240f5d63b575faef282b846d84c7717c7ad0ef28cc3ab508823"
+  },
+  {
+    "path": "Tests/MatchupInsightSourcesTests.swift",
+    "sha256": "f01a61e60a397865b2826bc9c711daa61dd31bc56031acb279998f6d6b9f4065"
+  },
+  {
+    "path": "Tests/MatchupInsightsTests.swift",
+    "sha256": "2e2f9fb2fe5becd4fc33b9a45a446df9b6f89b11e9f56c35c3b9314c3e843da8"
+  },
+  {
+    "path": "Tests/MatchupNarrativeClientTests.swift",
+    "sha256": "e65d58355698645de954e1dec69a33c82b3fa1e16f46d7b9d01ec1c802b66fb9"
+  },
+  {
+    "path": "Tests/MatchupNarrativePresentationTests.swift",
+    "sha256": "02983c081c38e152f144450c605eb458849a73a9debe17b1344425e72670766b"
+  },
+  {
+    "path": "Tests/MatchupNarrativePublishedTests.swift",
+    "sha256": "e80d172166211685227b71a766b8b84cdcf533d9cdb1fa67a9c1131722401080"
+  },
+  {
+    "path": "Tests/MatchupNarrativeV4Tests.swift",
+    "sha256": "16776cb21a2941ee1d2908305387779d4ddb4814b72d5e936ce1d578570ba14a"
+  },
+  {
+    "path": "Tests/MatchupNarrativeV5ActualTests.swift",
+    "sha256": "bc35a69d7f47e167c92127d139fa4546f590b00356b4f1d158acec29ac8e0b2c"
+  },
+  {
+    "path": "Tests/MatchupNarrativeV5IntegrationTests.swift",
+    "sha256": "3c62dd704f37c1f5963c69632e5053dfddc85c927afb49c671aa02e09d7dc150"
+  },
+  {
+    "path": "Tests/MatchupNarrativeV5Tests.swift",
+    "sha256": "ec0b613cbfeaef4b2e8c9d19dd65e26dd97272cb165ee82774fdfc2845e93b16"
+  },
+  {
+    "path": "Tests/MatchupOutlookPresentationTests.swift",
+    "sha256": "537539c63a95c3c359cdfc48ad87b36ce2c144127dd9cc98e84c25555cfd4614"
+  },
+  {
+    "path": "Tests/MatchupOutlookSelectionTests.swift",
+    "sha256": "44f83d62371dcba4686b9daa35227ea3eca4666fb6350be31f2541061415b1cd"
+  },
+  {
+    "path": "Tests/MatchupSimulationTests.swift",
+    "sha256": "63eec4060030f11557d8f312f168404b1464062b402ec7540e72fc31548d6c61"
+  },
+  {
+    "path": "Tests/MatchupSummaryValidationTests.swift",
+    "sha256": "893e103982d816f81046672e101bece182ad0e45835bcf44bbfaa0ae329debdc"
+  },
+  {
+    "path": "Tests/ModelSetupTests.swift",
+    "sha256": "dc17f031f0a58c1b2ee1d5a9ad621e9b7e053452b87b656dd450457efdf6fac1"
+  },
+  {
+    "path": "Tests/NBARecordedOddsRoutingTests.swift",
+    "sha256": "d7353d98a5613f4d4859ccf52e758322f89d105c5f3fb3eaf8497385bedc87bf"
+  },
+  {
+    "path": "Tests/NarrativeInjuryContextTests.swift",
+    "sha256": "00b8356de54cb1a5d3b2775320cdc6cda8519d2deef4953192c4477afd157d64"
+  },
+  {
+    "path": "Tests/NarrativeInjuryRoleContextTests.swift",
+    "sha256": "9cdc86e0471545b8105ebd19af4c2d1b162bf07f659ddc85ada31b93659f8d26"
+  },
+  {
+    "path": "Tests/NationalTeamTests.swift",
+    "sha256": "490c5a1be041e52cf7eb3abe9da5af9952387f1ff145780d186b0ee8755f8820"
+  },
+  {
+    "path": "Tests/OddsIssuePresentationTests.swift",
+    "sha256": "25624a0f3b2daea0f827ef4a8939a54f8ee2235da56200002d6c0311d63180d0"
+  },
+  {
+    "path": "Tests/OddsRefreshTests.swift",
+    "sha256": "d84c45f2f415ed8e9c665c6b4a8460986f63ab97da1051db4bf99e3fd0fefd4d"
+  },
+  {
+    "path": "Tests/OpponentPropHistoryTests.swift",
+    "sha256": "3507a3b4318342de715a9122ea0a6dc4f291758243440554eab8a99124e51d0d"
+  },
+  {
+    "path": "Tests/PLONNServicePolicyTests.swift",
+    "sha256": "4d4eafeffd02b0dd44c581f38c3949bfdab54483b41a5a6af7973bc47c06bcbb"
+  },
+  {
+    "path": "Tests/PlayerHistoryServiceTests.swift",
+    "sha256": "073f97a5c2356166d994b9491bbec6e52ca7c4d31fbedb24dc97acd94f48db8d"
+  },
+  {
+    "path": "Tests/PlayerMatchupCoreTests.swift",
+    "sha256": "286e542a3733ed5bec3048d2c2307eae4b0e99f2b9b8cf1d210880ae4697a0b3"
+  },
+  {
+    "path": "Tests/PlayerMatchupLineTests.swift",
+    "sha256": "2bddd39961fe4a3cc4342e974d696f4d73cc2370b0d38fbad99ac589a93a5dd5"
+  },
+  {
+    "path": "Tests/PlayerMatchupSourceTests.swift",
+    "sha256": "c861349811d5cee45095224ab17aa1e4e7d19c210f5f82c6318f5600f62c7e99"
+  },
+  {
+    "path": "Tests/PlayerSimulationTests.swift",
+    "sha256": "4e975d7ae48cbd5a3adad2f3df2a23ad887691a8ecdaff3da1758edabb07a85f"
+  },
+  {
+    "path": "Tests/ProbabilityTests.swift",
+    "sha256": "0bfc31f6542f7f36bdb371343445e6d3114b93cc414496e7cc2a9e1344b90cc9"
+  },
+  {
+    "path": "Tests/PropDistributionTests.swift",
+    "sha256": "563ac1bb2234da0f2ba778384a5a21084625255ab8d05f11709af6593d9c355c"
+  },
+  {
+    "path": "Tests/PublicHostedChatAcceptanceTests.swift",
+    "sha256": "5a6461f468945367141148ee2cf9c88201f2384d7ed9166d61723f5f42b96562"
+  },
+  {
+    "path": "Tests/REFERRAL-WORKFLOW.md",
+    "sha256": "d27ab3f5d1c04cd1212ea05a1401422dd1a66501b11fee835dc2b28b205b1eec"
+  },
+  {
+    "path": "Tests/RecordedEventSelectionTests.swift",
+    "sha256": "2610b97c9a7048d92149e6de2137eaeea179c7619336815d4ff21de63ec00646"
+  },
+  {
+    "path": "Tests/RecordedOddsSnapshotTests.swift",
+    "sha256": "c3310c2dec67d7c0910154d43ee4974c51cdf7333425e2d73bb531ef7f157542"
+  },
+  {
+    "path": "Tests/RecordedStartPolicyTests.swift",
+    "sha256": "6d26632ac641f660888dd55f8faa76c1aa0163b69937ee05996d611c2a01fd4c"
+  },
+  {
+    "path": "Tests/ReferralStateTests.swift",
+    "sha256": "7df7c6fa63ccec96079ca978a5aa3ec66f2796fe98d0d808dc0ece1ebeecff5d"
+  },
+  {
+    "path": "Tests/ReleasePresentationTests.swift",
+    "sha256": "40e6ecbedca243b72425025b2e5829bd4b24146378fa57947b6610de02a97e00"
+  },
+  {
+    "path": "Tests/ReplayPresentationTests.swift",
+    "sha256": "03d617c2aab45cd27676d5ad0ebac7d4a3d9c690bc2fd066870204d0cceb7893"
+  },
+  {
+    "path": "Tests/RepresentativeScenarioTests.swift",
+    "sha256": "9288b6a1888f10861acb8f43a8b0eb2eb82a95a0bdec5fa4c2a27f0e0e4a4646"
+  },
+  {
+    "path": "Tests/RichSportsContextTests.swift",
+    "sha256": "6e5329a0d72b3bc3fe193fb49c1276e348ceec0640117d3609817971feee93ce"
+  },
+  {
+    "path": "Tests/SharedMatchupDisplayClockTests.swift",
+    "sha256": "1a3aab88b0c5363c076dbf0a830bb01e0d40533422fc3874f544e3240f65649a"
+  },
+  {
+    "path": "Tests/SharedMatchupReportsTests.swift",
+    "sha256": "6e31683f05f25c55433891a826a70214a6b5f2f71c43c09e7f1f92536e753449"
+  },
+  {
+    "path": "Tests/SimulationForecastTests.swift",
+    "sha256": "43f578c673f03c243dad02d2f2dfaced5ba0f8c661e2f62b085057b29e7cf6e8"
+  },
+  {
+    "path": "Tests/SimulationHistoricalBacktestTests.swift",
+    "sha256": "31b1753e501906c744ff0030ee6c4d49fd57061b9e5227ddb2ea731451e18136"
+  },
+  {
+    "path": "Tests/SimulationLiveTests.swift",
+    "sha256": "610530c6a4d20d1d2d3e7fdabf94cc2294c1db37ff8841f443024b18ee0ea945"
+  },
+  {
+    "path": "Tests/SimulationMarketDiagnosticTests.swift",
+    "sha256": "48d615744086ae826a558677b7193bf936289ccf82b758574eb0c3bc205c2717"
+  },
+  {
+    "path": "Tests/SimulationRetrospectiveAuditTests.swift",
+    "sha256": "b2307ae95ffe7a162acf7ec0a72ab5030709b210ac9da7b504b0b83e8b004103"
+  },
+  {
+    "path": "Tests/SimulationScoringTests.swift",
+    "sha256": "3ff146a5e69c6e0be74b632d571c491dfe15d8712dcb40cbf153ad5ae0249839"
+  },
+  {
+    "path": "Tests/SocialAuthPolicyTests.swift",
+    "sha256": "78826d445c594cf4032c868f766527c307c741be69610fa11062cdb3046b399b"
+  },
+  {
+    "path": "Tests/SubjectBadgeInitialsTests.swift",
+    "sha256": "ed971792a73f09615ce6c91e9801a0f4c2eaecf0cfa08202e74874c7a587ad24"
+  },
+  {
+    "path": "Tests/UpcomingModelTests.swift",
+    "sha256": "697f4f4f8e568d7b02ffca0e0405b8ee9193c314b179ca68bbfe934817ab9f2d"
+  },
+  {
+    "path": "Tests/WatchlistTests.swift",
+    "sha256": "1dbe570b6aebccc72d7d3e59a722e8fb17a30b79e190ffe7eafac489dff76a0b"
+  },
+  {
+    "path": "Tests/run_odds_refresh.py",
+    "sha256": "fcdd4bd8d08a2a4c8209b22636a1a599e2e2d1a9fb6f2f366cc1651b3c69fb1a"
+  },
+  {
+    "path": "Tests/run_referrals.sh",
+    "sha256": "588a2b580bbd71b32db30806a31f12898a7103498979fb32fced1bfb4eaae689"
+  },
+  {
+    "path": "UITests/AskPLONNLocalUITests.swift",
+    "sha256": "e25db34afe99b7812f34cce0f323e43f4e8de7c27b98d45917cb77accb7630fb"
+  },
+  {
+    "path": "UITests/AskPLONNUITests.swift",
+    "sha256": "a0aa9126ad9e4bf92d4f5eeaa80a03a987ca6cc1097959b761eed33bb0f1956b"
+  },
+  {
+    "path": "UITests/ExploreStabilityUITests.swift",
+    "sha256": "463187e4870578c2886e6d4f6ff6b76cf045f9badded850eeff0d3ddaa414173"
+  },
+  {
+    "path": "UITests/PLONNUITests.swift",
+    "sha256": "d1cce1acc25c15d3372554802117595893863541c01cd59b3fec330fce29af64"
+  },
+  {
+    "path": "UITests/ProPaywallUITests.swift",
+    "sha256": "cac2f5f2843e17a632345046aff6a1bb8b776cced4f814e62dd98086e7a029c6"
+  },
+  {
+    "path": "UITests/SharedMatchupReportUITests.swift",
+    "sha256": "c266fa8688cb5f678796bfabe632d74478bb1d5eb3fc2d0a7e27585e3e24c382"
+  },
+  {
+    "path": "Package.swift",
+    "sha256": "582e742a04562ba1ccf3456729aad84bbf1d71fe34df0ba91734a9f3c158e525"
+  }
+]

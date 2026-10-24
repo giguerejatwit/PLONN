@@ -136,6 +136,26 @@ final class MatchupInsightSourcesTests: XCTestCase {
         XCTAssertNil(MatchupInsightSources.espn(team: "A", sport: "NBA", requestedYear: 2026,
             payload: payload([("gamesPlayed", 82), ("gamesPlayed", 81), ("avgPoints", 100)])))
     }
+    func testNFLScoringReconcilesRoundedRatesAgainstVerifiedTotals() throws {
+        let rates:[(String,Double)] = [("teamGamesPlayed",6),("totalPoints",136),
+            ("totalPointsPerGame",22.67),("totalPointsPerGame",22.667)]
+        for ordering in [rates,Array(rates.reversed())] {
+            let profile=try XCTUnwrap(MatchupInsightSources.espn(team:"Patriots",sport:"NFL",requestedYear:2026,
+                payload:payload(ordering,opponent:[("teamGamesPlayed",6),("totalPoints",113),("totalPointsPerGame",18.833)])))
+            XCTAssertEqual(try XCTUnwrap(profile.offense["totalPointsPerGame"]),136.0/6,accuracy:1e-9)
+            XCTAssertEqual(try XCTUnwrap(profile.allowed["totalPointsPerGame"]),113.0/6,accuracy:1e-9)
+        }
+        for conflict in [("totalPointsPerGame",22.68),("totalPointsPerGame",22.669),("totalPointsPerGame",Double.nan),
+                         ("totalPoints",137),("totalPoints",136.5)] {
+            let profile=MatchupInsightSources.espn(team:"Patriots",sport:"NFL",requestedYear:2026,
+                payload:payload(rates+[conflict,("rushingYardsPerGame",130.7)]))
+            XCTAssertNil(profile?.offense["totalPointsPerGame"],"A real conflict must still be rejected")
+            XCTAssertEqual(profile?.offense["rushingYardsPerGame"],130.7)
+        }
+        let noCount=MatchupInsightSources.espn(team:"Patriots",sport:"NFL",requestedYear:2026,
+            payload:payload(rates.filter{$0.0 != "totalPoints"}+[("rushingYardsPerGame",130.7)]))
+        XCTAssertNil(noCount?.offense["totalPointsPerGame"],"Rounding reconciliation requires a verified count")
+    }
     func testMLBPartialSidesAndSeasonValidation() {
         let batting: [String: Any] = ["season": "2026", "gamesPlayed": 162, "avg": ".250", "slg": ".410", "homeRuns": 200]
         let profile = MatchupInsightSources.mlb(team: "Mets", requestedYear: 2026, batting: batting, pitching: nil)

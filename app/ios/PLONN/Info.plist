@@ -29,6 +29,8 @@
 	<false/>
 	<key>PLONNIdentityLinkingReady</key>
 	<false/>
+	<key>PLONNSimulatorH2HDetailsEnabled</key>
+	<true/>
 	<key>PLONNNBAPreseasonCacheEnabled</key>
 	<true/>
 	<key>PLONNPublicPagesApproved</key>

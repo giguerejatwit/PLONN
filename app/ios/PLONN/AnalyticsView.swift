@@ -369,7 +369,6 @@ private struct AnalyticsResearchDetail: View {
    } label: {
     Label(builderStore.legs.contains {$0.id == quote.id} ? "Added to Builder":"Add to Builder",systemImage:builderStore.legs.contains {$0.id == quote.id} ? "checkmark":"plus")
    }.plonnGlassButton(prominent:builderStore.legs.contains {$0.id == quote.id})
-    .disabled(!builderStore.legs.contains {$0.id == quote.id} && builderStore.legs.count >= BuilderLogic.limit)
     .accessibilityHint(builderStore.legs.contains {$0.id == quote.id} ? "Remove this pick from Builder":"Add this pick to Builder")
     .accessibilityIdentifier("analytics-add-to-builder")
    if !builderNotice.isEmpty {Text(builderNotice).font(.caption).foregroundStyle(.secondary)}

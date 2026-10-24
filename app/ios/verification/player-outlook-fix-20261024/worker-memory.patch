@@ -1,0 +1,12 @@
+--- a/app/backend/local_lab/hosted.py
++++ b/app/backend/local_lab/hosted.py
+@@ -315,7 +315,8 @@
+ def execute(setup,root):
+     # Tokens and API credentials are intentionally absent from the child environment.
+     environment={k:v for k,v in os.environ.items() if k in ('PATH','SYSTEMROOT','SSL_CERT_FILE','SSL_CERT_DIR','LANG')}
+-    environment.update(PYTHONDONTWRITEBYTECODE='1',PLONN_HOSTED_CACHE=str(root/'public-cache'))
++    # Bound glibc thread arenas within the existing 512 MiB worker address-space limit.
++    environment.update(PYTHONDONTWRITEBYTECODE='1',PLONN_HOSTED_CACHE=str(root/'public-cache'), MALLOC_ARENA_MAX='2')
+     if 'PLONN_NFL_SEASONS' in os.environ:
+         environment['PLONN_NFL_SEASONS']=os.environ['PLONN_NFL_SEASONS']
+     try:

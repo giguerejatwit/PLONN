@@ -117,6 +117,9 @@ enum AnalyticsScopedOddsError:Error {
 @MainActor final class Store: ObservableObject {
  @Published var saved: [Market] = []
  @Published var legs: [Market] = [] {didSet {persistBuilderDraft()}}
+ @Published var savedParlays:[SavedBuilderParlay]=[] {didSet {persistParlays()}}
+ @Published var builderStake="" {didSet {persistParlays()}}
+ @Published private(set) var parlayStorageIssue=""
  @Published private(set) var builderDraftIssue=""
  @Published private(set) var builderDraftBlocked=false
  @Published var live: [Market] = []
@@ -126,6 +129,8 @@ enum AnalyticsScopedOddsError:Error {
  @AppStorage("backendURL") var backendURL = ""
  private let watchlist = WatchlistStorage<Market>(defaults: .standard)
  private let builderDraft = BuilderDraftStorage(defaults:.standard)
+ private let parlayStorage = BuilderParlayStorage(defaults:.standard)
+ @Published private(set) var parlayStorageBlocked=false
  private var builderOwner:UUID?
  private var requestVersion = 0
  private static let oddsCache = SharedOddsCache<OddsResponse>()
@@ -223,7 +228,8 @@ enum AnalyticsScopedOddsError:Error {
   }.removeDuplicates().sink { [weak self] owner in
    guard let self else {return}
    self.builderOwner=nil;self.builderDraftBlocked=false;self.builderDraftIssue=""
-   self.resetOdds();self.saved=[];self.legs=[]
+   self.resetOdds();self.saved=[];self.legs=[];self.savedParlays=[];self.builderStake=""
+   self.parlayStorageIssue="";self.parlayStorageBlocked=false
    if owner != nil {
     do {self.saved=try self.watchlist.load()}
     catch {self.status="Saved research could not be read. Try again in Settings."}
@@ -232,6 +238,10 @@ enum AnalyticsScopedOddsError:Error {
      self.legs=restored.legs;self.builderDraftIssue=restored.notices.joined(separator:"\n")
     } catch {self.builderDraftBlocked=true;self.builderDraftIssue="The saved draft could not be read. Reset it to resume saving."}
    }
+   if let owner {
+    do {let restored=try self.parlayStorage.load(owner:owner);self.savedParlays=restored.parlays;self.builderStake=restored.draftStake}
+    catch {self.parlayStorageBlocked=true;self.parlayStorageIssue="Saved parlays could not be read. Your saved data has been kept."}
+   }
    self.builderOwner=owner
   }
  }
@@ -239,13 +249,29 @@ enum AnalyticsScopedOddsError:Error {
   guard builderOwner != nil,!builderDraftBlocked else{return}
   do {try builderDraft.save(legs)} catch {builderDraftIssue="Draft could not be saved on this device. Your current picks remain available."}
  }
+ private func persistParlays() {
+  guard let owner=builderOwner,!parlayStorageBlocked else{return}
+  do {try parlayStorage.save(.init(parlays:savedParlays,draftStake:builderStake),owner:owner);parlayStorageIssue=""}
+  catch {parlayStorageIssue="Parlays could not be saved on this device. Your current picks remain available."}
+ }
+ func saveParlay() {
+  guard observedAccount?.hasSignedInAccount == true,let owner=builderOwner,!parlayStorageBlocked,
+        !legs.isEmpty,!builderDraftBlocked else{return}
+  let parlay=SavedBuilderParlay(id:UUID(),name:"Parlay \(savedParlays.count+1)",createdAt:Date(),legs:legs,stake:builderStake)
+  let next=[parlay]+savedParlays
+  // Save before clearing the draft so a write failure cannot lose selections.
+  do {try parlayStorage.save(.init(parlays:next,draftStake:""),owner:owner)}
+  catch {parlayStorageIssue="This parlay could not be saved. Your draft is still here.";return}
+  savedParlays=next;builderStake="";legs=[]
+ }
+ func removeParlay(_ id:UUID) {guard observedAccount?.hasSignedInAccount == true else{return};savedParlays.removeAll{$0.id==id}}
  func resetBuilderDraft() {
   guard observedAccount?.hasSignedInAccount == true else{return}
   builderDraft.clear();builderDraftBlocked=false;builderDraftIssue="";persistBuilderDraft()
  }
  func clearBuilderDraft() {
   guard observedAccount?.hasSignedInAccount == true else{return}
-  builderDraftBlocked=false;builderDraftIssue="";legs=[]
+  builderDraftBlocked=false;builderDraftIssue="";legs=[];builderStake=""
  }
  func toggleSave(_ m:Market){
   guard let account=observedAccount else{return}
@@ -267,8 +293,7 @@ enum AnalyticsScopedOddsError:Error {
   guard let account=observedAccount else{return}
   account.access.require(.savedResearch,ownerID:account.user?.id,isAnonymous:account.user?.isAnonymous) { [weak self,weak account] in
    guard let self,account?.hasSignedInAccount == true,!self.legs.contains(where:{$0.id==m.id}) else{return}
-   guard self.legs.count<8 else{self.status="Maximum of eight selections.";return}
-   guard self.legs.first?.mode==nil || self.legs.first?.mode==m.mode else{self.status="Sample and live selections cannot be combined.";return}
+   if let reason=BuilderLogic.rejection(for:m,existing:self.legs) {self.status=reason;return}
    self.legs.append(m)
   }
  }
@@ -319,9 +344,7 @@ enum AnalyticsScopedOddsError:Error {
    var receivedAt=Self.recordedQuoteTime(slate.value) ?? (cachedOnly ? nil:slate.value.fetchedAt.flatMap(sportsDate) ?? slate.receivedAt)
    if let home,let away,let start {
     guard let target=sportsDate(start) else { throw URLError(.badURL) }
-    let matching=markets.filter { market in
-     Self.matchesRecordedEvent(market,sport:sport,home:home,away:away,start:target,candidates:markets)
-    }
+    let matching=Self.recordedEventMarkets(markets,sport:sport,home:home,away:away,start:target)
     next=matching
     let metadata=RecordedEventSelection.select(slate.value.events ?? [],sport:sport,phase:phase,home:home,away:away,start:target,now:Date())
     let marketEvents=Set(matching.map(\.event))
@@ -332,7 +355,7 @@ enum AnalyticsScopedOddsError:Error {
      do {
       let detail=try await Self.oddsCache.fetch(key,force:forceRefresh) { try await Self.fetchOdds(key,account:account) }
       guard current() else { return }
-      next=matching.filter { $0.kind != "prop" } + detail.value.markets.filter { $0.event == event && $0.kind == "prop" && Self.matchesRecordedEvent($0,sport:sport,home:home,away:away,start:target,candidates:markets,metadataCandidates:selectedStarts) }
+      next=matching.filter { $0.kind != "prop" } + Self.recordedEventMarkets(detail.value.markets,sport:sport,home:home,away:away,start:target,metadataCandidates:selectedStarts).filter { $0.event == event && $0.kind == "prop" }
       message=detail.value.message
       stale = stale || detail.value.stale == true || detail.value.cacheOnly == true
       cachedOnly = cachedOnly || detail.value.cacheOnly == true
@@ -342,7 +365,7 @@ enum AnalyticsScopedOddsError:Error {
       guard current() else { return }
       if Self.isAuthorizationFailure(error) { throw error }
       let previous=Self.oddsCache.cached(key)
-      let props=(previous?.value.markets ?? live).filter { $0.event == event && $0.kind == "prop" && Self.matchesRecordedEvent($0,sport:sport,home:home,away:away,start:target,candidates:markets,metadataCandidates:selectedStarts) }
+      let props=Self.recordedEventMarkets(previous?.value.markets ?? live,sport:sport,home:home,away:away,start:target,metadataCandidates:selectedStarts).filter { $0.event == event && $0.kind == "prop" }
       next=matching.filter { $0.kind != "prop" } + props
       stale=true
       if !props.isEmpty, let previous, let time=Self.recordedQuoteTime(previous.value) ?? (previous.value.cacheOnly == true ? nil:previous.value.fetchedAt.flatMap(sportsDate) ?? previous.receivedAt) {receivedAt=receivedAt.map{min($0,time)} ?? time}
@@ -375,16 +398,23 @@ enum AnalyticsScopedOddsError:Error {
   }
  }
  /// Require the complete provider team pair and scheduled instant; never substring-match teams.
+ static func recordedEventMarkets(_ markets:[Market],sport:String,home:String,away:String,start:Date,metadataCandidates:[(String,Date)] = [],now:Date = Date())->[Market] {
+  let label=RecordedTeamIdentity.key(away+" at "+home)
+  let pair=markets.filter {$0.sport == sport && $0.mode == "live" && RecordedTeamIdentity.key($0.eventLabel ?? "") == label}
+  let starts=pair.compactMap { row -> (String,Date)? in row.commence.flatMap(sportsDate).map{(row.event,$0)} } + metadataCandidates
+  // Resolve pair candidates once for a full prop response, not once per quote.
+  let unique=Dictionary(grouping:starts,by:{$0.0}).flatMap { _,rows in Set(rows.map{$0.1}).map{(rows[0].0,$0)} }
+  return pair.filter {matchesRecordedEvent($0,sport:sport,home:home,away:away,start:start,metadataCandidates:unique,now:now)}
+ }
  static func matchesRecordedEvent(_ market:Market,sport:String,home:String,away:String,start:Date,candidates:[Market] = [],metadataCandidates:[(String,Date)] = [],now:Date = Date()) -> Bool {
   func key(_ value:String)->String { RecordedTeamIdentity.key(value) }
   guard start > now, market.sport == sport, market.mode == "live", !market.event.isEmpty,
         !key(home).isEmpty, !key(away).isEmpty, key(home) != key(away),
         let label=market.eventLabel, key(label)==key(away+" at "+home),
         let quoteStart=market.commence.flatMap(sportsDate) else {return false}
-  // Only NHL needs the full candidate set for its unique-event time tolerance.
-  // Other sports use the exact scheduled instant; rescanning every quote here
-  // made a matchup filter quadratic on the main thread.
-  if sport != "NHL" {
+  // Keep exact matches fast. NBA tip-off and NHL puck-drop differences require
+  // the complete exact-team-pair candidate set before allowing a time tolerance.
+  if sport != "NHL" && (sport != "NBA" || abs(start.timeIntervalSince(quoteStart)) <= 1) {
    return RecordedStartPolicy.accepts(eventID:market.event,quoteStart:quoteStart,start:start,sport:sport,candidates:[],now:now)
   }
   let pair=candidates.filter {$0.sport == sport && $0.mode == "live" && !$0.event.isEmpty && key($0.eventLabel ?? "") == key(away+" at "+home)}.compactMap {row -> (String,Date)? in
@@ -497,7 +527,7 @@ enum AnalyticsScopedOddsError:Error {
  if LocalStoreKitLab.active {return}
  #endif
  #if DEBUG && targetEnvironment(simulator)
- if ProcessInfo.processInfo.environment["PLONN_PRO_PREVIEW"] == "1" || MatchupOfflineFixture.active || SharedReportOfflineFixture.active || LabGamePickerFixture.active {return}
+ if SimulationLiveDemo.active || ProcessInfo.processInfo.environment["PLONN_PRO_PREVIEW"] == "1" || MatchupOfflineFixture.active || SharedReportOfflineFixture.active || LabGamePickerFixture.active {return}
  #endif
  await account.observe() }.onOpenURL { url in Task { await account.handleLoginURL(url) } }.preferredColorScheme(.dark).tint(brandAccent)}} }
 extension PLONNApp {
@@ -505,7 +535,7 @@ extension PLONNApp {
   #if DEBUG && targetEnvironment(simulator) && PLONN_STOREKIT_LAB
   LocalStoreKitLabView()
   #elseif DEBUG && targetEnvironment(simulator)
-  if ProcessInfo.processInfo.environment["PLONN_PRO_PREVIEW"] == "1" {NavigationStack {ProPaywallView()}} else if LabGamePickerFixture.active {LabGamePickerFixtureView()} else if LiveMatchupPreview.active {LiveMatchupPreviewView()} else if SharedReportOfflineFixture.active {SharedReportOfflineFixtureView()} else if MatchupOfflineFixture.active {MatchupOfflineFixtureView()} else {PreviewAccessView()}
+  if SimulationLiveDemo.active { SimulationLiveDemo() } else if ProcessInfo.processInfo.environment["PLONN_PRO_PREVIEW"] == "1" {NavigationStack {ProPaywallView()}} else if LabGamePickerFixture.active {LabGamePickerFixtureView()} else if LiveMatchupPreview.active {LiveMatchupPreviewView()} else if SharedReportOfflineFixture.active {SharedReportOfflineFixtureView()} else if MatchupOfflineFixture.active {MatchupOfflineFixtureView()} else {PreviewAccessView()}
   #else
   PreviewAccessView()
   #endif
@@ -573,6 +603,8 @@ struct LaunchExperience: View {
 }
 struct RootView: View {
  @State private var selectedTab="Games"
+ @State private var showingBuilder=false
+ @State private var builderDetent:PresentationDetent = .large
  @EnvironmentObject private var account:AccountStore
  @EnvironmentObject private var purchases:PurchaseStore
  @EnvironmentObject private var store:Store
@@ -607,27 +639,11 @@ struct RootView: View {
  }
  var body: some View {
   TabView(selection:$selectedTab) {
-   NavigationStack { TodayView() }.tabItem { Label("Games",systemImage:"calendar") }.tag("Games")
-   ExploreView().safeAreaInset(edge:.bottom,spacing:8) {
-    if account.hasSignedInAccount,!store.legs.isEmpty {
-     Button {selectedTab="Builder"} label: {
-      HStack(spacing:12) {
-       Image(systemName:"square.stack.3d.up.fill")
-       Text("\(store.legs.count) \(store.legs.count == 1 ? "pick":"picks")").monospacedDigit()
-       Spacer()
-       Text("View Builder").fontWeight(.semibold)
-       Image(systemName:"arrow.right")
-      }.font(.subheadline).foregroundStyle(.white).padding(.horizontal,18).frame(minHeight:54)
-       .background(PLONNPalette.gradient.opacity(0.3),in:Capsule())
-       .plonnGlassSurface(selected:true,radius:28)
-     }.buttonStyle(.plain).padding(.horizontal,16).padding(.bottom,4)
-      .accessibilityIdentifier("analytics-builder-bar")
-      .accessibilityLabel("View Builder, \(store.legs.count) picks")
-    }
-   }.tabItem { Label("Analytics",systemImage:"chart.xyaxis.line") }.tag("Analytics")
-   NavigationStack { AILabView() }.id("Models|"+(account.user?.id.uuidString ?? "guest")).tint(brandAccent).tabItem { Label("Models",systemImage:"flask") }.tag("Models")
-   NavigationStack { AskPLONNView() }.id("LLM|"+(account.user?.id.uuidString ?? "guest")).tabItem { Label("Ask PLONN",systemImage:"bubble.left.and.bubble.right") }.tag("LLM")
-   BuilderView(openAnalytics:{selectedTab="Analytics"}).id("Builder|"+(account.user?.id.uuidString ?? "guest")).tint(brandAccent).tabItem { Label("Builder",systemImage:"square.stack.3d.up") }.tag("Builder")
+   NavigationStack { TodayView() }.safeAreaInset(edge:.bottom,spacing:builderBarVisible ? 8:0) {builderBar}.tabItem { Label("Games",systemImage:"calendar") }.tag("Games")
+   ExploreView().safeAreaInset(edge:.bottom,spacing:builderBarVisible ? 8:0) {builderBar}.tabItem { Label("Analytics",systemImage:"chart.xyaxis.line") }.tag("Analytics")
+   NavigationStack { AILabView() }.id("Models|"+(account.user?.id.uuidString ?? "guest")).safeAreaInset(edge:.bottom,spacing:builderBarVisible ? 8:0) {builderBar}.tint(brandAccent).tabItem { Label("Models",systemImage:"flask") }.tag("Models")
+   NavigationStack { AskPLONNView() }.id("LLM|"+(account.user?.id.uuidString ?? "guest")).safeAreaInset(edge:.bottom,spacing:builderBarVisible ? 8:0) {builderBar}.tabItem { Label("Ask PLONN",systemImage:"bubble.left.and.bubble.right") }.tag("LLM")
+   NavigationStack { SimulatorView(active:selectedTab == "Simulator" && !showingBuilder) }.safeAreaInset(edge:.bottom,spacing:builderBarVisible ? 8:0) {builderBar}.tabItem {Label("Simulator",systemImage:"sportscourt")}.tag("Simulator")
   }
   .tint(brandAccent)
   .onReceive(NotificationCenter.default.publisher(for:Notification.Name("PLONNOpenAnalytics"))) {_ in selectedTab="Analytics"}
@@ -637,8 +653,32 @@ struct RootView: View {
   .sheet(item:$purchases.purchaseRequest) {request in
    NavigationStack {ProPaywallView(initialProductID:request.productID)}.tint(brandAccent)
   }
+  .sheet(isPresented:$showingBuilder) {
+   BuilderView(openAnalytics:{showingBuilder=false;selectedTab="Analytics"})
+    .presentationDetents([.medium,.large],selection:$builderDetent).presentationDragIndicator(.visible).presentationCornerRadius(28)
+    .tint(brandAccent)
+  }
+  .onChange(of:account.user?.id) {_,_ in showingBuilder=false}
   .onChange(of:scenePhase) {_,phase in if phase == .active {Task {await purchases.refreshEntitlements()}}}
   .task {store.bindAccount(account)}
+ }
+ private var builderBarVisible:Bool {
+  account.hasSignedInAccount && (!store.legs.isEmpty || !store.savedParlays.isEmpty)
+ }
+ @ViewBuilder private var builderBar:some View {
+  if builderBarVisible {
+   Button {builderDetent = .large;showingBuilder=true} label: {
+    HStack(spacing:10) {
+     Image(systemName:"square.stack.3d.up.fill")
+     Text("Builder").fontWeight(.semibold)
+     Spacer()
+     Text(store.legs.isEmpty ? "\(store.savedParlays.count) saved" : "\(store.legs.count) \(store.legs.count == 1 ? "pick":"picks")").monospacedDigit()
+     Image(systemName:"chevron.up").font(.caption.bold())
+    }.font(.subheadline).foregroundStyle(.primary).padding(.horizontal,18).frame(minHeight:50)
+     .background(PLONNPalette.gradient.opacity(0.18),in:Capsule()).plonnGlassSurface(selected:true,radius:28)
+   }.buttonStyle(.plain).padding(.horizontal,16).padding(.bottom,4)
+    .accessibilityIdentifier("builder-bar").accessibilityLabel("Open Builder, \(store.legs.count) picks, \(store.savedParlays.count) saved parlays")
+  }
  }
 }
 
@@ -803,6 +843,9 @@ struct BuilderView: View {
  let openAnalytics:()->Void
  @EnvironmentObject private var account:AccountStore
  @EnvironmentObject private var store:Store
+ @Environment(\.dismiss) private var dismiss
+ @State private var expandedParlays:Set<UUID>=[]
+ @State private var deletingParlay:SavedBuilderParlay?
  private var notice:String {store.builderDraftIssue}
  @State private var confirmClear=false
  var body:some View {AccountRequiredView(feature:.savedResearch){protectedBody}}
@@ -813,7 +856,7 @@ struct BuilderView: View {
      HStack(alignment:.firstTextBaseline) {
       Text("Builder").font(.system(.title2,design:.monospaced,weight:.semibold))
       Spacer()
-      Text("\(store.legs.count)/8 legs").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)
+      Text("\(store.legs.count) picks").font(.system(.caption,design:.monospaced)).foregroundStyle(.secondary)
      }
      if !notice.isEmpty {
       Label(notice,systemImage:"info.circle").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary).accessibilityIdentifier("builder-notice")
@@ -821,19 +864,33 @@ struct BuilderView: View {
      if store.builderDraftBlocked {
       Button("Reset unreadable saved draft",role:.destructive) {store.resetBuilderDraft()}
      }
-     if store.legs.isEmpty { emptyState }
+     if !store.parlayStorageIssue.isEmpty {Text(store.parlayStorageIssue).font(.caption).foregroundStyle(.orange)}
+     ForEach(store.savedParlays) {parlay in savedParlayCard(parlay)}
+     if store.legs.isEmpty {
+      if store.savedParlays.isEmpty {emptyState}
+      else {Button(action:openAnalytics) {Label("New parlay",systemImage:"plus").frame(maxWidth:.infinity,minHeight:44)}.plonnGlassButton(prominent:true).accessibilityIdentifier("builder-open-analytics")}
+     }
      else {
+      HStack {
+       Text("Current parlay").font(.headline)
+       Spacer()
+       Button {store.saveParlay()} label: {Label("Save",systemImage:"square.stack.3d.up").frame(minHeight:28)}
+        .plonnGlassButton(prominent:true).disabled(store.builderDraftBlocked || store.parlayStorageBlocked)
+        .accessibilityIdentifier("builder-save-parlay")
+      }
       TimelineView(.periodic(from:.now,by:30)) { context in
        VStack(alignment:.leading,spacing:14) {
-        BuilderPricePanel(legs:store.legs,now:context.date)
-        ForEach(store.legs) { market in
-         BuilderLegCard(market:market,now:context.date) {store.legs.removeAll{$0.id==market.id}}
+        BuilderPricePanel(stakeText:Binding(get:{store.builderStake},set:{store.builderStake=String($0.prefix(40))}),legs:store.legs,now:context.date)
+        LazyVStack(spacing:0) {
+         ForEach(store.legs) { market in
+          BuilderLegRow(market:market,remove:{store.legs.removeAll{$0.id==market.id}})
+         }
         }
        }
       }
       HStack(spacing:12) {
        Button(action:openAnalytics) {Label("Add picks",systemImage:"plus").frame(minHeight:44)}
-        .plonnGlassButton().disabled(store.legs.count>=BuilderLogic.limit).accessibilityIdentifier("builder-open-analytics")
+        .plonnGlassButton().accessibilityIdentifier("builder-open-analytics")
        Spacer(minLength:0)
        Button("Clear draft",role:.destructive) {confirmClear=true}.frame(minHeight:44)
       }
@@ -841,79 +898,77 @@ struct BuilderView: View {
        .font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
      }
     }.padding(16)
-   }.scrollDismissesKeyboard(.interactively).background(LeagueBackdrop(league:"All")).navigationTitle("PLONN").navigationBarTitleDisplayMode(.inline).toolbar { ToolbarItem(placement:.principal) {Brand()} }
+   }.scrollDismissesKeyboard(.interactively).background(LeagueBackdrop(league:"All")).navigationTitle("PLONN").navigationBarTitleDisplayMode(.inline).toolbar {
+    ToolbarItem(placement:.principal) {Brand()}
+    ToolbarItem(placement:.confirmationAction) {Button("Done") {dismiss()}.accessibilityIdentifier("builder-close")}
+   }
     .confirmationDialog("Clear all selections and the local draft?",isPresented:$confirmClear,titleVisibility:.visible) {
      Button("Clear draft",role:.destructive) {store.clearBuilderDraft()}
     }
+    .confirmationDialog("Remove this saved parlay?",isPresented:Binding(get:{deletingParlay != nil},set:{if !$0 {deletingParlay=nil}}),titleVisibility:.visible) {
+     Button("Remove parlay",role:.destructive) {if let value=deletingParlay {store.removeParlay(value.id)};deletingParlay=nil}
+    }
   }
+ }
+ private func savedParlayCard(_ parlay:SavedBuilderParlay)->some View {
+  DisclosureGroup(isExpanded:Binding(get:{expandedParlays.contains(parlay.id)},set:{if $0 {expandedParlays.insert(parlay.id)} else {expandedParlays.remove(parlay.id)}})) {
+   TimelineView(.periodic(from:.now,by:30)) { context in
+    VStack(spacing:12) {
+     BuilderPricePanel(stakeText:Binding(get:{store.savedParlays.first{$0.id==parlay.id}?.stake ?? ""},set:{stake in if let index=store.savedParlays.firstIndex(where:{$0.id==parlay.id}) {store.savedParlays[index].stake=String(stake.prefix(40))}}),legs:parlay.legs,now:context.date)
+     LazyVStack(spacing:0) {ForEach(parlay.legs) {market in BuilderLegRow(market:market)}}
+     Button("Remove parlay",role:.destructive) {deletingParlay=parlay}.frame(maxWidth:.infinity,minHeight:44)
+    }.padding(.top,12)
+   }
+  } label: {
+   HStack(spacing:12) {
+    Image(systemName:"square.stack.3d.up").foregroundStyle(brandAccent)
+    VStack(alignment:.leading,spacing:5) {Text(parlay.name).font(.headline);Text("\(parlay.legs.count) picks · "+parlay.createdAt.formatted(date:.abbreviated,time:.omitted)).font(.caption).foregroundStyle(.secondary)}
+    Spacer()
+   }.padding(.vertical,6)
+  }.padding(16).background(navySurface,in:RoundedRectangle(cornerRadius:20))
+   .overlay(RoundedRectangle(cornerRadius:20).strokeBorder(PLONNPalette.highlight.opacity(0.16),lineWidth:1))
+   .accessibilityIdentifier("builder-saved-parlay")
  }
  private var emptyState:some View {
   VStack(alignment:.leading,spacing:16) {
    Image(systemName:"square.stack").font(.system(size:30,weight:.light,design:.monospaced)).foregroundStyle(.secondary)
    Text("Build your parlay").font(.system(.title3,design:.monospaced,weight:.semibold))
-   Text("Add picks from Analytics to see combined odds and your potential return.")
+   Text("Add picks from Analytics or Simulator to see combined odds and your potential return.")
     .font(.system(.subheadline, design: .monospaced)).foregroundStyle(.secondary)
    Button(action:openAnalytics) {Label("Find picks in Analytics",systemImage:"plus").frame(maxWidth:.infinity,minHeight:44)}
     .plonnGlassButton(prominent:true).foregroundStyle(.primary).accessibilityIdentifier("builder-open-analytics")
   }.padding(20).frame(maxWidth:.infinity,alignment:.leading).background(navySurface,in:RoundedRectangle(cornerRadius:18))
  }
 }
-private struct BuilderLegCard:View {
+private struct BuilderLegRow:View {
  @AppStorage("oddsFormat") private var oddsFormat="american"
  let market:Market
- let now:Date
- let remove:()->Void
- private var modelText:String {
-  guard let p=market.p,p.isFinite,p>0,p<1 else{return "Model estimate unavailable"}
-  if market.mode == "demo" {return "Illustrative model: "+probability(p)}
-  guard market.modelValidated == true,let version=market.modelVersion,!version.isEmpty,
-        let updated=market.modelUpdated.flatMap(sportsDate),(0...120).contains(now.timeIntervalSince(updated)) else{return "Current model estimate unavailable"}
-  return "Model estimate: "+probability(p)+" · "+version
- }
+ var remove:(()->Void)? = nil
  var body:some View {
-  VStack(alignment:.leading,spacing:12) {
+  VStack(spacing:0) {
    HStack(spacing:8) {
-    Text(market.sport+" · "+(market.mode == "demo" ? "SAMPLE":"SNAPSHOT"))
-     .font(.system(.caption2,design:.monospaced,weight:.semibold)).foregroundStyle(.secondary)
-    Spacer()
-    Button(action:remove) {Image(systemName:"xmark").font(.system(.caption, design: .monospaced).weight(.semibold)).frame(width:44,height:44)}
-     .plonnGlassButton().accessibilityLabel("Remove "+market.name+" "+market.label)
-   }
-   NavigationLink {DetailView(m:market)} label: {
-    HStack(alignment:.top,spacing:12) {
-     ExploreIdentity(m:market).accessibilityHidden(true)
-     VStack(alignment:.leading,spacing:6) {
-      Text(market.name).font(.system(.headline,design:.monospaced))
-      Text(market.label).font(.system(.subheadline,design:.monospaced,weight:.semibold))
-      Text(market.eventLabel ?? "vs "+market.opponent).font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-     }.frame(maxWidth:.infinity,alignment:.leading)
-     Image(systemName:"chevron.right").font(.system(.caption, design: .monospaced)).foregroundStyle(.secondary)
-    }.contentShape(Rectangle())
-   }.buttonStyle(.plain).accessibilityHint("Opens the original selection analysis")
-   HStack(alignment:.top) {
-    VStack(alignment:.leading,spacing:4) {
-     Text(market.book.isEmpty ? "Book unavailable":market.book).font(.system(.caption, design: .monospaced).weight(.semibold))
-     Text(BuilderLogic.quoteAge(market,now:now).label).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
-     if market.mode != "demo",let time=market.updated.flatMap(sportsDate) {
-      Text(time.formatted(date:.abbreviated,time:.shortened)).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)
-     }
-    }.frame(maxWidth:.infinity,alignment:.leading)
-    VStack(alignment:.trailing,spacing:4) {
-     Text(BuilderLogic.decimalOdds(market.price) == nil ? "—":odds(market.price))
-      .accessibilityLabel((oddsFormat == "decimal" ? "Decimal odds: ":"American odds: ") + (BuilderLogic.decimalOdds(market.price) == nil ? "Unavailable":odds(market.price)))
-      .font(.system(.title3,design:.monospaced,weight:.semibold)).monospacedDigit()
-     Text(BuilderLogic.decimalOdds(market.price).map{String(format:"%.3f decimal",$0)} ?? "Price unavailable")
-      .font(.system(.caption2,design:.monospaced)).foregroundStyle(.secondary)
+    NavigationLink {DetailView(m:market)} label: {
+     HStack(spacing:12) {
+      VStack(alignment:.leading,spacing:3) {
+       Text(market.name).font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
+       Text(market.label).font(.caption).foregroundStyle(.secondary)
+      }.frame(maxWidth:.infinity,alignment:.leading)
+      Text(BuilderLogic.decimalOdds(market.price) == nil ? "—":odds(market.price))
+       .font(.subheadline.weight(.semibold)).monospacedDigit().foregroundStyle(brandAccent)
+     }.frame(minHeight:44).contentShape(Rectangle())
+    }.buttonStyle(.plain).accessibilityHint("View sportsbook, timestamp and selection details")
+    if let remove {
+     Button(action:remove) {Image(systemName:"xmark").font(.caption).frame(width:28,height:28)}
+      .plonnGlassButton().accessibilityLabel("Remove "+market.name+" "+market.label)
     }
-   }
-   if market.p != nil {Text(modelText).font(.system(.caption2, design: .monospaced)).foregroundStyle(.secondary)}
-  }.padding(14).background(ExploreTeamSurface(m:market))
+   }.padding(.vertical,6)
+   Divider().opacity(0.3)
+  }.accessibilityIdentifier("builder-pick-"+market.id)
  }
 }
 private struct BuilderPricePanel:View {
  @AppStorage("oddsFormat") private var oddsFormat="american"
- @State private var stakeText=""
- @FocusState private var stakeFocused:Bool
+ @Binding var stakeText:String
  let legs:[Market]
  let now:Date
  private func money(_ value:Double)->String {value.formatted(.currency(code:"USD"))}
@@ -935,13 +990,12 @@ private struct BuilderPricePanel:View {
     Text("Estimate from recorded prices · Confirm the final quote at your sportsbook.").font(.caption2).foregroundStyle(.secondary)
    } else {
     Text("Combined odds unavailable").font(.headline)
-    Text(result.blockingReason ?? "Review your picks.").font(.caption).foregroundStyle(.secondary)
    }
    HStack {
     Text("Stake").font(.subheadline)
     Spacer()
     Text("$").foregroundStyle(.secondary)
-    TextField("0.00",text:$stakeText).keyboardType(.decimalPad).focused($stakeFocused)
+    TextField("0.00",text:$stakeText).keyboardType(.decimalPad)
      .multilineTextAlignment(.trailing).frame(width:120).frame(minHeight:44)
      .accessibilityLabel("Stake in US dollars").accessibilityIdentifier("builder-stake")
    }.padding(.horizontal,12).plonnGlassSurface(radius:12,interactive:false)
@@ -967,7 +1021,6 @@ private struct BuilderPricePanel:View {
    }
    if result.mixedBooks {Text("Picks use different sportsbooks.").font(.caption).foregroundStyle(.orange)}
   }.padding(16).frame(maxWidth:.infinity,alignment:.leading).background(navySurface,in:RoundedRectangle(cornerRadius:16))
-   .toolbar {ToolbarItemGroup(placement:.keyboard) {Spacer();Button("Done") {stakeFocused=false}}}
  }
 }
 

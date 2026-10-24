@@ -18,6 +18,18 @@ private final class HistoryTestClock: @unchecked Sendable {
 }
 
 final class PlayerHistoryServiceTests: XCTestCase {
+    func testAvailabilityRefreshBypassesWarmCacheButSharesConcurrentFlight() async throws {
+        let counter = HistoryReadCounter(), url = URL(string: "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries")!
+        let service = PlayerHistoryService(transport: { try await counter.read($0) })
+        _ = try await service.read(url); _ = try await service.read(url)
+        let cachedCount = await counter.count(url); XCTAssertEqual(cachedCount, 1)
+        async let first = service.read(url, refresh: true)
+        async let second = service.read(url, refresh: true)
+        _ = try await (first, second)
+        let refreshedCount = await counter.count(url); XCTAssertEqual(refreshedCount, 2)
+        _ = try await service.read(url)
+        let finalCount = await counter.count(url); XCTAssertEqual(finalCount, 2)
+    }
     private let cutoff = sportsDate("2026-10-06T00:00:00Z")!
     private func event(_ id: String, sport: String = "NFL", day: String = "2026-09-01T20:00:00Z", opponent: String = "2") -> [String: Any] {
         ["id": id, "gameDate": day, "leagueAbbreviation": sport, "homeTeamId": "1", "awayTeamId": opponent,

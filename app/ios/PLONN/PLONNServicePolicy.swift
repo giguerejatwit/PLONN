@@ -101,14 +101,15 @@ enum RecordedTeamIdentity {
  }
 }
 
-/// Provider puck-drop estimates may differ from the scoreboard by up to ten minutes.
+/// Provider tip-off / puck-drop estimates may differ from the schedule by ten minutes.
 /// Resolve only one exact-pair event; never select between ambiguous provider events.
 enum RecordedStartPolicy {
  static func accepts(eventID:String,quoteStart:Date,start:Date,sport:String,candidates:[(String,Date)],now:Date,includeStarted:Bool=false)->Bool {
-  guard sport == "NHL" else{return abs(start.timeIntervalSince(quoteStart)) <= 1}
+  let exact = abs(start.timeIntervalSince(quoteStart)) <= 1
+  guard sport == "NHL" || (sport == "NBA" && !exact) else{return exact}
   guard includeStarted || start > now else{return false}
   var utc=Calendar(identifier:.gregorian);utc.timeZone=TimeZone(secondsFromGMT:0)!
-  func eligible(_ date:Date)->Bool {utc.isDate(start,inSameDayAs:date) && abs(start.timeIntervalSince(date)) <= 600}
+  func eligible(_ date:Date)->Bool {(includeStarted || date > now) && utc.isDate(start,inSameDayAs:date) && abs(start.timeIntervalSince(date)) <= 600}
   let ids=Set(candidates.filter{eligible($0.1)}.map{$0.0})
   return eligible(quoteStart) && ids.count == 1 && ids.contains(eventID)
  }
